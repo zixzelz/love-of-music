@@ -12,6 +12,23 @@
 		448A979F20C6B9030004667E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 448A979D20C6B9030004667E /* Main.storyboard */; };
 		448A97A120C6B9050004667E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 448A97A020C6B9050004667E /* Assets.xcassets */; };
 		448A97A420C6B9050004667E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 448A97A220C6B9050004667E /* LaunchScreen.storyboard */; };
+		448A97BE20C6B9480004667E /* FetchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97AC20C6B9480004667E /* FetchResult.swift */; };
+		448A97BF20C6B9480004667E /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97AD20C6B9480004667E /* NetworkService.swift */; };
+		448A97C020C6B9480004667E /* ManagedObjectType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97AF20C6B9480004667E /* ManagedObjectType.swift */; };
+		448A97C120C6B9480004667E /* Parsable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97B020C6B9480004667E /* Parsable.swift */; };
+		448A97C220C6B9480004667E /* ModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97B120C6B9480004667E /* ModelType.swift */; };
+		448A97C320C6B9480004667E /* QueryInfoType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97B220C6B9480004667E /* QueryInfoType.swift */; };
+		448A97C420C6B9480004667E /* CachePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97B320C6B9480004667E /* CachePolicy.swift */; };
+		448A97C520C6B9480004667E /* Array+Dict.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97B420C6B9480004667E /* Array+Dict.swift */; };
+		448A97C620C6B9480004667E /* ServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97B520C6B9480004667E /* ServiceError.swift */; };
+		448A97C720C6B9480004667E /* TableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97B720C6B9480004667E /* TableViewDataSource.swift */; };
+		448A97C820C6B9480004667E /* LocalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97B820C6B9480004667E /* LocalService.swift */; };
+		448A97C920C6B9480004667E /* TeachersService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97BA20C6B9480004667E /* TeachersService.swift */; };
+		448A97CA20C6B9480004667E /* NetworkServiceQueryType+Default.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97BB20C6B9480004667E /* NetworkServiceQueryType+Default.swift */; };
+		448A97CB20C6B9480004667E /* ParsableManagedObjectExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97BD20C6B9480004667E /* ParsableManagedObjectExtension.swift */; };
+		448A97CF20C6BB2D0004667E /* CoreDataHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97CD20C6BB2C0004667E /* CoreDataHelper.swift */; };
+		448A97D020C6BB2D0004667E /* CoreDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97CE20C6BB2C0004667E /* CoreDataStore.swift */; };
+		448A97D320C6C05A0004667E /* ReleasesEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97D220C6C05A0004667E /* ReleasesEntity.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +39,23 @@
 		448A97A020C6B9050004667E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		448A97A320C6B9050004667E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		448A97A520C6B9050004667E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		448A97AC20C6B9480004667E /* FetchResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchResult.swift; sourceTree = "<group>"; };
+		448A97AD20C6B9480004667E /* NetworkService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
+		448A97AF20C6B9480004667E /* ManagedObjectType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManagedObjectType.swift; sourceTree = "<group>"; };
+		448A97B020C6B9480004667E /* Parsable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parsable.swift; sourceTree = "<group>"; };
+		448A97B120C6B9480004667E /* ModelType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModelType.swift; sourceTree = "<group>"; };
+		448A97B220C6B9480004667E /* QueryInfoType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QueryInfoType.swift; sourceTree = "<group>"; };
+		448A97B320C6B9480004667E /* CachePolicy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CachePolicy.swift; sourceTree = "<group>"; };
+		448A97B420C6B9480004667E /* Array+Dict.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+Dict.swift"; sourceTree = "<group>"; };
+		448A97B520C6B9480004667E /* ServiceError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceError.swift; sourceTree = "<group>"; };
+		448A97B720C6B9480004667E /* TableViewDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewDataSource.swift; sourceTree = "<group>"; };
+		448A97B820C6B9480004667E /* LocalService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalService.swift; sourceTree = "<group>"; };
+		448A97BA20C6B9480004667E /* TeachersService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TeachersService.swift; sourceTree = "<group>"; };
+		448A97BB20C6B9480004667E /* NetworkServiceQueryType+Default.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NetworkServiceQueryType+Default.swift"; sourceTree = "<group>"; };
+		448A97BD20C6B9480004667E /* ParsableManagedObjectExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParsableManagedObjectExtension.swift; sourceTree = "<group>"; };
+		448A97CD20C6BB2C0004667E /* CoreDataHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataHelper.swift; sourceTree = "<group>"; };
+		448A97CE20C6BB2C0004667E /* CoreDataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStore.swift; sourceTree = "<group>"; };
+		448A97D220C6C05A0004667E /* ReleasesEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleasesEntity.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +88,11 @@
 		448A979820C6B9020004667E /* love-of-music */ = {
 			isa = PBXGroup;
 			children = (
+				448A97AB20C6B9480004667E /* ServiceLayerSDK */,
+				448A97BC20C6B9480004667E /* ServiceLayerSDK+CoreData */,
+				448A97B920C6B9480004667E /* ServiceLayer */,
+				448A97CC20C6BB2C0004667E /* CoreData */,
+				448A97D120C6C0210004667E /* Models */,
 				448A979920C6B9020004667E /* AppDelegate.swift */,
 				448A979B20C6B9030004667E /* ViewController.swift */,
 				448A979D20C6B9030004667E /* Main.storyboard */,
@@ -62,6 +101,74 @@
 				448A97A520C6B9050004667E /* Info.plist */,
 			);
 			path = "love-of-music";
+			sourceTree = "<group>";
+		};
+		448A97AB20C6B9480004667E /* ServiceLayerSDK */ = {
+			isa = PBXGroup;
+			children = (
+				448A97B620C6B9480004667E /* Cocoa */,
+				448A97AE20C6B9480004667E /* Common */,
+				448A97B520C6B9480004667E /* ServiceError.swift */,
+				448A97B820C6B9480004667E /* LocalService.swift */,
+				448A97AD20C6B9480004667E /* NetworkService.swift */,
+			);
+			path = ServiceLayerSDK;
+			sourceTree = "<group>";
+		};
+		448A97AE20C6B9480004667E /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				448A97AF20C6B9480004667E /* ManagedObjectType.swift */,
+				448A97B020C6B9480004667E /* Parsable.swift */,
+				448A97B120C6B9480004667E /* ModelType.swift */,
+				448A97B220C6B9480004667E /* QueryInfoType.swift */,
+				448A97B320C6B9480004667E /* CachePolicy.swift */,
+				448A97B420C6B9480004667E /* Array+Dict.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		448A97B620C6B9480004667E /* Cocoa */ = {
+			isa = PBXGroup;
+			children = (
+				448A97B720C6B9480004667E /* TableViewDataSource.swift */,
+			);
+			path = Cocoa;
+			sourceTree = "<group>";
+		};
+		448A97B920C6B9480004667E /* ServiceLayer */ = {
+			isa = PBXGroup;
+			children = (
+				448A97AC20C6B9480004667E /* FetchResult.swift */,
+				448A97BA20C6B9480004667E /* TeachersService.swift */,
+				448A97BB20C6B9480004667E /* NetworkServiceQueryType+Default.swift */,
+			);
+			path = ServiceLayer;
+			sourceTree = "<group>";
+		};
+		448A97BC20C6B9480004667E /* ServiceLayerSDK+CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				448A97BD20C6B9480004667E /* ParsableManagedObjectExtension.swift */,
+			);
+			path = "ServiceLayerSDK+CoreData";
+			sourceTree = "<group>";
+		};
+		448A97CC20C6BB2C0004667E /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				448A97CD20C6BB2C0004667E /* CoreDataHelper.swift */,
+				448A97CE20C6BB2C0004667E /* CoreDataStore.swift */,
+			);
+			path = CoreData;
+			sourceTree = "<group>";
+		};
+		448A97D120C6C0210004667E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				448A97D220C6C05A0004667E /* ReleasesEntity.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -135,8 +242,25 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				448A97D020C6BB2D0004667E /* CoreDataStore.swift in Sources */,
+				448A97C820C6B9480004667E /* LocalService.swift in Sources */,
 				448A979C20C6B9030004667E /* ViewController.swift in Sources */,
+				448A97C920C6B9480004667E /* TeachersService.swift in Sources */,
+				448A97C520C6B9480004667E /* Array+Dict.swift in Sources */,
+				448A97CF20C6BB2D0004667E /* CoreDataHelper.swift in Sources */,
+				448A97C020C6B9480004667E /* ManagedObjectType.swift in Sources */,
+				448A97D320C6C05A0004667E /* ReleasesEntity.swift in Sources */,
+				448A97C420C6B9480004667E /* CachePolicy.swift in Sources */,
+				448A97CA20C6B9480004667E /* NetworkServiceQueryType+Default.swift in Sources */,
+				448A97C320C6B9480004667E /* QueryInfoType.swift in Sources */,
 				448A979A20C6B9020004667E /* AppDelegate.swift in Sources */,
+				448A97C720C6B9480004667E /* TableViewDataSource.swift in Sources */,
+				448A97CB20C6B9480004667E /* ParsableManagedObjectExtension.swift in Sources */,
+				448A97BF20C6B9480004667E /* NetworkService.swift in Sources */,
+				448A97C620C6B9480004667E /* ServiceError.swift in Sources */,
+				448A97C220C6B9480004667E /* ModelType.swift in Sources */,
+				448A97BE20C6B9480004667E /* FetchResult.swift in Sources */,
+				448A97C120C6B9480004667E /* Parsable.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
