@@ -22,33 +22,20 @@ protocol NetworkServiceQueryType: LocalServiceQueryType {
 
     var path: String { get }
     var method: NetworkServiceMethod { get }
-    var parameters: [String: Any]? { get }
-    var range: NSRange? { get } //Default nil
+    func parameters(range: NSRange?) -> [String: Any]?
 
     static var cacheTimeInterval: TimeInterval { get }
 }
 
-// Default Value
-extension NetworkServiceQueryType {
-    var range: NSRange? {
-        return nil
-    }
-}
-
-protocol PageModelType {
-    associatedtype ObjectType: ModelType
-    var object: ObjectType { get }
-}
-
-class NetworkService<T: ModelType> {
+class NetworkService<T: ModelType, U: PageModelType> {
 
     typealias NetworkServiceFetchItemCompletionHandlet = (ServiceResult<T, ServiceError>) -> ()
     typealias NetworkServiceFetchCompletionHandlet = (ServiceResult<[T], ServiceError>) -> ()
     typealias NetworkServiceStoreCompletionHandlet = (ServiceResult<Void, ServiceError>) -> ()
 
-    fileprivate let localService: LocalService<T>
+    fileprivate let localService: LocalService<T, U>
 
-    init (localService: LocalService<T>) {
+    init (localService: LocalService<T, U>) {
 
         self.localService = localService
     }
@@ -72,19 +59,23 @@ class NetworkService<T: ModelType> {
         }
     }
 
-    func fetchData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, completionHandler: @escaping NetworkServiceFetchCompletionHandlet) where NetworkServiceQuery.QueryInfo == T.QueryInfo {
+    func fetchData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil, completionHandler: @escaping NetworkServiceFetchCompletionHandlet) where NetworkServiceQuery.QueryInfo == T.QueryInfo {
 
         switch cache {
         case .cachedOnly:
 
             localService.featch(query, completionHandler: completionHandler)
 
-        case .CachedThenLoad:
+        case .CachedThenLoad: // page
 
-            localService.featch(query) { result in
-                completionHandler(result)
+            if range == nil || range?.location == 0 {
+                let fetchLimit = range.flatMap { $0.location == 0 ? $0.length: nil }
+                localService.featch(query, fetchLimit: fetchLimit) { result in
+                    completionHandler(result)
+                }
             }
-            resumeRequest(query) { result in
+
+            resumeRequest(query, range: range) { result in
 
                 switch result {
                 case .success:
@@ -97,7 +88,7 @@ class NetworkService<T: ModelType> {
 
             }
 
-        case .cachedElseLoad:
+        case .cachedElseLoad: // add expire date to enum
 
             if isCacheExpired(query) {
                 resumeRequest(query) { result in
@@ -131,15 +122,9 @@ class NetworkService<T: ModelType> {
             }
         }
 
-    }
-
-    func fetchData < NetworkServiceQuery: NetworkServiceQueryType, PageModel: PageModelType> (_ query: NetworkServiceQuery, cache: CachePolicy, completionHandler: @escaping NetworkServiceFetchCompletionHandlet) where NetworkServiceQuery.QueryInfo == T.QueryInfo {
-
-
-
     }
 
-    @discardableResult private func resumeRequest < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, completionHandler: @escaping NetworkServiceStoreCompletionHandlet) -> URLSessionDataTask? where NetworkServiceQuery.QueryInfo == T.QueryInfo {
+    @discardableResult private func resumeRequest < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, range: NSRange? = nil, completionHandler: @escaping NetworkServiceStoreCompletionHandlet) -> URLSessionDataTask? where NetworkServiceQuery.QueryInfo == T.QueryInfo {
 
         let session = urlSession()
 
@@ -149,7 +134,7 @@ class NetworkService<T: ModelType> {
             }
             return nil
         }
-        components.query = query.queryString
+        components.query = query.queryString(range: range)
         guard let url = components.url else {
             DispatchQueue.main.async {
                 completionHandler(.failure(.internalError))
@@ -177,7 +162,7 @@ class NetworkService<T: ModelType> {
                     print("response: \(response)")
                 }
             #endif
-            self.saveDate(query)
+            self.saveDate(query, range: range)
             self.parseAndStore(query, responseDict: responseDict, completionHandler: completionHandler)
         }
 
@@ -192,9 +177,9 @@ class NetworkService<T: ModelType> {
 
     // MARK - Utils
 
-    fileprivate func saveDate < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery) where NetworkServiceQuery.QueryInfo == T.QueryInfo {
+    fileprivate func saveDate < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, range: NSRange?) where NetworkServiceQuery.QueryInfo == T.QueryInfo {
 
-        let cacheIdentifier = query.cacheIdentifier
+        let cacheIdentifier = query.cacheIdentifier(range: range)
 
         DispatchQueue.main.async {
             let userDefaults = UserDefaults.standard
@@ -206,9 +191,9 @@ class NetworkService<T: ModelType> {
         }
     }
 
-    fileprivate func isCacheExpired < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery) -> Bool where NetworkServiceQuery.QueryInfo == T.QueryInfo {
+    fileprivate func isCacheExpired < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, range: NSRange? = nil) -> Bool where NetworkServiceQuery.QueryInfo == T.QueryInfo {
 
-        let cacheIdentifier = query.cacheIdentifier
+        let cacheIdentifier = query.cacheIdentifier(range: range)
         let userDefaults = UserDefaults.standard
 
         guard let date = userDefaults.object(forKey: cacheIdentifier) as? Date else { return true }
@@ -229,6 +214,13 @@ class NetworkService<T: ModelType> {
 
 }
 
+//class PageNetworkService<T: ModelType, PageModel: PageModelType>: NetworkService<T> {
+//
+//    func fetchPageData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, page: NSRange, completionHandler: @escaping NetworkServiceFetchCompletionHandlet) where NetworkServiceQuery.QueryInfo == T.QueryInfo {
+//
+//    }
+//}
+
 func cleanCacheExpiredFlags() {
     let userDefaults = UserDefaults.standard
     let arr = userDefaults.stringArray(forKey: "NetworkServiceExpiredFlags") ?? []
@@ -241,22 +233,17 @@ func cleanCacheExpiredFlags() {
 
 private extension NetworkServiceQueryType {
 
-    var cacheIdentifier: String {
+    func cacheIdentifier(range: NSRange?) -> String {
 
         var key = String(describing: type(of: self))
-        if let str = queryString {
+        if let str = queryString(range: range) {
             key.append(str)
         }
         return key
     }
 
-    var queryString: String? {
-
-        var params = parameters
-        if let range = range {
-            params?["per_page"] = Int(range.length)
-            params?["page"] = Int(range.location / range.length) + 1
-        }
+    func queryString(range: NSRange?) -> String? {
+        let params = parameters(range: range)
         return params?.stringFromHttpParameters()
     }
 

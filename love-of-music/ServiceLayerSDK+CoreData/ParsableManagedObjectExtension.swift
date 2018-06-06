@@ -22,7 +22,9 @@ extension ManagedObjectType {
 extension ManagedObjectType {
 
     public static func insert(inContext context: ManagedObjectContextType) -> ManagedObjectType {
-        let context = context as! NSManagedObjectContext // TODO: context as generic type?  WARNING
+        guard let context = context as? NSManagedObjectContext else {
+            fatalError("Unexpected conett type")
+        }
 
         guard let result: Self = NSEntityDescription.insertNewObject(forEntityName: String(describing: Self.self), into: context) as? Self else {
 
@@ -31,31 +33,39 @@ extension ManagedObjectType {
         return result
     }
 
-    public static func objectsMap(withPredicate predicate: NSPredicate?, inContext context: ManagedObjectContextType, sortBy: [NSSortDescriptor]?) -> [String: ManagedObjectType]? {
+    public static func objectsMap(withPredicate predicate: NSPredicate?, fetchLimit: Int? = nil, inContext context: ManagedObjectContextType, sortBy: [NSSortDescriptor]?, keyForObject: ((_ object: Self) -> String)?) -> [String: ManagedObjectType]? {
 
-        guard let cacheItems = objects(withPredicate: predicate, inContext: context, sortBy: sortBy) else {
+        guard let cacheItems = objects(withPredicate: predicate, fetchLimit: fetchLimit, inContext: context, sortBy: sortBy) as? [Self] else {
             return nil
         }
-        let cacheItemsMap = cacheItems.dict { ($0.identifier ?? UUID().uuidString, $0) }
+        let cacheItemsMap = cacheItems.dict { (keyForObject?($0) ?? $0.identifier ?? UUID().uuidString, $0) }
         return cacheItemsMap
     }
 
-    public static func objects(withPredicate predicate: NSPredicate?, inContext context: ManagedObjectContextType, sortBy: [NSSortDescriptor]?) -> [ManagedObjectType]? {
+    public static func objects(withPredicate predicate: NSPredicate?, fetchLimit: Int? = nil, inContext context: ManagedObjectContextType, sortBy: [NSSortDescriptor]?) -> [ManagedObjectType]? {
 
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: self))
         request.predicate = predicate
         request.sortDescriptors = sortBy
+
+        if let fetchLimit = fetchLimit {
+            request.fetchLimit = fetchLimit
+        }
 
         let result: [Self]? = objects(withRequest: request, inContext: context)
         return result
     }
 
-    public static func objectsForMainQueue(withPredicate predicate: NSPredicate?, inContext context: ManagedObjectContextType, sortBy: [NSSortDescriptor]?, completion: @escaping ([ManagedObjectType]) -> Void) {
+    public static func objectsForMainQueue(withPredicate predicate: NSPredicate?, fetchLimit: Int? = nil, inContext context: ManagedObjectContextType, sortBy: [NSSortDescriptor]?, completion: @escaping ([ManagedObjectType]) -> Void) {
 
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: self))
         request.resultType = .managedObjectIDResultType
         request.predicate = predicate
         request.sortDescriptors = sortBy
+
+        if let fetchLimit = fetchLimit {
+            request.fetchLimit = fetchLimit
+        }
 
         let ids: [NSManagedObjectID] = objects(withRequest: request, inContext: context) ?? []
 

@@ -30,7 +30,6 @@ extension ReleasesEntity: ModelType {
     }
 
     func fill(_ json: [String: AnyObject], queryInfo: QueryInfo, context: Void) {
-
         userId = json["id"] as? String
         update(json, queryInfo: queryInfo)
     }

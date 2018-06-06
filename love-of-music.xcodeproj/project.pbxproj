@@ -29,6 +29,7 @@
 		448A97CF20C6BB2D0004667E /* CoreDataHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97CD20C6BB2C0004667E /* CoreDataHelper.swift */; };
 		448A97D020C6BB2D0004667E /* CoreDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97CE20C6BB2C0004667E /* CoreDataStore.swift */; };
 		448A97D320C6C05A0004667E /* ReleasesEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97D220C6C05A0004667E /* ReleasesEntity.swift */; };
+		448A97D520C7D01D0004667E /* ReleasesPageEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97D420C7D01D0004667E /* ReleasesPageEntity.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -56,6 +57,7 @@
 		448A97CD20C6BB2C0004667E /* CoreDataHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataHelper.swift; sourceTree = "<group>"; };
 		448A97CE20C6BB2C0004667E /* CoreDataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStore.swift; sourceTree = "<group>"; };
 		448A97D220C6C05A0004667E /* ReleasesEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleasesEntity.swift; sourceTree = "<group>"; };
+		448A97D420C7D01D0004667E /* ReleasesPageEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleasesPageEntity.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -167,6 +169,7 @@
 			isa = PBXGroup;
 			children = (
 				448A97D220C6C05A0004667E /* ReleasesEntity.swift */,
+				448A97D420C7D01D0004667E /* ReleasesPageEntity.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -247,6 +250,7 @@
 				448A979C20C6B9030004667E /* ViewController.swift in Sources */,
 				448A97C920C6B9480004667E /* TeachersService.swift in Sources */,
 				448A97C520C6B9480004667E /* Array+Dict.swift in Sources */,
+				448A97D520C7D01D0004667E /* ReleasesPageEntity.swift in Sources */,
 				448A97CF20C6BB2D0004667E /* CoreDataHelper.swift in Sources */,
 				448A97C020C6B9480004667E /* ManagedObjectType.swift in Sources */,
 				448A97D320C6C05A0004667E /* ReleasesEntity.swift in Sources */,

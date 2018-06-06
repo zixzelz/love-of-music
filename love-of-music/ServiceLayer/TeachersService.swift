@@ -13,24 +13,24 @@ typealias TeachersCompletionHandlet = (ServiceResult<[ReleasesEntity], ServiceEr
 
 class ReleasesService {
 
-    let localService: LocalService<ReleasesEntity>
-    let networkService: NetworkService<ReleasesEntity>
-    let fetchResult: FetchResult<ReleasesEntity>
+    let localService: LocalService<ReleasesEntity, ReleasesPageEntity>
+    let networkService: NetworkService<ReleasesEntity, ReleasesPageEntity>
+//    let fetchResult: FetchResult<ReleasesEntity>
 
     init() {
         localService = LocalService()
         networkService = NetworkService(localService: localService)
-
-        let context = CoreDataHelper.managedObjectContext
-        let fetchRequest = NSFetchRequest<ReleasesEntity>()
-        fetchRequest.entity = NSEntityDescription.entity(forEntityName: String(describing: LGINetworkRecordingFilter.self), in: context)
-        fetchRequest.relationshipKeyPathsForPrefetching = [#keyPath(LGINetworkRecordingFilter.object)]
-        fetchRequest.predicate = NSPredicate(format: "\(#keyPath(LGINetworkRecordingFilter.identifier)) = %@ && \(#keyPath(LGINetworkRecordingFilter.markedAsDeleted)) = NO", identifier)
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "\(#keyPath(LGINetworkRecordingFilter.index))", ascending: true)]
-        fetchRequest.fetchBatchSize = Constants.pageSize
-
-        let frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
-        fetchResult = FetchResult<ReleasesEntity>
+//
+//        let context = CoreDataHelper.managedObjectContext
+//        let fetchRequest = NSFetchRequest<ReleasesEntity>()
+//        fetchRequest.entity = NSEntityDescription.entity(forEntityName: String(describing: LGINetworkRecordingFilter.self), in: context)
+//        fetchRequest.relationshipKeyPathsForPrefetching = [#keyPath(LGINetworkRecordingFilter.object)]
+//        fetchRequest.predicate = NSPredicate(format: "\(#keyPath(LGINetworkRecordingFilter.identifier)) = %@ && \(#keyPath(LGINetworkRecordingFilter.markedAsDeleted)) = NO", identifier)
+//        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "\(#keyPath(LGINetworkRecordingFilter.index))", ascending: true)]
+//        fetchRequest.fetchBatchSize = Constants.pageSize
+//
+//        let frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
+//        fetchResult = FetchResult<ReleasesEntity>
 
     }
 
@@ -53,7 +53,14 @@ class OjectQuery: NetworkServiceQueryType {
 
     var method: NetworkServiceMethod = .GET
 
-    var parameters: [String: Any]? = nil
+    func parameters(range: NSRange?) -> [String: Any]? {
+        return range.map { range -> [String: Any] in
+            return [
+                "per_page": Int(range.length),
+                "page": Int(range.location / range.length) + 1
+            ]
+        }
+    }
 
     var predicate: NSPredicate? = nil
 

@@ -25,16 +25,18 @@ extension LocalServiceQueryType {
     }
 }
 
-class LocalService <ObjectType: ModelType> {
+class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
 
     typealias LocalServiceFetchCompletionHandlet = (ServiceResult<[ObjectType], ServiceError>) -> ()
     typealias LocalServiceCompletionHandlet = (ServiceResult<Void, ServiceError>) -> ()
 
     var predicate: NSPredicate?
+    var fetchLimit: Int?
+    var sortBy: [NSSortDescriptor]?
     private lazy var cachedItemsMap: [String: ObjectType] = {
         let context = ObjectType.managedObjectContext()
 
-        let result = ObjectType.objectsMap(withPredicate: self.predicate, inContext: context) as? [String: ObjectType]
+        let result = ObjectType.objectsMap(withPredicate: self.predicate, fetchLimit: self.fetchLimit, inContext: context, sortBy: self.sortBy, keyForObject: nil) as? [String: ObjectType]
         return result ?? [:]
     }()
 
@@ -43,12 +45,13 @@ class LocalService <ObjectType: ModelType> {
         return ObjectType.parsableContext(context)
     }()
 
-    func featch < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, completionHandler: @escaping LocalServiceFetchCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
+    func featch < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, fetchLimit: Int? = nil, completionHandler: @escaping LocalServiceFetchCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
         let context = ObjectType.managedObjectContext()
         context.perform {
 
-            ObjectType.objectsForMainQueue(withPredicate: query.predicate, inContext: context, sortBy: query.sortBy) { (items) in
+            let predicate = query.predicate
+            ObjectType.objectsForMainQueue(withPredicate: predicate, fetchLimit: fetchLimit, inContext: context, sortBy: query.sortBy) { (items) in
 
                 let result = items as? [ObjectType] ?? []
                 completionHandler(.success(result))
@@ -57,43 +60,19 @@ class LocalService <ObjectType: ModelType> {
     }
 
     // json: {"objectsCollection": [{item}, {item}, ...]}
-    func parseAndStore < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], completionHandler: @escaping LocalServiceCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
+    func parseAndStore <LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], range: NSRange? = nil, completionHandler: @escaping LocalServiceCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
-        prepareService(query)
+        prepareService(query, fetchLimit: fetchLimit)
         store(query, json: json, completionHandler: completionHandler)
     }
 
-    // json: {item}
-    func parseAndStoreItem (_ json: [String: AnyObject], context: ManagedObjectContextType, queryInfo: ObjectType.QueryInfo) throws -> ObjectType {
-
-        var item: ObjectType?
-
-        if let keyForIdentifier = ObjectType.keyForIdentifier() {
-            guard let identifier = json[keyForIdentifier] as? String else {
-                throw ServiceError.wrongResponseFormat
-            }
-
-            item = cachedItemsMap[identifier]
-        }
-
-        if let _ = item {
-            item?.update(json, queryInfo: queryInfo)
-        } else {
-            item = ObjectType.insert(inContext: context) as? ObjectType
-            item?.fill(json, queryInfo: queryInfo, context: parsableContext)
-
-            if let identifier = item?.identifier {
-                cachedItemsMap[identifier] = item
-            }
-        }
-        return item!
-    }
-
-    fileprivate func prepareService < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
+    private func prepareService < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, fetchLimit _fetchLimit: Int?) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
         predicate = query.predicate
+        fetchLimit = _fetchLimit
+        sortBy = query.sortBy
     }
 
-    fileprivate func store < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], completionHandler: @escaping LocalServiceCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
+    private func store < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], completionHandler: @escaping LocalServiceCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
         guard let items = ObjectType.objects(json) else {
             completionHandler(.failure(.wrongResponseFormat))
@@ -132,6 +111,78 @@ class LocalService <ObjectType: ModelType> {
         }
     }
 
+    private func storePage < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], pageId: String, range: NSRange, completionHandler: @escaping LocalServiceCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+
+        guard let items = ObjectType.objects(json) else {
+            completionHandler(.failure(.wrongResponseFormat))
+            return
+        }
+
+        var pageOrder = range.location
+        let context = ObjectType.managedObjectContext()
+        let parsableContext = self.parsableContext
+        context.perform {
+
+            let cachedPageItemsMap = self.pageItemsMap(pageId: pageId, fetchLimit: range.length, context: context)
+            var handledPageItemsKey = [String]()
+            for item in items {
+
+                guard let keyForIdentifier = ObjectType.keyForIdentifier(), let identifier = item[keyForIdentifier] as? String else {
+                    completionHandler(.failure(.wrongResponseFormat))
+                    return
+                }
+
+                if let cachedPageItem = cachedPageItemsMap[identifier] {
+                    cachedPageItem.object.update(json, queryInfo: query.queryInfo)
+                    cachedPageItem.order = pageOrder
+                    handledPageItemsKey.append(identifier)
+                } else {
+                    guard let item = ObjectType.insert(inContext: context) as? ObjectType else {
+                        fatalError("Unexpected object type")
+                    }
+                    item.fill(json, queryInfo: query.queryInfo, context: parsableContext)
+                    _ = PageObjectType(pageId: pageId, object: item, order: pageOrder, inContext: context)
+                }
+
+                pageOrder += 1
+            }
+
+            let itemForDelete = cachedPageItemsMap.filter { !handledPageItemsKey.contains($0.0) }
+            for (_, page) in itemForDelete {
+                page.delete(context: context)
+            }
+
+            context.saveIfNeeded()
+            completionHandler(.success(()))
+        }
+    }
+
+    // json: {item}
+    private func parseAndStoreItem (_ json: [String: AnyObject], context: ManagedObjectContextType, queryInfo: ObjectType.QueryInfo) throws -> ObjectType {
+
+        var item: ObjectType?
+
+        if let keyForIdentifier = ObjectType.keyForIdentifier() {
+            guard let identifier = json[keyForIdentifier] as? String else {
+                throw ServiceError.wrongResponseFormat
+            }
+
+            item = cachedItemsMap[identifier]
+        }
+
+        if let _ = item {
+            item?.update(json, queryInfo: queryInfo)
+        } else {
+            item = ObjectType.insert(inContext: context) as? ObjectType
+            item?.fill(json, queryInfo: queryInfo, context: parsableContext)
+
+            if let identifier = item?.identifier {
+                cachedItemsMap[identifier] = item
+            }
+        }
+        return item! // todo: throw error
+    }
+
     func cleanCache < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, completionHandler: @escaping LocalServiceCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
         let context = ObjectType.managedObjectContext()
@@ -155,4 +206,12 @@ class LocalService <ObjectType: ModelType> {
         }
     }
 
+    private func pageItemsMap(pageId: String, fetchLimit: Int, context: ManagedObjectContextType) -> [String: PageObjectType] {
+        let predicate = NSPredicate(format: "pageId == %@", pageId)
+        let result = PageObjectType.objects(withPredicate: predicate, fetchLimit: fetchLimit, inContext: context) as? [PageObjectType]
+
+        let map = result?.dict { ($0.object.identifier!, $0) }
+
+        return map ?? [:]
+    }
 }
