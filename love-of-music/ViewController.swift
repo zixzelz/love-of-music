@@ -28,6 +28,10 @@ class ViewController: UIViewController {
 
         let query = ReleasesQuery()
         fetchResult.performFetch(query: query)
+
+        let lvm = ListViewModel(fetchResult: fetchResult) { (item, indexPath) -> String in
+            return String(indexPath.row)
+        }
     }
 
 }

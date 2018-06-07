@@ -9,12 +9,13 @@
 import Foundation
 import CoreData
 
-class FetchResult < ObjectType: ModelType, PageObjectType: PageModelType & NSFetchRequestResult, NetworkServiceQuery: NetworkServiceQueryType >: NSObject, NSFetchedResultsControllerDelegate where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+class FetchResult < ObjectType, PageObjectType: PageModelType & NSFetchRequestResult, NetworkServiceQuery: NetworkServiceQueryType >: NSObject, NSFetchedResultsControllerDelegate where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
 
     private let networkService: NetworkService<ObjectType, PageObjectType>
     private var query: NetworkServiceQuery?
     private let cachePolicy: CachePolicy
     private let pageSize: Int?
+    private var numberOfLoadedPages: Int
 
     private let fetchedResultsController: NSFetchedResultsController<PageObjectType>
 
@@ -23,6 +24,7 @@ class FetchResult < ObjectType: ModelType, PageObjectType: PageModelType & NSFet
         self.networkService = service
         self.cachePolicy = cachePolicy
         self.pageSize = pageSize
+        self.numberOfLoadedPages = 0
 
         fetchedResultsController = FetchResult.makeFetchedResultsController(pageSize: pageSize)
 
@@ -35,17 +37,29 @@ class FetchResult < ObjectType: ModelType, PageObjectType: PageModelType & NSFet
     func performFetch(query: NetworkServiceQuery) {
         self.query = query
 
-        let range = pageSize.map { NSRange(location: 0, length: $0) }
-
         let filterId = query.filterIdentifier
         updateFetchedResultsController(filterId: filterId)
-        networkService.fetchData(query, cache: cachePolicy, range: range) { (result) in
+
+        fetchNextPage()
+    }
+
+    private func fetchNextPage() {
+
+        guard let query = query else {
+            return
+        }
+
+        let range = pageSize.map { NSRange(location: numberOfLoadedPages * $0, length: $0) }
+
+        networkService.fetchData(query, cache: cachePolicy, range: range) { [weak self] (result) in
             guard case .success(let items) = result else {
                 print("error: \(result)")
                 return
             }
+            self?.numberOfLoadedPages += 1
             print("result: \(items.count)\n\(items)")
         }
+
     }
 
     private func updateFetchedResultsController(filterId: String) {

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		446A659B20C9ED4C00963400 /* ListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A659A20C9ED4C00963400 /* ListViewModel.swift */; };
 		448A979A20C6B9020004667E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A979920C6B9020004667E /* AppDelegate.swift */; };
 		448A979C20C6B9030004667E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A979B20C6B9030004667E /* ViewController.swift */; };
 		448A979F20C6B9030004667E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 448A979D20C6B9030004667E /* Main.storyboard */; };
@@ -34,6 +35,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		446A659A20C9ED4C00963400 /* ListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewModel.swift; sourceTree = "<group>"; };
 		448A979620C6B9020004667E /* love-of-music.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "love-of-music.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		448A979920C6B9020004667E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		448A979B20C6B9030004667E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -143,7 +145,6 @@
 		448A97B920C6B9480004667E /* ServiceLayer */ = {
 			isa = PBXGroup;
 			children = (
-				448A97AC20C6B9480004667E /* FetchResult.swift */,
 				448A97BA20C6B9480004667E /* ReleasesService.swift */,
 				448A97BB20C6B9480004667E /* NetworkServiceQueryType+Default.swift */,
 			);
@@ -154,6 +155,8 @@
 			isa = PBXGroup;
 			children = (
 				448A97BD20C6B9480004667E /* ParsableManagedObjectExtension.swift */,
+				448A97AC20C6B9480004667E /* FetchResult.swift */,
+				446A659A20C9ED4C00963400 /* ListViewModel.swift */,
 			);
 			path = "ServiceLayerSDK+CoreData";
 			sourceTree = "<group>";
@@ -258,6 +261,7 @@
 				448A97CF20C6BB2D0004667E /* CoreDataHelper.swift in Sources */,
 				448A97C020C6B9480004667E /* ManagedObjectType.swift in Sources */,
 				448A97D320C6C05A0004667E /* ReleasesEntity.swift in Sources */,
+				446A659B20C9ED4C00963400 /* ListViewModel.swift in Sources */,
 				448A97C420C6B9480004667E /* CachePolicy.swift in Sources */,
 				448A97CA20C6B9480004667E /* NetworkServiceQueryType+Default.swift in Sources */,
 				448A97C320C6B9480004667E /* QueryInfoType.swift in Sources */,
