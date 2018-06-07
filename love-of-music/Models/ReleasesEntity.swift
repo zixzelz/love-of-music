@@ -13,7 +13,7 @@ import CoreData
 class ReleasesEntity: NSManagedObject {
 
     @NSManaged var title: String?
-    @NSManaged var userId: String?
+    @NSManaged var userId: String
 }
 
 extension ReleasesEntity: ModelType {
@@ -31,7 +31,7 @@ extension ReleasesEntity: ModelType {
     }
 
     func fill(_ json: [String: AnyObject], queryInfo: QueryInfo, context: Void) {
-        userId = json["id"] as? String
+        userId = ReleasesEntity.identifier(json)!
         update(json, queryInfo: queryInfo)
     }
 

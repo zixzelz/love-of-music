@@ -34,7 +34,7 @@ class ReleasesService {
 
     }
 
-    func getItems(_ cache: CachePolicy = .cachedElseLoad, completionHandler: @escaping TeachersCompletionHandlet) {
+    func getItems(_ cache: CachePolicy = .CachedThenLoad, completionHandler: @escaping TeachersCompletionHandlet) {
         let query = OjectQuery()
         networkService.fetchData(query, cache: cache, completionHandler: completionHandler)
     }
