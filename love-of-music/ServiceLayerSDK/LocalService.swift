@@ -55,8 +55,8 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
     }
 
     // json: {"objectsCollection": [{item}, {item}, ...]}
-    func parseAndStorePages <LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], range: NSRange, pageId: String, completionHandler: @escaping LocalServiceCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
-        storePage(query, json: json, pageId: pageId, range: range, completionHandler: completionHandler)
+    func parseAndStorePages <LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], range: NSRange, filterId: String, completionHandler: @escaping LocalServiceCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+        storePage(query, json: json, filterId: filterId, range: range, completionHandler: completionHandler)
     }
 
     private func store < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], completionHandler: @escaping LocalServiceCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
@@ -98,7 +98,7 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
         }
     }
 
-    private func storePage < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], pageId: String, range: NSRange, completionHandler: @escaping LocalServiceCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+    private func storePage < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], filterId: String, range: NSRange, completionHandler: @escaping LocalServiceCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
 
         guard let items = ObjectType.objects(json) else {
             completionHandler(.failure(.wrongResponseFormat))
@@ -110,25 +110,25 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
         let parsableContext = self.parsableContext
         context.perform {
 
-            let cachedPageItemsMap = self.pageItemsMap(pageId: pageId, fetchLimit: range.length, context: context)
+            let cachedPageItemsMap = self.pageItemsMap(filterId: filterId, fetchLimit: range.length, context: context)
             var handledPageItemsKey = [String]()
-            for item in items {
+            for jsonItem in items {
 
-                guard let identifier = ObjectType.identifier(item) else {
+                guard let identifier = ObjectType.identifier(jsonItem) else {
                     completionHandler(.failure(.wrongResponseFormat))
                     return
                 }
 
                 if let cachedPageItem = cachedPageItemsMap[identifier] {
-                    cachedPageItem.object.update(json, queryInfo: query.queryInfo)
+                    cachedPageItem.object.update(jsonItem, queryInfo: query.queryInfo)
                     cachedPageItem.order = pageOrder
                     handledPageItemsKey.append(identifier)
                 } else {
                     guard let item = ObjectType.insert(inContext: context) as? ObjectType else {
                         fatalError("Unexpected object type")
                     }
-                    item.fill(json, queryInfo: query.queryInfo, context: parsableContext)
-                    _ = PageObjectType(pageId: pageId, object: item, order: pageOrder, inContext: context)
+                    item.fill(jsonItem, queryInfo: query.queryInfo, context: parsableContext)
+                    _ = PageObjectType(filterId: filterId, object: item, order: pageOrder, inContext: context)
                 }
 
                 pageOrder += 1
@@ -192,8 +192,8 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
         return map ?? [:]
     }
 
-    private func pageItemsMap(pageId: String, fetchLimit: Int, context: ManagedObjectContextType) -> [String: PageObjectType] {
-        let predicate = NSPredicate(format: "pageId == %@", pageId)
+    private func pageItemsMap(filterId: String, fetchLimit: Int, context: ManagedObjectContextType) -> [String: PageObjectType] {
+        let predicate = NSPredicate(format: "filterId == %@", filterId)
         let result = PageObjectType.objects(withPredicate: predicate, fetchLimit: fetchLimit, inContext: context) as? [PageObjectType]
 
         let map = result?.dict { ($0.object.identifier!, $0) }

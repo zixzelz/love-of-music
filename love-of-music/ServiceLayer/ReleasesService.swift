@@ -39,6 +39,11 @@ class ReleasesService {
         networkService.fetchData(query, cache: cache, completionHandler: completionHandler)
     }
 
+    func getItemsPage(_ cache: CachePolicy = .CachedThenLoad, range: NSRange, completionHandler: @escaping TeachersCompletionHandlet) {
+        let query = OjectQuery()
+        networkService.fetchData(query, cache: cache, range: range, completionHandler: completionHandler)
+    }
+
 }
 
 enum OjectQueryInfo: QueryInfoType {
@@ -53,11 +58,11 @@ class OjectQuery: NetworkServiceQueryType {
 
     var method: NetworkServiceMethod = .GET
 
-    func parameters(range: NSRange?) -> [String: Any]? {
-        return range.map { range -> [String: Any] in
+    func parameters(range: NSRange?) -> [String: String]? {
+        return range.map { range -> [String: String] in
             return [
-                "per_page": Int(range.length),
-                "page": Int(range.location / range.length) + 1
+                "per_page": String(range.length),
+                "page": String(Int(range.location / range.length) + 1)
             ]
         }
     }

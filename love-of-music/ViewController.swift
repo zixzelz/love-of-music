@@ -15,9 +15,15 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        let range = NSRange(location: 0, length: 6)
+
         releasesService = ReleasesService()
-        releasesService.getItems { (result) in
-            print("\(result)")
+        releasesService.getItemsPage(range: range) { (result) in
+            guard case .success(let items) = result else {
+                print("error: \(result)")
+                return
+            }
+            print("result: \(items.count)\n\(items)")
         }
     }
 

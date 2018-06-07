@@ -23,7 +23,7 @@ extension ManagedObjectType {
 
     public static func insert(inContext context: ManagedObjectContextType) -> ManagedObjectType {
         guard let context = context as? NSManagedObjectContext else {
-            fatalError("Unexpected conett type")
+            fatalError("Unexpected context type")
         }
 
         guard let result: Self = NSEntityDescription.insertNewObject(forEntityName: String(describing: Self.self), into: context) as? Self else {
@@ -80,7 +80,9 @@ extension ManagedObjectType {
 
         var result: [T]? = nil
         do {
-            let context = context as! NSManagedObjectContext // WARNING
+            guard let context = context as? NSManagedObjectContext else {
+                fatalError("Unexpected context type")
+            }
             result = try context.fetch(request) as? [T]
         } catch let error {
             assertionFailure("\(error)")

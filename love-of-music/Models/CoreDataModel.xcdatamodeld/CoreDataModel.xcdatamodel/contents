@@ -6,8 +6,8 @@
         <relationship name="pages" toMany="YES" deletionRule="Deny" destinationEntity="ReleasesPageEntity" inverseName="object" inverseEntity="ReleasesPageEntity" syncable="YES"/>
     </entity>
     <entity name="ReleasesPageEntity" representedClassName="ReleasesPageEntity" syncable="YES">
+        <attribute name="filterId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="order" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="pageId" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="object" maxCount="1" deletionRule="Cascade" destinationEntity="ReleasesEntity" inverseName="pages" inverseEntity="ReleasesEntity" syncable="YES"/>
     </entity>
     <elements>

@@ -176,7 +176,7 @@ class NetworkService<ObjectType: ModelType, PageObjectType: PageModelType> {
 
         if let range = range {
             let cacheIdentifier = query.cacheIdentifier(range: range)
-            localService.parseAndStorePages(query, json: responseDict, range: range, pageId: cacheIdentifier, completionHandler: completionHandler)
+            localService.parseAndStorePages(query, json: responseDict, range: range, filterId: cacheIdentifier, completionHandler: completionHandler)
         } else {
             localService.parseAndStore(query, json: responseDict, completionHandler: completionHandler)
         }

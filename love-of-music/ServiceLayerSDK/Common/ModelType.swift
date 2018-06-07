@@ -15,9 +15,9 @@ protocol ModelType: Parsable, ManagedObjectType {
 protocol PageModelType: ManagedObjectType {
     associatedtype ObjectType: ModelType
 
-    var pageId: String { get }
+    var filterId: String { get }
     var object: ObjectType { get }
     var order: Int { get set }
 
-    init(pageId: String, object: ObjectType, order: Int, inContext context: ManagedObjectContextType)
+    init(filterId: String, object: ObjectType, order: Int, inContext context: ManagedObjectContextType)
 }

@@ -13,25 +13,29 @@ import CoreData
 class ReleasesPageEntity: NSManagedObject, PageModelType {
     typealias ObjectType = ReleasesEntity
 
-    @NSManaged var pageId: String
+    @NSManaged var filterId: String
     @NSManaged var object: ReleasesEntity
     @NSManaged var order: Int
 
-    required init(pageId: String, object: ReleasesEntity, order: Int, inContext context: ManagedObjectContextType) {
+    required init(filterId: String, object: ReleasesEntity, order: Int, inContext context: ManagedObjectContextType) {
         guard let context = context as? NSManagedObjectContext else {
-            fatalError("Unexpected conett type")
+            fatalError("Unexpected context type")
         }
 
         let entity = NSEntityDescription.entity(forEntityName: String(describing: ReleasesPageEntity.self), in: context)
         super.init(entity: entity!, insertInto: context)
-        self.pageId = pageId
+        self.filterId = filterId
         self.object = object
         self.order = order
+    }
+
+    override init(entity: NSEntityDescription, insertInto context: NSManagedObjectContext?) {
+        super.init(entity: entity, insertInto: context)
     }
 
     // MARK: - ManagedObjectType
 
     var identifier: String? {
-        return pageId
+        return filterId
     }
 }
