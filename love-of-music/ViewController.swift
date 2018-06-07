@@ -7,24 +7,43 @@
 //
 
 import UIKit
+import CoreData
 
 class ViewController: UIViewController {
 
+    let pageSize = 6
+
+    @IBOutlet var tableView: UITableView!
+
     var releasesService: ReleasesService!
+    var fetchResult: FetchResult<ReleasesEntity, ReleasesPageEntity, ReleasesQuery>!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let range = NSRange(location: 0, length: 6)
-
         releasesService = ReleasesService()
-        releasesService.getItemsPage(range: range) { (result) in
-            guard case .success(let items) = result else {
-                print("error: \(result)")
-                return
-            }
-            print("result: \(items.count)\n\(items)")
-        }
+        let networkService = releasesService.networkService
+
+        fetchResult = FetchResult(networkService: networkService, cachePolicy: .CachedThenLoad, pageSize: pageSize)
+
+        let query = ReleasesQuery()
+        fetchResult.performFetch(query: query)
+    }
+
+}
+
+extension ViewController: UITableViewDataSource {
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 5
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "DefaultCell", for: indexPath)
+        cell.textLabel?.text = ""
+        cell.detailTextLabel?.text = ""
+
+        return cell
     }
 
 }

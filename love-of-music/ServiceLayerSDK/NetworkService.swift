@@ -27,6 +27,12 @@ protocol NetworkServiceQueryType: LocalServiceQueryType {
     static var cacheTimeInterval: TimeInterval { get }
 }
 
+extension NetworkServiceQueryType {
+    var filterIdentifier: String {
+        return path + (queryString(range: nil) ?? "")
+    }
+}
+
 class NetworkService<ObjectType: ModelType, PageObjectType: PageModelType> {
 
     typealias NetworkServiceFetchItemCompletionHandlet = (ServiceResult<ObjectType, ServiceError>) -> ()
@@ -40,7 +46,7 @@ class NetworkService<ObjectType: ModelType, PageObjectType: PageModelType> {
         self.localService = localService
     }
 
-    func fetchDataItem < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, completionHandler: @escaping NetworkServiceFetchItemCompletionHandlet) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+    func fetchDataItem <NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, completionHandler: @escaping NetworkServiceFetchItemCompletionHandlet) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
 
         fetchData(query, cache: cache) { (result) in
 
@@ -175,8 +181,8 @@ class NetworkService<ObjectType: ModelType, PageObjectType: PageModelType> {
     fileprivate func parseAndStore < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, responseDict: [String: AnyObject], range: NSRange?, completionHandler: @escaping NetworkServiceStoreCompletionHandlet) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
 
         if let range = range {
-            let cacheIdentifier = query.cacheIdentifier(range: range)
-            localService.parseAndStorePages(query, json: responseDict, range: range, filterId: cacheIdentifier, completionHandler: completionHandler)
+            let filterIdentifier = query.filterIdentifier
+            localService.parseAndStorePages(query, json: responseDict, range: range, filterId: filterIdentifier, completionHandler: completionHandler)
         } else {
             localService.parseAndStore(query, json: responseDict, completionHandler: completionHandler)
         }
@@ -241,7 +247,6 @@ func cleanCacheExpiredFlags() {
 private extension NetworkServiceQueryType {
 
     func cacheIdentifier(range: NSRange?) -> String {
-
         var key = String(describing: type(of: self))
         if let str = queryString(range: range) {
             key.append(str)
@@ -279,4 +284,3 @@ private extension Dictionary where Key == String, Value == String {
     }
 
 }
-

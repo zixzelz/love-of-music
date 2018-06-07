@@ -9,50 +9,37 @@
 import Foundation
 import CoreData
 
-typealias TeachersCompletionHandlet = (ServiceResult<[ReleasesEntity], ServiceError>) -> Void
+typealias ReleasesCompletionHandlet = (ServiceResult<[ReleasesEntity], ServiceError>) -> Void
 
 class ReleasesService {
 
     let localService: LocalService<ReleasesEntity, ReleasesPageEntity>
     let networkService: NetworkService<ReleasesEntity, ReleasesPageEntity>
-//    let fetchResult: FetchResult<ReleasesEntity>
 
     init() {
         localService = LocalService()
         networkService = NetworkService(localService: localService)
+    }
+
+//    func getItems(_ cache: CachePolicy = .CachedThenLoad, completionHandler: @escaping TeachersCompletionHandlet) {
+//        let query = ReleasesQuery()
+//        networkService.fetchData(query, cache: cache, completionHandler: completionHandler)
+//    }
 //
-//        let context = CoreDataHelper.managedObjectContext
-//        let fetchRequest = NSFetchRequest<ReleasesEntity>()
-//        fetchRequest.entity = NSEntityDescription.entity(forEntityName: String(describing: LGINetworkRecordingFilter.self), in: context)
-//        fetchRequest.relationshipKeyPathsForPrefetching = [#keyPath(LGINetworkRecordingFilter.object)]
-//        fetchRequest.predicate = NSPredicate(format: "\(#keyPath(LGINetworkRecordingFilter.identifier)) = %@ && \(#keyPath(LGINetworkRecordingFilter.markedAsDeleted)) = NO", identifier)
-//        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "\(#keyPath(LGINetworkRecordingFilter.index))", ascending: true)]
-//        fetchRequest.fetchBatchSize = Constants.pageSize
-//
-//        let frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
-//        fetchResult = FetchResult<ReleasesEntity>
-
-    }
-
-    func getItems(_ cache: CachePolicy = .CachedThenLoad, completionHandler: @escaping TeachersCompletionHandlet) {
-        let query = OjectQuery()
-        networkService.fetchData(query, cache: cache, completionHandler: completionHandler)
-    }
-
-    func getItemsPage(_ cache: CachePolicy = .CachedThenLoad, range: NSRange, completionHandler: @escaping TeachersCompletionHandlet) {
-        let query = OjectQuery()
-        networkService.fetchData(query, cache: cache, range: range, completionHandler: completionHandler)
-    }
+//    func getItemsPage(_ cache: CachePolicy = .CachedThenLoad, range: NSRange, completionHandler: @escaping TeachersCompletionHandlet) {
+//        let query = ReleasesQuery()
+//        networkService.fetchData(query, cache: cache, range: range, completionHandler: completionHandler)
+//    }
 
 }
 
-enum OjectQueryInfo: QueryInfoType {
+enum ReleasesQueryInfo: QueryInfoType {
     case `default`
 }
 
-class OjectQuery: NetworkServiceQueryType {
+class ReleasesQuery: NetworkServiceQueryType {
 
-    var queryInfo: OjectQueryInfo = .default
+    var queryInfo: ReleasesQueryInfo = .default
 
     var path: String = "https://api.discogs.com/artists/2/releases"
 
@@ -70,5 +57,36 @@ class OjectQuery: NetworkServiceQueryType {
     var predicate: NSPredicate? = nil
 
     var sortBy: [NSSortDescriptor]? = [NSSortDescriptor(key: "\(#keyPath(ReleasesEntity.userId))", ascending: true)]
+
+}
+
+extension ReleasesEntity: ModelType {
+
+    typealias QueryInfo = ReleasesQueryInfo
+
+    static func identifier(_ json: [String: AnyObject]) -> String? {
+        let id = json["id"] as? Int
+        return id.map { String($0) }
+    }
+
+    static func objects(_ json: [String: AnyObject]) -> [[String: AnyObject]]? {
+
+        return json["releases"] as? [[String: AnyObject]]
+    }
+
+    func fill(_ json: [String: AnyObject], queryInfo: QueryInfo, context: Void) {
+        userId = ReleasesEntity.identifier(json)!
+        update(json, queryInfo: queryInfo)
+    }
+
+    func update(_ json: [String: AnyObject], queryInfo: QueryInfo) {
+        title = json["title"] as? String
+    }
+
+    // MARK: - ManagedObjectType
+
+    var identifier: String? {
+        return userId
+    }
 
 }
