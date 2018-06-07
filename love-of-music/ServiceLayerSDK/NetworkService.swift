@@ -22,7 +22,7 @@ protocol NetworkServiceQueryType: LocalServiceQueryType {
 
     var path: String { get }
     var method: NetworkServiceMethod { get }
-    func parameters(range: NSRange?) -> [String: Any]?
+    func parameters(range: NSRange?) -> [String: String]?
 
     static var cacheTimeInterval: TimeInterval { get }
 }
@@ -266,12 +266,12 @@ private extension String {
 
 }
 
-private extension Dictionary {
+private extension Dictionary where Key == String, Value == String {
 
     func stringFromHttpParameters() -> String {
         let parameterArray = self.map { (key, value) -> String in
-            let percentEscapedKey = (key as! String).stringByAddingPercentEncodingForURLQueryValue()!
-            let percentEscapedValue = (value as! String).stringByAddingPercentEncodingForURLQueryValue()!
+            let percentEscapedKey = key.stringByAddingPercentEncodingForURLQueryValue()!
+            let percentEscapedValue = value.stringByAddingPercentEncodingForURLQueryValue()!
             return "\(percentEscapedKey)=\(percentEscapedValue)"
         }
 
