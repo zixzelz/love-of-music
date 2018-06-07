@@ -20,13 +20,14 @@ extension ReleasesEntity: ModelType {
 
     typealias QueryInfo = OjectQueryInfo
 
-    static func keyForIdentifier() -> String? {
-        return "id"
+    static func identifier(_ json: [String: AnyObject]) -> String? {
+        let id = json["id"] as? Int
+        return id.map { String($0) }
     }
 
     static func objects(_ json: [String: AnyObject]) -> [[String: AnyObject]]? {
 
-        return json["items"] as? [[String: AnyObject]]
+        return json["releases"] as? [[String: AnyObject]]
     }
 
     func fill(_ json: [String: AnyObject], queryInfo: QueryInfo, context: Void) {

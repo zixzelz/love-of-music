@@ -49,7 +49,7 @@ class OjectQuery: NetworkServiceQueryType {
 
     var queryInfo: OjectQueryInfo = .default
 
-    var path: String = "/getFaculties"
+    var path: String = "https://api.discogs.com/artists/2/releases"
 
     var method: NetworkServiceMethod = .GET
 
@@ -64,6 +64,6 @@ class OjectQuery: NetworkServiceQueryType {
 
     var predicate: NSPredicate? = nil
 
-    var sortBy: [NSSortDescriptor]? = [NSSortDescriptor(key: "id", ascending: true)]
+    var sortBy: [NSSortDescriptor]? = [NSSortDescriptor(key: "\(#keyPath(ReleasesEntity.userId))", ascending: true)]
 
 }

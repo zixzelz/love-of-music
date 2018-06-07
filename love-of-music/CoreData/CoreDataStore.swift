@@ -11,8 +11,10 @@ import CoreData
 
 class CoreDataStore: NSObject {
 
-    let storeName = "CoreData"
-    let storeFilename = "CoreData.sqlite"
+    struct Constants {
+        static let storeName = "CoreDataModel"
+        static let storeFilename = "CoreDataModel.sqlite"
+    }
 
     lazy var applicationDocumentsDirectory: URL = {
 
@@ -22,14 +24,14 @@ class CoreDataStore: NSObject {
 
     lazy var managedObjectModel: NSManagedObjectModel = {
 
-        let modelURL = Bundle.main.url(forResource: storeName, withExtension: "momd")!
+        let modelURL = Bundle.main.url(forResource: Constants.storeName, withExtension: "momd")!
         return NSManagedObjectModel(contentsOf: modelURL)!
     }()
 
     lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator = {
 
         var coordinator: NSPersistentStoreCoordinator? = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
-        let url = applicationDocumentsDirectory.appendingPathComponent(storeFilename)
+        let url = applicationDocumentsDirectory.appendingPathComponent(Constants.storeFilename)
 
         do {
             let options = [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true]

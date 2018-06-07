@@ -23,13 +23,14 @@
 		448A97C620C6B9480004667E /* ServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97B520C6B9480004667E /* ServiceError.swift */; };
 		448A97C720C6B9480004667E /* TableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97B720C6B9480004667E /* TableViewDataSource.swift */; };
 		448A97C820C6B9480004667E /* LocalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97B820C6B9480004667E /* LocalService.swift */; };
-		448A97C920C6B9480004667E /* TeachersService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97BA20C6B9480004667E /* TeachersService.swift */; };
+		448A97C920C6B9480004667E /* ReleasesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97BA20C6B9480004667E /* ReleasesService.swift */; };
 		448A97CA20C6B9480004667E /* NetworkServiceQueryType+Default.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97BB20C6B9480004667E /* NetworkServiceQueryType+Default.swift */; };
 		448A97CB20C6B9480004667E /* ParsableManagedObjectExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97BD20C6B9480004667E /* ParsableManagedObjectExtension.swift */; };
 		448A97CF20C6BB2D0004667E /* CoreDataHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97CD20C6BB2C0004667E /* CoreDataHelper.swift */; };
 		448A97D020C6BB2D0004667E /* CoreDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97CE20C6BB2C0004667E /* CoreDataStore.swift */; };
 		448A97D320C6C05A0004667E /* ReleasesEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97D220C6C05A0004667E /* ReleasesEntity.swift */; };
 		448A97D520C7D01D0004667E /* ReleasesPageEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97D420C7D01D0004667E /* ReleasesPageEntity.swift */; };
+		44D16C4320C8248700F7845F /* CoreDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 44D16C4120C8248700F7845F /* CoreDataModel.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,13 +52,14 @@
 		448A97B520C6B9480004667E /* ServiceError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceError.swift; sourceTree = "<group>"; };
 		448A97B720C6B9480004667E /* TableViewDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewDataSource.swift; sourceTree = "<group>"; };
 		448A97B820C6B9480004667E /* LocalService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalService.swift; sourceTree = "<group>"; };
-		448A97BA20C6B9480004667E /* TeachersService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TeachersService.swift; sourceTree = "<group>"; };
+		448A97BA20C6B9480004667E /* ReleasesService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReleasesService.swift; sourceTree = "<group>"; };
 		448A97BB20C6B9480004667E /* NetworkServiceQueryType+Default.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NetworkServiceQueryType+Default.swift"; sourceTree = "<group>"; };
 		448A97BD20C6B9480004667E /* ParsableManagedObjectExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParsableManagedObjectExtension.swift; sourceTree = "<group>"; };
 		448A97CD20C6BB2C0004667E /* CoreDataHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataHelper.swift; sourceTree = "<group>"; };
 		448A97CE20C6BB2C0004667E /* CoreDataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStore.swift; sourceTree = "<group>"; };
 		448A97D220C6C05A0004667E /* ReleasesEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleasesEntity.swift; sourceTree = "<group>"; };
 		448A97D420C7D01D0004667E /* ReleasesPageEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleasesPageEntity.swift; sourceTree = "<group>"; };
+		44D16C4220C8248700F7845F /* CoreDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreDataModel.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,9 +94,9 @@
 			children = (
 				448A97AB20C6B9480004667E /* ServiceLayerSDK */,
 				448A97BC20C6B9480004667E /* ServiceLayerSDK+CoreData */,
-				448A97B920C6B9480004667E /* ServiceLayer */,
 				448A97CC20C6BB2C0004667E /* CoreData */,
 				448A97D120C6C0210004667E /* Models */,
+				448A97B920C6B9480004667E /* ServiceLayer */,
 				448A979920C6B9020004667E /* AppDelegate.swift */,
 				448A979B20C6B9030004667E /* ViewController.swift */,
 				448A979D20C6B9030004667E /* Main.storyboard */,
@@ -142,7 +144,7 @@
 			isa = PBXGroup;
 			children = (
 				448A97AC20C6B9480004667E /* FetchResult.swift */,
-				448A97BA20C6B9480004667E /* TeachersService.swift */,
+				448A97BA20C6B9480004667E /* ReleasesService.swift */,
 				448A97BB20C6B9480004667E /* NetworkServiceQueryType+Default.swift */,
 			);
 			path = ServiceLayer;
@@ -170,6 +172,7 @@
 			children = (
 				448A97D220C6C05A0004667E /* ReleasesEntity.swift */,
 				448A97D420C7D01D0004667E /* ReleasesPageEntity.swift */,
+				44D16C4120C8248700F7845F /* CoreDataModel.xcdatamodeld */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -248,8 +251,9 @@
 				448A97D020C6BB2D0004667E /* CoreDataStore.swift in Sources */,
 				448A97C820C6B9480004667E /* LocalService.swift in Sources */,
 				448A979C20C6B9030004667E /* ViewController.swift in Sources */,
-				448A97C920C6B9480004667E /* TeachersService.swift in Sources */,
+				448A97C920C6B9480004667E /* ReleasesService.swift in Sources */,
 				448A97C520C6B9480004667E /* Array+Dict.swift in Sources */,
+				44D16C4320C8248700F7845F /* CoreDataModel.xcdatamodeld in Sources */,
 				448A97D520C7D01D0004667E /* ReleasesPageEntity.swift in Sources */,
 				448A97CF20C6BB2D0004667E /* CoreDataHelper.swift in Sources */,
 				448A97C020C6B9480004667E /* ManagedObjectType.swift in Sources */,
@@ -411,6 +415,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = E7DAAV478D;
 				INFOPLIST_FILE = "love-of-music/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -429,6 +434,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = E7DAAV478D;
 				INFOPLIST_FILE = "love-of-music/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -462,6 +468,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		44D16C4120C8248700F7845F /* CoreDataModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				44D16C4220C8248700F7845F /* CoreDataModel.xcdatamodel */,
+			);
+			currentVersion = 44D16C4220C8248700F7845F /* CoreDataModel.xcdatamodel */;
+			path = CoreDataModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 448A978E20C6B9020004667E /* Project object */;
 }

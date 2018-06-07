@@ -9,7 +9,9 @@
 import Foundation
 import CoreData
 
-class ReleasesPageEntity: NSManagedObject {
+@objc(ReleasesPageEntity)
+class ReleasesPageEntity: NSManagedObject, PageModelType {
+    typealias ObjectType = ReleasesEntity
 
     @NSManaged var pageId: String
     @NSManaged var object: ReleasesEntity
@@ -26,9 +28,6 @@ class ReleasesPageEntity: NSManagedObject {
         self.object = object
         self.order = order
     }
-}
-
-extension ReleasesPageEntity: PageModelType {
 
     // MARK: - ManagedObjectType
 

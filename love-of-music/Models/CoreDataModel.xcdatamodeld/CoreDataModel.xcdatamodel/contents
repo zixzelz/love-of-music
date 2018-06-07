@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14133" systemVersion="17E202" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="ReleasesEntity" representedClassName="ReleasesEntity" syncable="YES">
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="userId" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="pages" toMany="YES" deletionRule="Deny" destinationEntity="ReleasesPageEntity" inverseName="object" inverseEntity="ReleasesPageEntity" syncable="YES"/>
+    </entity>
+    <entity name="ReleasesPageEntity" representedClassName="ReleasesPageEntity" syncable="YES">
+        <attribute name="order" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="pageId" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="object" maxCount="1" deletionRule="Cascade" destinationEntity="ReleasesEntity" inverseName="pages" inverseEntity="ReleasesEntity" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="ReleasesEntity" positionX="-63" positionY="-18" width="128" height="90"/>
+        <element name="ReleasesPageEntity" positionX="-54" positionY="9" width="128" height="90"/>
+    </elements>
+</model>
