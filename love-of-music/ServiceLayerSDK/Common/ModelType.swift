@@ -8,7 +8,15 @@
 
 import Foundation
 
-protocol ModelType: Parsable, ManagedObjectType {
+protocol ModelType: Parsable, Paging, ManagedObjectType {
+
+}
+
+extension ModelType {
+
+    static func parsableContext(_ context: ManagedObjectContextType) -> Void {
+
+    }
 
 }
 

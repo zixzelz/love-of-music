@@ -8,7 +8,7 @@
 
 enum CachePolicy {
     case cachedOnly
-    case CachedThenLoad
+    case cachedThenLoad
     case cachedElseLoad
     case reloadIgnoringCache
 }

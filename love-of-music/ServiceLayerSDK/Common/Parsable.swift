@@ -21,10 +21,14 @@ protocol Parsable: class {
     func update(_ json: [String: AnyObject], queryInfo: QueryInfo)
 }
 
-extension Parsable {
+protocol Paging: class {
+    static func numberOfItems(_ json: [String: AnyObject]) -> Int
+}
 
-    static func parsableContext(_ context: ManagedObjectContextType) -> Void {
+extension Paging {
 
+    static func numberOfItems(_ json: [String: AnyObject]) -> Int {
+        return 0
     }
 
 }

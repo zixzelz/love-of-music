@@ -25,17 +25,22 @@ extension LocalServiceQueryType {
     }
 }
 
+internal struct LocalServiceFetchInfo {
+    var numberOfItems: Int
+}
+
 class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
 
-    typealias LocalServiceFetchCompletionHandlet = (ServiceResult<[ObjectType], ServiceError>) -> ()
-    typealias LocalServiceCompletionHandlet = (ServiceResult<Void, ServiceError>) -> ()
+    typealias LocalServiceFetchCompletionHandler = (ServiceResult<[ObjectType], ServiceError>) -> ()
+    typealias LocalServiceCompletionHandler = (ServiceResult<LocalServiceFetchInfo, ServiceError>) -> ()
+    typealias EmptyCompletionHandler = (ServiceResult<Void, ServiceError>) -> ()
 
     private lazy var parsableContext: ObjectType.ParsableContext = {
         let context = ObjectType.managedObjectContext()
         return ObjectType.parsableContext(context)
     }()
 
-    func featch < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, fetchLimit: Int? = nil, completionHandler: @escaping LocalServiceFetchCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
+    func featchItems < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, fetchLimit: Int? = nil, completionHandler: @escaping LocalServiceFetchCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
         let context = ObjectType.managedObjectContext()
         context.perform {
@@ -50,16 +55,16 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
     }
 
     // json: {"objectsCollection": [{item}, {item}, ...]}
-    func parseAndStore <LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], completionHandler: @escaping LocalServiceCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
+    func parseAndStore <LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], completionHandler: @escaping LocalServiceCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
         store(query, json: json, completionHandler: completionHandler)
     }
 
     // json: {"objectsCollection": [{item}, {item}, ...]}
-    func parseAndStorePages <LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], range: NSRange, filterId: String, completionHandler: @escaping LocalServiceCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+    func parseAndStorePages <LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], range: NSRange, filterId: String, completionHandler: @escaping LocalServiceCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
         storePage(query, json: json, filterId: filterId, range: range, completionHandler: completionHandler)
     }
 
-    private func store < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], completionHandler: @escaping LocalServiceCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
+    private func store < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], completionHandler: @escaping LocalServiceCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
         guard let items = ObjectType.objects(json) else {
             completionHandler(.failure(.wrongResponseFormat))
@@ -94,11 +99,14 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
             }
 
             context.saveIfNeeded()
-            completionHandler(.success(()))
+
+            let numberOfItems = ObjectType.numberOfItems(json)
+            let info = LocalServiceFetchInfo(numberOfItems: numberOfItems)
+            completionHandler(.success(info))
         }
     }
 
-    private func storePage < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], filterId: String, range: NSRange, completionHandler: @escaping LocalServiceCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+    private func storePage < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: [String: AnyObject], filterId: String, range: NSRange, completionHandler: @escaping LocalServiceCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
 
         guard let items = ObjectType.objects(json) else {
             completionHandler(.failure(.wrongResponseFormat))
@@ -140,7 +148,10 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
             }
 
             context.saveIfNeeded()
-            completionHandler(.success(()))
+
+            let numberOfItems = ObjectType.numberOfItems(json)
+            let info = LocalServiceFetchInfo(numberOfItems: numberOfItems)
+            completionHandler(.success(info))
         }
     }
 
@@ -162,7 +173,7 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
         return item! // todo: throw error
     }
 
-    func cleanCache < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, completionHandler: @escaping LocalServiceCompletionHandlet) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
+    func cleanCache < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, completionHandler: @escaping EmptyCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
         let context = ObjectType.managedObjectContext()
         context.perform {
