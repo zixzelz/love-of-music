@@ -22,12 +22,12 @@ protocol Parsable: class {
 }
 
 protocol Paging: class {
-    static func numberOfItems(_ json: [String: AnyObject]) -> Int
+    static func totalItems(_ json: [String: AnyObject]) -> Int
 }
 
 extension Paging {
 
-    static func numberOfItems(_ json: [String: AnyObject]) -> Int {
+    static func totalItems(_ json: [String: AnyObject]) -> Int {
         return 0
     }
 

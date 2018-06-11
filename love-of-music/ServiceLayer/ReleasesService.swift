@@ -83,6 +83,12 @@ extension ReleasesEntity: ModelType {
         title = json["title"] as? String
     }
 
+    // MARK: - Paging
+
+    static func totalItems(_ json: [String: AnyObject]) -> Int {
+        return json["pagination"]?["items"] as? Int ?? 0
+    }
+
     // MARK: - ManagedObjectType
 
     var identifier: String? {

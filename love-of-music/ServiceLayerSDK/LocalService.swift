@@ -26,7 +26,7 @@ extension LocalServiceQueryType {
 }
 
 internal struct LocalServiceFetchInfo {
-    var numberOfItems: Int
+    var totalItems: Int
 }
 
 class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
@@ -100,8 +100,8 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
 
             context.saveIfNeeded()
 
-            let numberOfItems = ObjectType.numberOfItems(json)
-            let info = LocalServiceFetchInfo(numberOfItems: numberOfItems)
+            let totalItems = ObjectType.totalItems(json)
+            let info = LocalServiceFetchInfo(totalItems: totalItems)
             completionHandler(.success(info))
         }
     }
@@ -149,8 +149,8 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
 
             context.saveIfNeeded()
 
-            let numberOfItems = ObjectType.numberOfItems(json)
-            let info = LocalServiceFetchInfo(numberOfItems: numberOfItems)
+            let totalItems = ObjectType.totalItems(json)
+            let info = LocalServiceFetchInfo(totalItems: totalItems)
             completionHandler(.success(info))
         }
     }

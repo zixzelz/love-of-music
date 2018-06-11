@@ -9,29 +9,52 @@
 import Foundation
 import CoreData
 
-class FetchResult < ObjectType, PageObjectType: PageModelType & NSFetchRequestResult, NetworkServiceQuery: NetworkServiceQueryType >: NSObject, NSFetchedResultsControllerDelegate where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+enum FetchResultStatus {
+    case loading, loaded
+}
+
+protocol FetchResultType: class {
+    associatedtype FetchObjectType
+
+    var numberOfFetchedObjects: Int { get }
+    func object(at indexPath: IndexPath) -> FetchObjectType
+
+    var didStatusUpdate: ((_ status: FetchResultStatus) -> Void)? { get set }
+}
+
+class FetchResult <FetchObjectType: NSFetchRequestResult, ObjectType, PageObjectType: PageModelType, NetworkServiceQuery: NetworkServiceQueryType>: NSObject, FetchResultType, NSFetchedResultsControllerDelegate where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
 
     private let networkService: NetworkService<ObjectType, PageObjectType>
     private var query: NetworkServiceQuery?
     private let cachePolicy: CachePolicy
     private let pageSize: Int?
     private var numberOfLoadedPages: Int
+    private var totalCount: Int
 
-    private let fetchedResultsController: NSFetchedResultsController<PageObjectType>
+    private let fetchedResultsController: NSFetchedResultsController<FetchObjectType>
 
-    init(networkService service: NetworkService<ObjectType, PageObjectType>, cachePolicy: CachePolicy, pageSize: Int? = nil) { //} where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+    private(set) var status: FetchResultStatus = .loaded {
+        didSet {
+            didStatusUpdate?(status)
+        }
+    }
+    var didStatusUpdate: ((_ status: FetchResultStatus) -> Void)?
+
+    init(networkService service: NetworkService<ObjectType, PageObjectType>, cachePolicy: CachePolicy, pageSize: Int? = nil, _fetchedResultsController: () -> NSFetchedResultsController<FetchObjectType>) { //} where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
 
         self.networkService = service
         self.cachePolicy = cachePolicy
         self.pageSize = pageSize
         self.numberOfLoadedPages = 0
+        self.totalCount = 0
 
-        fetchedResultsController = FetchResult.makeFetchedResultsController(pageSize: pageSize)
+        fetchedResultsController = _fetchedResultsController()//FetchResult.makeFetchedResultsController(pageSize: pageSize)
 
         super.init()
 
         fetchedResultsController.delegate = self
         try? fetchedResultsController.performFetch()
+        print("fetchedResultsController: \(fetchedResultsController.fetchedObjects?.count)")
     }
 
     func performFetch(query: NetworkServiceQuery) {
@@ -40,10 +63,15 @@ class FetchResult < ObjectType, PageObjectType: PageModelType & NSFetchRequestRe
         let filterId = query.filterIdentifier
         updateFetchedResultsController(filterId: filterId)
 
-        fetchNextPage()
+        numberOfLoadedPages = 0
+        totalCount = 0
+
+        fetchNextPage { [weak self] numberOfItems in
+            self?.totalCount = numberOfItems
+        }
     }
 
-    private func fetchNextPage() {
+    private func fetchNextPage(completion: @escaping (_ numberOfItems: Int) -> Void) {
 
         guard let query = query else {
             return
@@ -51,13 +79,14 @@ class FetchResult < ObjectType, PageObjectType: PageModelType & NSFetchRequestRe
 
         let range = pageSize.map { NSRange(location: numberOfLoadedPages * $0, length: $0) }
 
-        networkService.fetchData(query, cache: cachePolicy, range: range) { [weak self] (result) in
-            guard case .success(let items) = result else {
+        networkService.fetchPageData(query, cache: cachePolicy, range: range) { [weak self] (result) in
+            guard case .success(let info) = result else {
                 print("error: \(result)")
                 return
             }
             self?.numberOfLoadedPages += 1
-            print("result: \(items.count)\n\(items)")
+            print("result: \(info.totalItems)")
+            completion(info.totalItems)
         }
 
     }
@@ -71,19 +100,55 @@ class FetchResult < ObjectType, PageObjectType: PageModelType & NSFetchRequestRe
 
     //MARK: NSFetchedResultsControllerDelegate
 
+    var numberOfFetchedObjects: Int {
+        let count = fetchedResultsController.fetchedObjects?.count ?? 0
+        let limitCount = pageSize.map { min(count, $0 * numberOfLoadedPages) }
+        return limitCount ?? count
+    }
+
+    func object(at indexPath: IndexPath) -> FetchObjectType {
+        return fetchedResultsController.object(at: indexPath)
+    }
+
+    //MARK: NSFetchedResultsControllerDelegate
+
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        print("controllerDidChangeContent: \(controller)")
+        status = .loaded
+        print("controllerDidChangeContent: \(fetchedResultsController.fetchedObjects?.count)")
     }
 
 }
 
+//extension FetchResult where FetchObjectType == PageModelType {
+//
+//}
+
+//class PageFetchResult <ObjectType, PageObjectType: PageModelType & NSFetchRequestResult, NetworkServiceQuery: NetworkServiceQueryType>: FetchResult<ObjectType, PageObjectType, NetworkServiceQuery> where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+//
+//    init(networkService service: NetworkService<ObjectType, PageObjectType>, cachePolicy: CachePolicy, pageSize: Int) {
+//        super.init(networkService: service, cachePolicy: cachePolicy, pageSize: pageSize) { () -> NSFetchedResultsController<FetchObjectType> in
+//
+//            let context = CoreDataHelper.managedObjectContext
+//
+//            let fetchRequest = NSFetchRequest<FetchObjectType>()
+//            fetchRequest.entity = NSEntityDescription.entity(forEntityName: String(describing: FetchObjectType.self), in: context)
+//            fetchRequest.relationshipKeyPathsForPrefetching = ["object"] //#keyPath(PageModelType.object)
+//            fetchRequest.sortDescriptors = [NSSortDescriptor(key: "order", ascending: true)] //#keyPath(PageObjectType.order)
+//            fetchRequest.fetchBatchSize = pageSize
+//
+//            return NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
+//        }
+//    }
+//
+//}
+
 private extension FetchResult {
 
-    private static func makeFetchedResultsController(pageSize: Int?) -> NSFetchedResultsController<PageObjectType> {
+    private static func makeFetchedResultsController(pageSize: Int?) -> NSFetchedResultsController<FetchObjectType> {
         let context = CoreDataHelper.managedObjectContext
 
-        let fetchRequest = NSFetchRequest<PageObjectType>()
-        fetchRequest.entity = NSEntityDescription.entity(forEntityName: String(describing: ReleasesPageEntity.self), in: context)
+        let fetchRequest = NSFetchRequest<FetchObjectType>()
+        fetchRequest.entity = NSEntityDescription.entity(forEntityName: String(describing: FetchObjectType.self), in: context)
         fetchRequest.relationshipKeyPathsForPrefetching = ["object"] //#keyPath(PageModelType.object)
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "order", ascending: true)] //#keyPath(PageObjectType.order)
 

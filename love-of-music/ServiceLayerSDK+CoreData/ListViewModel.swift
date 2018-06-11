@@ -9,20 +9,70 @@
 import UIKit
 import CoreData
 
-class ListViewModel<ObjectType, PageObjectType: PageModelType & NSFetchRequestResult, NetworkServiceQuery: NetworkServiceQueryType, CellViewModel> where ObjectType == PageObjectType.ObjectType, NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
+protocol ListViewModelType {
+    associatedtype CellViewModel
 
-    typealias CellViewModelClosure = (_ item: PageObjectType, _ indexPath: NSIndexPath) -> CellViewModel
+    var numberOfItems: Int { get }
+    func cellViewModel(at indexpath: IndexPath) -> CellViewModel
+}
 
-    private let fetchResult: FetchResult<ObjectType, PageObjectType, NetworkServiceQuery>
-    private let cellViewModelClosure: CellViewModelClosure
+class ListViewModel<CellViewModel>: ListViewModelType {
 
-    init(fetchResult: FetchResult<ObjectType, PageObjectType, NetworkServiceQuery>, cellViewModel: @escaping CellViewModelClosure) {
+    var numberOfItems: Int {
+        preconditionFailure("Should be overriden")
+    }
+
+    func cellViewModel(at indexPath: IndexPath) -> CellViewModel {
+        preconditionFailure("Should be overriden")
+    }
+
+}
+
+extension ListViewModel {
+
+    static func model<FetchResult: FetchResultType>(
+        fetchResult: FetchResult,
+        cellViewModel: @escaping (_ item: FetchResult.FetchObjectType) -> CellViewModel
+    ) -> ListViewModel<CellViewModel> {
+
+        return ResultListViewModel<FetchResult, CellViewModel>(fetchResult: fetchResult, cellViewModel: cellViewModel)
+    }
+
+}
+
+private class ResultListViewModel <FetchResult: FetchResultType, CellViewModel>: ListViewModel<CellViewModel> {
+
+    typealias CellViewModelMapClosure = (_ item: FetchResult.FetchObjectType) -> CellViewModel
+
+    private let fetchResult: FetchResult
+    private let cellViewModelClosure: CellViewModelMapClosure
+
+    init(
+        fetchResult: FetchResult,
+        cellViewModel: @escaping CellViewModelMapClosure) {
+
         self.fetchResult = fetchResult
         self.cellViewModelClosure = cellViewModel
     }
 
-    func cellViewModel(at indexPath: NSIndexPath) -> CellViewModel {
-        return cellViewModelClosure(indexPath)
+    override var numberOfItems: Int {
+        return fetchResult.numberOfFetchedObjects
+    }
+
+    override func cellViewModel(at indexPath: IndexPath) -> CellViewModel {
+        preconditionFailure("Should be overriden")
+        let object = fetchResult.object(at: indexPath)
+        return cellViewModelClosure(object)
+    }
+
+    private func bind(fetchResult: FetchResult) {
+        fetchResult.didStatusUpdate = { [weak self] status in
+            self?.didStatusUpdate(status: status)
+        }
+    }
+
+    private func didStatusUpdate(status: FetchResultStatus) {
+
     }
 
 }
