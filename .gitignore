@@ -1,0 +1,6 @@
+# xcode
+xcuserdata
+*.xcuserstate
+
+# Builds
+.bundle_identifier
