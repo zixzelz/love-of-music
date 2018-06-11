@@ -60,7 +60,6 @@ private class ResultListViewModel <FetchResult: FetchResultType, CellViewModel>:
     }
 
     override func cellViewModel(at indexPath: IndexPath) -> CellViewModel {
-        preconditionFailure("Should be overriden")
         let object = fetchResult.object(at: indexPath)
         return cellViewModelClosure(object)
     }
