@@ -12,11 +12,18 @@ import CoreData
 protocol ListViewModelType {
     associatedtype CellViewModel
 
+    var didUpdate: Property<Void> { get }
+
     var numberOfItems: Int { get }
     func cellViewModel(at indexpath: IndexPath) -> CellViewModel
 }
 
 class ListViewModel<CellViewModel>: ListViewModelType {
+
+    fileprivate var _didUpdate: MutableProperty<Void>
+    lazy var didUpdate: Property<Void> = {
+        return Property(_didUpdate)
+    }()
 
     var numberOfItems: Int {
         preconditionFailure("Should be overriden")
@@ -26,6 +33,9 @@ class ListViewModel<CellViewModel>: ListViewModelType {
         preconditionFailure("Should be overriden")
     }
 
+    init() {
+        _didUpdate = MutableProperty(value: ())
+    }
 }
 
 extension ListViewModel {
@@ -53,6 +63,10 @@ private class ResultListViewModel <FetchResult: FetchResultType, CellViewModel>:
 
         self.fetchResult = fetchResult
         self.cellViewModelClosure = cellViewModel
+
+        super.init()
+
+        bind(fetchResult: fetchResult)
     }
 
     override var numberOfItems: Int {
@@ -71,7 +85,7 @@ private class ResultListViewModel <FetchResult: FetchResultType, CellViewModel>:
     }
 
     private func didStatusUpdate(status: FetchResultState) {
-
+        _didUpdate.value = ()
     }
 
 }

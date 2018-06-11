@@ -21,6 +21,10 @@ class TableViewDataSource <CellViewModel>: NSObject, UITableViewDataSource {
         self.tableView = tableView
         self.listViewModel = listViewModel
         self.cellMap = map
+
+        listViewModel.didUpdate.observeValues {
+            tableView.reloadData()
+        }
     }
 
     //MARK: UITableViewDataSource
