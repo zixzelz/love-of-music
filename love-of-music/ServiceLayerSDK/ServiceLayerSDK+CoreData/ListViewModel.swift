@@ -65,12 +65,12 @@ private class ResultListViewModel <FetchResult: FetchResultType, CellViewModel>:
     }
 
     private func bind(fetchResult: FetchResult) {
-        fetchResult.didStatusUpdate = { [weak self] status in
-            self?.didStatusUpdate(status: status)
+        fetchResult.state.observeValues { [weak self] state in
+            self?.didStatusUpdate(status: state)
         }
     }
 
-    private func didStatusUpdate(status: FetchResultStatus) {
+    private func didStatusUpdate(status: FetchResultState) {
 
     }
 

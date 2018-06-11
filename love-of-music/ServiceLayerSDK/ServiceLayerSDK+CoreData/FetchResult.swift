@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 
-enum FetchResultStatus {
+enum FetchResultState {
     case loading, loaded
 }
 
@@ -19,7 +19,7 @@ protocol FetchResultType: class {
     var numberOfFetchedObjects: Int { get }
     func object(at indexPath: IndexPath) -> FetchObjectType
 
-    var didStatusUpdate: ((_ status: FetchResultStatus) -> Void)? { get set }
+    var state: Property<FetchResultState> { get }
 }
 
 class FetchResult <FetchObjectType: NSFetchRequestResult, ObjectType, PageObjectType: PageModelType, NetworkServiceQuery: NetworkServiceQueryType>: NSObject, FetchResultType, NSFetchedResultsControllerDelegate where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
@@ -33,12 +33,10 @@ class FetchResult <FetchObjectType: NSFetchRequestResult, ObjectType, PageObject
 
     private let fetchedResultsController: NSFetchedResultsController<FetchObjectType>
 
-    private(set) var status: FetchResultStatus = .loaded {
-        didSet {
-            didStatusUpdate?(status)
-        }
-    }
-    var didStatusUpdate: ((_ status: FetchResultStatus) -> Void)?
+    var _state: MutableProperty<FetchResultState>
+    lazy var state: Property<FetchResultState> = {
+        return Property(_state)
+    }()
 
     init(networkService service: NetworkService<ObjectType, PageObjectType>, cachePolicy: CachePolicy, pageSize: Int? = nil, _fetchedResultsController: () -> NSFetchedResultsController<FetchObjectType>) { //} where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
 
@@ -47,6 +45,8 @@ class FetchResult <FetchObjectType: NSFetchRequestResult, ObjectType, PageObject
         self.pageSize = pageSize
         self.numberOfLoadedPages = 0
         self.totalCount = 0
+
+        _state = MutableProperty(value: .loaded)
 
         fetchedResultsController = _fetchedResultsController()//FetchResult.makeFetchedResultsController(pageSize: pageSize)
 
@@ -113,7 +113,7 @@ class FetchResult <FetchObjectType: NSFetchRequestResult, ObjectType, PageObject
     //MARK: NSFetchedResultsControllerDelegate
 
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        status = .loaded
+        _state.value = .loaded
         print("controllerDidChangeContent: \(fetchedResultsController.fetchedObjects?.count)")
     }
 
