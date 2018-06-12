@@ -12,13 +12,20 @@ import CoreData
 protocol ListViewModelType {
     associatedtype CellViewModel
 
+    var state: Property<FetchResultState> { get }
     var didUpdate: Property<Void> { get }
 
     var numberOfItems: Int { get }
     func cellViewModel(at indexpath: IndexPath) -> CellViewModel
+
+    func loadNextPageIfNeeded()
 }
 
 class ListViewModel<CellViewModel>: ListViewModelType {
+
+    var state: Property<FetchResultState> {
+        preconditionFailure("Should be overriden")
+    }
 
     fileprivate var _didUpdate: MutableProperty<Void>
     lazy var didUpdate: Property<Void> = {
@@ -30,6 +37,10 @@ class ListViewModel<CellViewModel>: ListViewModelType {
     }
 
     func cellViewModel(at indexPath: IndexPath) -> CellViewModel {
+        preconditionFailure("Should be overriden")
+    }
+
+    func loadNextPageIfNeeded() {
         preconditionFailure("Should be overriden")
     }
 
@@ -69,6 +80,10 @@ private class ResultListViewModel <FetchResult: FetchResultType, CellViewModel>:
         bind(fetchResult: fetchResult)
     }
 
+    override var state: Property<FetchResultState> {
+        return fetchResult.state
+    }
+
     override var numberOfItems: Int {
         return fetchResult.numberOfFetchedObjects
     }
@@ -78,6 +93,10 @@ private class ResultListViewModel <FetchResult: FetchResultType, CellViewModel>:
         return cellViewModelClosure(object)
     }
 
+    override func loadNextPageIfNeeded() {
+        fetchResult.loadNextPageIfNeeded()
+    }
+
     private func bind(fetchResult: FetchResult) {
         fetchResult.state.observeValues { [weak self] state in
             self?.didStatusUpdate(status: state)
@@ -85,6 +104,7 @@ private class ResultListViewModel <FetchResult: FetchResultType, CellViewModel>:
     }
 
     private func didStatusUpdate(status: FetchResultState) {
+        print("[ResultListViewModel] didStatusUpdate")
         _didUpdate.value = ()
     }
 

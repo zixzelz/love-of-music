@@ -111,8 +111,7 @@
 				4405DACD20CF2CEB0029632E /* ServiceLayerSDK+Cocoa */,
 				4405DABD20CF2CEB0029632E /* ServiceLayerSDK+CoreData */,
 			);
-			name = ServiceLayerSDK;
-			path = "New Group";
+			path = ServiceLayerSDK;
 			sourceTree = "<group>";
 		};
 		4405DABA20CF2AC10029632E /* SimpleReactive */ = {
