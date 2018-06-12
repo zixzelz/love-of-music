@@ -136,11 +136,10 @@
 		4405DAC120CF2CEB0029632E /* ServiceLayerSDK */ = {
 			isa = PBXGroup;
 			children = (
-				4405DAC220CF2CEB0029632E /* NetworkService.swift */,
 				4405DAC320CF2CEB0029632E /* Common */,
-				4405DACA20CF2CEB0029632E /* ServiceError.swift */,
-				4405DACB20CF2CEB0029632E /* Cocoa */,
+				4405DAC220CF2CEB0029632E /* NetworkService.swift */,
 				4405DACC20CF2CEB0029632E /* LocalService.swift */,
+				4405DACA20CF2CEB0029632E /* ServiceError.swift */,
 			);
 			name = ServiceLayerSDK;
 			path = "love-of-music/ServiceLayerSDK/ServiceLayerSDK";
@@ -157,13 +156,6 @@
 				4405DAC920CF2CEB0029632E /* Array+Dict.swift */,
 			);
 			path = Common;
-			sourceTree = "<group>";
-		};
-		4405DACB20CF2CEB0029632E /* Cocoa */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Cocoa;
 			sourceTree = "<group>";
 		};
 		4405DACD20CF2CEB0029632E /* ServiceLayerSDK+Cocoa */ = {

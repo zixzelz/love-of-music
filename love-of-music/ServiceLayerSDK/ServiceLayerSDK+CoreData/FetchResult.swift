@@ -126,15 +126,19 @@ class FetchResult <FetchObjectType: NSFetchRequestResult, ObjectType, PageObject
         return fetchedResultsController.object(at: indexPath)
     }
 
+    private var loadingPage: Bool = false
     func loadNextPageIfNeeded() {
 
-        guard totalCount > numberOfFetchedObjects else {
+        guard !loadingPage, totalCount > numberOfFetchedObjects else {
             return
         }
+
+        loadingPage = true
 
         let page = numberOfLoadedPages
         loadPage(page) { [weak self] _ in
             self?.numberOfLoadedPages += 1
+            self?.loadingPage = false
         }
     }
 

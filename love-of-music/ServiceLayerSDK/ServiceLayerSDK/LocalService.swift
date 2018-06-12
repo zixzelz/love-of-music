@@ -113,12 +113,12 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
             return
         }
 
-        var pageOrder = range.location
+        var itemOrder = range.location
         let context = ObjectType.managedObjectContext()
         let parsableContext = self.parsableContext
         context.perform {
 
-            let cachedPageItemsMap = self.pageItemsMap(filterId: filterId, fetchLimit: range.length, context: context)
+            let cachedPageItemsMap = self.pageItemsMap(filterId: filterId, range: range, context: context)
             var handledPageItemsKey = [String]()
             for jsonItem in items {
 
@@ -129,17 +129,17 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
 
                 if let cachedPageItem = cachedPageItemsMap[identifier] {
                     cachedPageItem.object.update(jsonItem, queryInfo: query.queryInfo)
-                    cachedPageItem.order = pageOrder
+                    cachedPageItem.order = itemOrder
                     handledPageItemsKey.append(identifier)
                 } else {
                     guard let item = ObjectType.insert(inContext: context) as? ObjectType else {
                         fatalError("Unexpected object type")
                     }
                     item.fill(jsonItem, queryInfo: query.queryInfo, context: parsableContext)
-                    _ = PageObjectType(filterId: filterId, object: item, order: pageOrder, inContext: context)
+                    _ = PageObjectType(filterId: filterId, object: item, order: itemOrder, inContext: context)
                 }
 
-                pageOrder += 1
+                itemOrder += 1
             }
 
             let itemForDelete = cachedPageItemsMap.filter { !handledPageItemsKey.contains($0.0) }
@@ -203,9 +203,9 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
         return map ?? [:]
     }
 
-    private func pageItemsMap(filterId: String, fetchLimit: Int, context: ManagedObjectContextType) -> [String: PageObjectType] {
-        let predicate = NSPredicate(format: "filterId == %@", filterId)
-        let result = PageObjectType.objects(withPredicate: predicate, fetchLimit: fetchLimit, inContext: context) as? [PageObjectType]
+    private func pageItemsMap(filterId: String, range: NSRange, context: ManagedObjectContextType) -> [String: PageObjectType] {
+        let predicate = NSPredicate(format: "filterId == %@ && order >= %d && order < %d", filterId, range.location, range.upperBound)
+        let result = PageObjectType.objects(withPredicate: predicate, fetchLimit: range.length, inContext: context) as? [PageObjectType]
 
         let map = result?.dict { ($0.object.identifier!, $0) }
 
