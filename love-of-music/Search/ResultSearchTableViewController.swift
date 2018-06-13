@@ -21,7 +21,7 @@ class ResultSearchTableViewController: UITableViewController {
 
     weak var paretViewController: UIViewController?
 
-    var viewModel: ResultSearchTableViewModeling {
+    private var viewModel: ResultSearchTableViewModeling {
         didSet {
             if isViewLoaded {
                 bind(with: viewModel)
@@ -36,6 +36,10 @@ class ResultSearchTableViewController: UITableViewController {
         }
     }
 
+    private lazy var loadingTableFooterView: LoadingTableFooterView = {
+        return LoadingTableFooterView()
+    }()
+
     init(viewModel: ResultSearchTableViewModeling) {
         self.viewModel = viewModel
         super.init(style: UITableViewStyle.plain)
@@ -49,12 +53,15 @@ class ResultSearchTableViewController: UITableViewController {
         super.viewDidLoad()
 
         tableView.registerNib(ResultSearchTableViewCell.self)//registerNib(ResultSearchTableViewCell.self)
-        tableView.tableFooterView = UIView()
+        tableView.tableFooterView = loadingTableFooterView
 
         bind(with: viewModel)
     }
 
+    private var scopedDisposable: ScopedDisposable?
     private func bind(with viewModel: ResultSearchTableViewModeling) {
+        let list = CompositeDisposable()
+        scopedDisposable = ScopedDisposable(list)
 
         let willDisplayCell = Property(_willDisplayCell)
 
@@ -65,6 +72,15 @@ class ResultSearchTableViewController: UITableViewController {
                 cell.configure(viewModel: cellVM)
                 return cell
             })
+
+        list += viewModel.listViewModel.state.observeValues { [weak self] (state) in
+            switch state {
+            case .loading:
+                self?.loadingTableFooterView.spinner.startAnimating()
+            case .loaded, .none:
+                self?.loadingTableFooterView.spinner.stopAnimating()
+            }
+        }
     }
 
     private func filterContentForSearchText(_ searchText: String?) {
@@ -84,4 +100,22 @@ extension ResultSearchTableViewController: UISearchResultsUpdating {
         let searchBar = searchController.searchBar
         filterContentForSearchText(searchBar.text)
     }
+}
+
+class LoadingTableFooterView: UIView {
+
+    let spinner = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+
+    init() {
+        super.init(frame: CGRect(x: 0, y: 0, width: 0, height: 40))
+        spinner.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleTopMargin, .flexibleBottomMargin]
+
+        addSubview(spinner)
+        spinner.center = CGPoint(x: bounds.midX, y: bounds.midY)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
 }
