@@ -1,15 +1,15 @@
 //
-//  ViewControllerViewModel.swift
+//  ResultSearchTableViewModel.swift
 //  love-of-music
 //
-//  Created by Ruslan Maslouski on 6/11/18.
+//  Created by Ruslan Maslouski on 6/13/18.
 //  Copyright © 2018 Ruslan Maslouski. All rights reserved.
 //
 
-import UIKit
+import Foundation
 import CoreData
 
-class ViewControllerViewModel: ViewControllerViewModeling {
+class ResultSearchTableViewModel: ResultSearchTableViewModeling {
 
     private struct Constants {
         static let pageSize = 6
@@ -17,9 +17,9 @@ class ViewControllerViewModel: ViewControllerViewModeling {
 
     private var releasesService: ReleasesService
 
-    lazy var listViewModel: ListViewModel<ReleasesCellViewModel> = {
-        let lvm = ListViewModel.model(fetchResult: fetchResult) { (item) -> ReleasesCellViewModel in
-            return ReleasesCellViewModel(release: item.object)
+    lazy var listViewModel: ListViewModel<SearchCellViewModel> = {
+        let lvm = ListViewModel.model(fetchResult: fetchResult) { (item) -> SearchCellViewModel in
+            return SearchCellViewModel(release: item.object)
         }
         return lvm
     }()

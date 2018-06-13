@@ -27,6 +27,7 @@
 		4405DADD20CF2CEB0029632E /* TableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DACF20CF2CEB0029632E /* TableViewDataSource.swift */; };
 		4405DAE120CF2D580029632E /* ReleasesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DADF20CF2D580029632E /* ReleasesService.swift */; };
 		4405DAE220CF2D580029632E /* NetworkServiceQueryType+Default.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DAE020CF2D580029632E /* NetworkServiceQueryType+Default.swift */; };
+		440B314620D07D650022B9E4 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440B314520D07D650022B9E4 /* SearchViewController.swift */; };
 		448A979A20C6B9020004667E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A979920C6B9020004667E /* AppDelegate.swift */; };
 		448A979C20C6B9030004667E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A979B20C6B9030004667E /* ViewController.swift */; };
 		448A979F20C6B9030004667E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 448A979D20C6B9030004667E /* Main.storyboard */; };
@@ -36,6 +37,12 @@
 		448A97D020C6BB2D0004667E /* CoreDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97CE20C6BB2C0004667E /* CoreDataStore.swift */; };
 		448A97D320C6C05A0004667E /* ReleasesEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97D220C6C05A0004667E /* ReleasesEntity.swift */; };
 		448A97D520C7D01D0004667E /* ReleasesPageEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97D420C7D01D0004667E /* ReleasesPageEntity.swift */; };
+		449D4DA620D080660086C8AB /* ResultSearchTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449D4DA520D080660086C8AB /* ResultSearchTableViewController.swift */; };
+		449D4DA820D0830A0086C8AB /* ResultSearchTableViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449D4DA720D0830A0086C8AB /* ResultSearchTableViewModel.swift */; };
+		449D4DAA20D084FE0086C8AB /* ResultSearchCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449D4DA920D084FE0086C8AB /* ResultSearchCellViewModel.swift */; };
+		449D4DAD20D0FB920086C8AB /* ResultSearchTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449D4DAB20D0FB920086C8AB /* ResultSearchTableViewCell.swift */; };
+		449D4DAE20D0FB920086C8AB /* ResultSearchTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 449D4DAC20D0FB920086C8AB /* ResultSearchTableViewCell.xib */; };
+		449D4DB120D0FC800086C8AB /* UITableViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449D4DB020D0FC800086C8AB /* UITableViewExtension.swift */; };
 		44D16C4320C8248700F7845F /* CoreDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 44D16C4120C8248700F7845F /* CoreDataModel.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
@@ -60,6 +67,7 @@
 		4405DACF20CF2CEB0029632E /* TableViewDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewDataSource.swift; sourceTree = "<group>"; };
 		4405DADF20CF2D580029632E /* ReleasesService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReleasesService.swift; sourceTree = "<group>"; };
 		4405DAE020CF2D580029632E /* NetworkServiceQueryType+Default.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NetworkServiceQueryType+Default.swift"; sourceTree = "<group>"; };
+		440B314520D07D650022B9E4 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		448A979620C6B9020004667E /* love-of-music.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "love-of-music.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		448A979920C6B9020004667E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		448A979B20C6B9030004667E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -71,6 +79,12 @@
 		448A97CE20C6BB2C0004667E /* CoreDataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStore.swift; sourceTree = "<group>"; };
 		448A97D220C6C05A0004667E /* ReleasesEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleasesEntity.swift; sourceTree = "<group>"; };
 		448A97D420C7D01D0004667E /* ReleasesPageEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleasesPageEntity.swift; sourceTree = "<group>"; };
+		449D4DA520D080660086C8AB /* ResultSearchTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultSearchTableViewController.swift; sourceTree = "<group>"; };
+		449D4DA720D0830A0086C8AB /* ResultSearchTableViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultSearchTableViewModel.swift; sourceTree = "<group>"; };
+		449D4DA920D084FE0086C8AB /* ResultSearchCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultSearchCellViewModel.swift; sourceTree = "<group>"; };
+		449D4DAB20D0FB920086C8AB /* ResultSearchTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultSearchTableViewCell.swift; sourceTree = "<group>"; };
+		449D4DAC20D0FB920086C8AB /* ResultSearchTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ResultSearchTableViewCell.xib; sourceTree = "<group>"; };
+		449D4DB020D0FC800086C8AB /* UITableViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITableViewExtension.swift; sourceTree = "<group>"; };
 		44D16C4220C8248700F7845F /* CoreDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreDataModel.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -163,6 +177,7 @@
 			children = (
 				4405DACE20CF2CEB0029632E /* CollectionViewDataSource.swift */,
 				4405DACF20CF2CEB0029632E /* TableViewDataSource.swift */,
+				449D4DB020D0FC800086C8AB /* UITableViewExtension.swift */,
 			);
 			name = "ServiceLayerSDK+Cocoa";
 			path = "love-of-music/ServiceLayerSDK/ServiceLayerSDK+Cocoa";
@@ -175,6 +190,17 @@
 				4405DAE020CF2D580029632E /* NetworkServiceQueryType+Default.swift */,
 			);
 			path = ServiceLayer;
+			sourceTree = "<group>";
+		};
+		440B314420D07D2A0022B9E4 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				449D4DAF20D0FBF10086C8AB /* Cell */,
+				440B314520D07D650022B9E4 /* SearchViewController.swift */,
+				449D4DA520D080660086C8AB /* ResultSearchTableViewController.swift */,
+				449D4DA720D0830A0086C8AB /* ResultSearchTableViewModel.swift */,
+			);
+			path = Search;
 			sourceTree = "<group>";
 		};
 		448A978D20C6B9020004667E = {
@@ -203,6 +229,7 @@
 				4405DADE20CF2D580029632E /* ServiceLayer */,
 				4405DAAD20CF164A0029632E /* Releases */,
 				448A979920C6B9020004667E /* AppDelegate.swift */,
+				440B314420D07D2A0022B9E4 /* Search */,
 				448A979D20C6B9030004667E /* Main.storyboard */,
 				448A97A020C6B9050004667E /* Assets.xcassets */,
 				448A97A220C6B9050004667E /* LaunchScreen.storyboard */,
@@ -228,6 +255,16 @@
 				44D16C4120C8248700F7845F /* CoreDataModel.xcdatamodeld */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		449D4DAF20D0FBF10086C8AB /* Cell */ = {
+			isa = PBXGroup;
+			children = (
+				449D4DA920D084FE0086C8AB /* ResultSearchCellViewModel.swift */,
+				449D4DAB20D0FB920086C8AB /* ResultSearchTableViewCell.swift */,
+				449D4DAC20D0FB920086C8AB /* ResultSearchTableViewCell.xib */,
+			);
+			path = Cell;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -289,6 +326,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				448A97A420C6B9050004667E /* LaunchScreen.storyboard in Resources */,
+				449D4DAE20D0FB920086C8AB /* ResultSearchTableViewCell.xib in Resources */,
 				448A97A120C6B9050004667E /* Assets.xcassets in Resources */,
 				448A979F20C6B9030004667E /* Main.storyboard in Resources */,
 			);
@@ -306,15 +344,19 @@
 				4405DADA20CF2CEB0029632E /* ServiceError.swift in Sources */,
 				4405DABC20CF2ADA0029632E /* Property.swift in Sources */,
 				4405DAD620CF2CEB0029632E /* ModelType.swift in Sources */,
+				449D4DA620D080660086C8AB /* ResultSearchTableViewController.swift in Sources */,
 				4405DADB20CF2CEB0029632E /* LocalService.swift in Sources */,
 				448A97D020C6BB2D0004667E /* CoreDataStore.swift in Sources */,
 				448A979C20C6B9030004667E /* ViewController.swift in Sources */,
 				4405DAD720CF2CEB0029632E /* QueryInfoType.swift in Sources */,
+				449D4DA820D0830A0086C8AB /* ResultSearchTableViewModel.swift in Sources */,
 				44D16C4320C8248700F7845F /* CoreDataModel.xcdatamodeld in Sources */,
 				4405DAD320CF2CEB0029632E /* NetworkService.swift in Sources */,
+				449D4DAD20D0FB920086C8AB /* ResultSearchTableViewCell.swift in Sources */,
 				4405DAD120CF2CEB0029632E /* ListViewModel.swift in Sources */,
 				4405DAB120CF20500029632E /* ReleasesCellViewModel.swift in Sources */,
 				448A97D520C7D01D0004667E /* ReleasesPageEntity.swift in Sources */,
+				449D4DAA20D084FE0086C8AB /* ResultSearchCellViewModel.swift in Sources */,
 				4405DAD020CF2CEB0029632E /* FetchResult.swift in Sources */,
 				448A97CF20C6BB2D0004667E /* CoreDataHelper.swift in Sources */,
 				4405DAD520CF2CEB0029632E /* Parsable.swift in Sources */,
@@ -323,6 +365,8 @@
 				4405DAD820CF2CEB0029632E /* CachePolicy.swift in Sources */,
 				448A97D320C6C05A0004667E /* ReleasesEntity.swift in Sources */,
 				4405DAE120CF2D580029632E /* ReleasesService.swift in Sources */,
+				440B314620D07D650022B9E4 /* SearchViewController.swift in Sources */,
+				449D4DB120D0FC800086C8AB /* UITableViewExtension.swift in Sources */,
 				4405DAD920CF2CEB0029632E /* Array+Dict.swift in Sources */,
 				4405DADC20CF2CEB0029632E /* CollectionViewDataSource.swift in Sources */,
 				448A979A20C6B9020004667E /* AppDelegate.swift in Sources */,
