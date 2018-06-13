@@ -104,11 +104,12 @@ extension ResultSearchTableViewController: UISearchResultsUpdating {
 
 class LoadingTableFooterView: UIView {
 
-    let spinner = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+    let spinner = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
 
     init() {
-        super.init(frame: CGRect(x: 0, y: 0, width: 0, height: 40))
+        super.init(frame: spinner.bounds.insetBy(dx: 0, dy: -20))
         spinner.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleTopMargin, .flexibleBottomMargin]
+        spinner.color = UIColor.black
 
         addSubview(spinner)
         spinner.center = CGPoint(x: bounds.midX, y: bounds.midY)
