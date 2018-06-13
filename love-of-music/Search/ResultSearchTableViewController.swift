@@ -10,6 +10,7 @@ import UIKit
 
 protocol ResultSearchTableViewModeling {
     var listViewModel: ListViewModel<SearchCellViewModel> { get }
+    func search(with text: String?)
 }
 
 class ResultSearchTableViewController: UITableViewController {
@@ -68,9 +69,14 @@ class ResultSearchTableViewController: UITableViewController {
     }
 
     private func filterContentForSearchText(_ searchText: String?) {
-        tableView.reloadData()
+        viewModel.search(with: searchText)
     }
 
+    //MARK: - UITableViewDelegate
+
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        _willDisplayCell.value = indexPath
+    }
 }
 
 extension ResultSearchTableViewController: UISearchResultsUpdating {

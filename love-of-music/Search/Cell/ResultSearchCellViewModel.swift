@@ -12,7 +12,7 @@ class SearchCellViewModel {
 
     var title: String?
 
-    init(release: ReleasesEntity) {
+    init(release: AlbumEntity) {
         title = release.title
     }
 

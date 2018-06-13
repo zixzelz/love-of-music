@@ -26,7 +26,7 @@ class ViewController: UIViewController {
         }
     }
 
-    private var _willDisplayCell: MutableProperty<IndexPath> = MutableProperty(value: IndexPath(row: 0, section: 0)) // make as optional
+    private var _willDisplayCell: MutableProperty<IndexPath> = MutableProperty(value: IndexPath(row: 0, section: 0)) // make as optional, add ignoreNill with ReactiveCocoa
 
     private var viewModel: ViewControllerViewModeling! {
         didSet {

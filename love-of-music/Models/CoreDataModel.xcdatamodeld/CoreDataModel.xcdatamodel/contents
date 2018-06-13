@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14133" systemVersion="17E202" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="AlbumEntity" representedClassName="AlbumEntity" syncable="YES">
+        <attribute name="albumId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="country" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="genre" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="thumb" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="year" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="pages" optional="YES" toMany="YES" deletionRule="Deny" destinationEntity="AlbumPageEntity" inverseName="object" inverseEntity="AlbumPageEntity" syncable="YES"/>
+    </entity>
+    <entity name="AlbumPageEntity" representedClassName="AlbumPageEntity" syncable="YES">
+        <attribute name="filterId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="order" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <relationship name="object" maxCount="1" deletionRule="No Action" destinationEntity="AlbumEntity" inverseName="pages" inverseEntity="AlbumEntity" syncable="YES"/>
+    </entity>
     <entity name="ReleasesEntity" representedClassName="ReleasesEntity" syncable="YES">
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="userId" optional="YES" attributeType="String" syncable="YES"/>
@@ -7,11 +22,13 @@
     </entity>
     <entity name="ReleasesPageEntity" representedClassName="ReleasesPageEntity" syncable="YES">
         <attribute name="filterId" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="order" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="order" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <relationship name="object" maxCount="1" deletionRule="Cascade" destinationEntity="ReleasesEntity" inverseName="pages" inverseEntity="ReleasesEntity" syncable="YES"/>
     </entity>
     <elements>
         <element name="ReleasesEntity" positionX="-63" positionY="-18" width="128" height="90"/>
         <element name="ReleasesPageEntity" positionX="-54" positionY="9" width="128" height="90"/>
+        <element name="AlbumEntity" positionX="-63" positionY="27" width="128" height="165"/>
+        <element name="AlbumPageEntity" positionX="-54" positionY="36" width="128" height="90"/>
     </elements>
 </model>

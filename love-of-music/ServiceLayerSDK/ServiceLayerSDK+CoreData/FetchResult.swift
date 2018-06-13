@@ -55,8 +55,16 @@ class FetchResult <FetchObjectType: NSFetchRequestResult, ObjectType, PageObject
         super.init()
     }
 
-    func performFetch(query: NetworkServiceQuery) {
+    func performFetch(query: NetworkServiceQuery?) {
         self.query = query
+
+        guard let query = query else {
+            fetchedResultsController = nil
+            numberOfLoadedPages = 0
+            totalCount = 0
+            _state.value = .none
+            return
+        }
 
         let filterId = query.filterIdentifier
         fetchedResultsController = _fetchedResultsController(filterId)
