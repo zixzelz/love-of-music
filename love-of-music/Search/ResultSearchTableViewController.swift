@@ -9,7 +9,7 @@
 import UIKit
 
 protocol ResultSearchTableViewModeling {
-    var listViewModel: ListViewModel<SearchCellViewModel> { get }
+    var listViewModel: ListViewModel<ResultSearchCellViewModel> { get }
     func search(with text: String?)
 }
 
@@ -30,7 +30,7 @@ class ResultSearchTableViewController: UITableViewController {
     }
 
     private var _willDisplayCell: MutableProperty<IndexPath> = MutableProperty(value: IndexPath(row: 0, section: 0)) // make as optional
-    private var contentDataSource: TableViewDataSource<SearchCellViewModel>? {
+    private var contentDataSource: TableViewDataSource<ResultSearchCellViewModel>? {
         didSet {
             tableView.dataSource = contentDataSource
         }
@@ -62,8 +62,7 @@ class ResultSearchTableViewController: UITableViewController {
             paging: (Constants.pagingPool, willDisplayCell),
             map: { (tableView, indexpath, cellVM) -> UITableViewCell in
                 let cell: ResultSearchTableViewCell = tableView.dequeueCell(for: indexpath)
-                cell.textLabel?.text = cellVM.title
-//                cell.configure(viewModel: cellVM)
+                cell.configure(viewModel: cellVM)
                 return cell
             })
     }

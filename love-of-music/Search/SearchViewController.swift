@@ -7,7 +7,7 @@
 //
 
 import UIKit
-//DefaultCell
+
 class SearchViewController: UITableViewController {
 
     lazy var searchController: UISearchController = {
@@ -25,7 +25,6 @@ class SearchViewController: UITableViewController {
         super.viewDidLoad()
 
         setupSearchController()
-//        fetchData(animated: true)
 
         navigationItem.title = "Discogs"
         tableView.tableFooterView = UIView()

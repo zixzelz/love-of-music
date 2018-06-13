@@ -8,12 +8,19 @@
 
 import Foundation
 
-class SearchCellViewModel {
+class ResultSearchCellViewModel {
 
-    var title: String?
+    private let release: AlbumEntity
+
+    var title: String? {
+        return release.title
+    }
+    var country: String? {
+        return release.country
+    }
 
     init(release: AlbumEntity) {
-        title = release.title
+        self.release = release
     }
 
 }

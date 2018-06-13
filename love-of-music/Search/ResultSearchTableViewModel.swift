@@ -17,9 +17,9 @@ class ResultSearchTableViewModel: ResultSearchTableViewModeling {
 
     private var albumService: AlbumService
 
-    lazy var listViewModel: ListViewModel<SearchCellViewModel> = {
-        let lvm = ListViewModel.model(fetchResult: fetchResult) { (item) -> SearchCellViewModel in
-            return SearchCellViewModel(release: item.object)
+    lazy var listViewModel: ListViewModel<ResultSearchCellViewModel> = {
+        let lvm = ListViewModel.model(fetchResult: fetchResult) { (item) -> ResultSearchCellViewModel in
+            return ResultSearchCellViewModel(release: item.object)
         }
         return lvm
     }()
