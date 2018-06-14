@@ -138,7 +138,7 @@ class FetchResult <FetchObjectType: NSFetchRequestResult, ObjectType, PageObject
         let oldFilterIdentifier = query.filterIdentifier
         networkService.fetchPageData(query, cache: cachePolicy, range: range) { [weak self] (result) in
             guard let currentQuery = self?.query, oldFilterIdentifier == currentQuery.filterIdentifier else {
-                print("fetchPageData for old query")
+                print("❌ fetchPageData for old query")
                 return
             }
             guard case .success(let info) = result else {
@@ -177,6 +177,7 @@ class FetchResult <FetchObjectType: NSFetchRequestResult, ObjectType, PageObject
     func loadNextPageIfNeeded() {
 
         guard _state.value != .loading, totalCount > numberOfFetchedObjects else {
+            print("loadPage canceled")
             return
         }
 
@@ -199,7 +200,7 @@ class FetchResult <FetchObjectType: NSFetchRequestResult, ObjectType, PageObject
     private var changedItems: [UpdateType]?
 
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        print("controllerWillChangeContent: \(String(describing: fetchedResultsController?.fetchedObjects?.count)), \(numberOfFetchedObjects)")
+        print("♻️ controllerWillChangeContent: \(String(describing: fetchedResultsController?.fetchedObjects?.count)), \(numberOfFetchedObjects)")
         changedItems = []
     }
 
@@ -222,7 +223,7 @@ class FetchResult <FetchObjectType: NSFetchRequestResult, ObjectType, PageObject
     }
 
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        print("controllerDidChangeContent: \(String(describing: fetchedResultsController?.fetchedObjects?.count)), \(numberOfFetchedObjects)")
+        print("✅ controllerDidChangeContent: \(String(describing: fetchedResultsController?.fetchedObjects?.count)), \(numberOfFetchedObjects)")
     }
 
 }

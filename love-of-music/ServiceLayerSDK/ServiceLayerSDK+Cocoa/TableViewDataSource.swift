@@ -45,10 +45,12 @@ class TableViewDataSource <CellViewModel>: NSObject, UITableViewDataSource {
                 return
             }
 
-            let ff = strongSelf.tableView.numberOfRows(inSection: 0)
-            print("listViewModel.didUpdate list: \(list); numberOfRows \(ff); totalCount: \(strongSelf.totalCount)")
-
             guard list.count > 0 else {
+                var inset = strongSelf.tableView.contentInset.top
+                if #available(iOS 11.0, *) {
+                    inset = strongSelf.tableView.adjustedContentInset.top
+                }
+                strongSelf.tableView.setContentOffset(CGPoint(x: 0, y: -inset), animated: false)
                 strongSelf.tableView.reloadData()
                 return
             }

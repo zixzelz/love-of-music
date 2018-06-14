@@ -71,8 +71,6 @@ class ResultSearchTableViewController: UITableViewController {
             map: { (tableView, indexpath, cellVM) -> UITableViewCell in
                 let cell: ResultSearchTableViewCell = tableView.dequeueCell(for: indexpath)
                 cell.configure(viewModel: cellVM)
-//                cell.backgroundColor = UIColor.red
-                print("cell for row \(indexpath) \(cellVM.title)")
                 return cell
             })
 
