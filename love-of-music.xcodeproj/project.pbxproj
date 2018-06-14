@@ -131,8 +131,8 @@
 			isa = PBXGroup;
 			children = (
 				4405DAC120CF2CEB0029632E /* ServiceLayerSDK */,
-				4405DACD20CF2CEB0029632E /* ServiceLayerSDK+Cocoa */,
 				4405DABD20CF2CEB0029632E /* ServiceLayerSDK+CoreData */,
+				4405DACD20CF2CEB0029632E /* ServiceLayerSDK+Cocoa */,
 			);
 			path = ServiceLayerSDK;
 			sourceTree = "<group>";

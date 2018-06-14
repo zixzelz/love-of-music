@@ -52,7 +52,8 @@ class ResultSearchTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        tableView.registerNib(ResultSearchTableViewCell.self)//registerNib(ResultSearchTableViewCell.self)
+        tableView.keyboardDismissMode = .onDrag
+        tableView.registerNib(ResultSearchTableViewCell.self)
         tableView.tableFooterView = loadingTableFooterView
 
         bind(with: viewModel)
@@ -70,6 +71,8 @@ class ResultSearchTableViewController: UITableViewController {
             map: { (tableView, indexpath, cellVM) -> UITableViewCell in
                 let cell: ResultSearchTableViewCell = tableView.dequeueCell(for: indexpath)
                 cell.configure(viewModel: cellVM)
+//                cell.backgroundColor = UIColor.red
+                print("cell for row \(indexpath) \(cellVM.title)")
                 return cell
             })
 

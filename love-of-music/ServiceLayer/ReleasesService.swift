@@ -37,7 +37,7 @@ enum ReleasesQueryInfo: QueryInfoType {
     case `default`
 }
 
-class ReleasesQuery: NetworkServiceQueryType {
+struct ReleasesQuery: NetworkServiceQueryType {
 
     var queryInfo: ReleasesQueryInfo = .default
 

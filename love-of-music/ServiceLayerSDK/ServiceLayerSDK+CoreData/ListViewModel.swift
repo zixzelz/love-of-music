@@ -13,7 +13,7 @@ protocol ListViewModelType {
     associatedtype CellViewModel
 
     var state: Property<FetchResultState> { get }
-    var didUpdate: Property<Void> { get }
+    var didUpdate: Property<[UpdateType]> { get }
 
     var numberOfItems: Int { get }
     func cellViewModel(at indexpath: IndexPath) -> CellViewModel
@@ -27,10 +27,9 @@ class ListViewModel<CellViewModel>: ListViewModelType {
         preconditionFailure("Should be overriden")
     }
 
-    fileprivate var _didUpdate: MutableProperty<Void>
-    lazy var didUpdate: Property<Void> = {
-        return Property(_didUpdate)
-    }()
+    var didUpdate: Property<[UpdateType]> {
+        preconditionFailure("Should be overriden")
+    }
 
     var numberOfItems: Int {
         preconditionFailure("Should be overriden")
@@ -45,7 +44,6 @@ class ListViewModel<CellViewModel>: ListViewModelType {
     }
 
     init() {
-        _didUpdate = MutableProperty(value: ())
     }
 }
 
@@ -84,6 +82,10 @@ private class ResultListViewModel <FetchResult: FetchResultType, CellViewModel>:
         return fetchResult.state
     }
 
+    override var didUpdate: Property<[UpdateType]> {
+        return fetchResult.didUpdate
+    }
+
     override var numberOfItems: Int {
         return fetchResult.numberOfFetchedObjects
     }
@@ -105,7 +107,6 @@ private class ResultListViewModel <FetchResult: FetchResultType, CellViewModel>:
 
     private func didStatusUpdate(status: FetchResultState) {
         print("[ResultListViewModel] didStatusUpdate")
-        _didUpdate.value = ()
     }
 
 }

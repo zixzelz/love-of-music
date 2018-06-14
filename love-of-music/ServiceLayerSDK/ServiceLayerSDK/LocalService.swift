@@ -118,7 +118,8 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
         let parsableContext = self.parsableContext
         context.perform {
 
-            let cachedPageItemsMap = self.pageItemsMap(filterId: filterId, range: range, context: context)
+            let newRange = NSRange(location: range.location, length: 10000) //temp solution, make butch delete for old items
+            let cachedPageItemsMap = self.pageItemsMap(filterId: filterId, range: newRange, context: context)
             var handledPageItemsKey = [String]()
             for jsonItem in items {
 
@@ -143,6 +144,7 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
             }
 
             let itemForDelete = cachedPageItemsMap.filter { !handledPageItemsKey.contains($0.0) }
+            print("itemForDelete \(itemForDelete)")
             for (_, page) in itemForDelete {
                 page.delete(context: context)
             }
@@ -203,9 +205,11 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
         return map ?? [:]
     }
 
-    private func pageItemsMap(filterId: String, range: NSRange, context: ManagedObjectContextType) -> [String: PageObjectType] {
-        let predicate = NSPredicate(format: "filterId == %@ && order >= %d && order < %d", filterId, range.location, range.upperBound)
-        let result = PageObjectType.objects(withPredicate: predicate, fetchLimit: range.length, inContext: context) as? [PageObjectType]
+    private func pageItemsMap(filterId: String, range: NSRange?, context: ManagedObjectContextType) -> [String: PageObjectType] {
+        let predicate = range.map { (range) -> NSPredicate in
+            return NSPredicate(format: "filterId == %@ && order >= %d && order < %d", filterId, range.location, range.location + range.upperBound)
+        } ?? NSPredicate(format: "filterId == %@", filterId)
+        let result = PageObjectType.objects(withPredicate: predicate, fetchLimit: range?.length, inContext: context) as? [PageObjectType]
 
         let map = result?.dict { ($0.object.identifier!, $0) }
 

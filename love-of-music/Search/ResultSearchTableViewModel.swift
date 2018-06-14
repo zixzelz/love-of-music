@@ -43,7 +43,12 @@ class ResultSearchTableViewModel: ResultSearchTableViewModeling {
     }()
 
     private var token: dispatch_cancelable_closure?
+    private var previouseSearchtText: String?
     func search(with text: String?) {
+        guard previouseSearchtText != text else {
+            return
+        }
+        previouseSearchtText = text
 
         cancel_delay(token)
         token = delay(0.25) { [weak self] in
