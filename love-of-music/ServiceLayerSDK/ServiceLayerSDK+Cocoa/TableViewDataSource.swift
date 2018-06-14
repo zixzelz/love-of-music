@@ -52,6 +52,9 @@ class TableViewDataSource <CellViewModel>: NSObject, UITableViewDataSource {
                 }
                 strongSelf.tableView.setContentOffset(CGPoint(x: 0, y: -inset), animated: false)
                 strongSelf.tableView.reloadData()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    strongSelf.tableView.setContentOffset(CGPoint(x: 0, y: -inset), animated: true)
+                }
                 return
             }
 

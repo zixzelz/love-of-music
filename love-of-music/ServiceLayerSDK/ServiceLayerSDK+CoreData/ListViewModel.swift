@@ -106,7 +106,7 @@ private class ResultListViewModel <FetchResult: FetchResultType, CellViewModel>:
     }
 
     private func didStatusUpdate(status: FetchResultState) {
-        print("[ResultListViewModel] didStatusUpdate")
+        print("[ResultListViewModel] didStatusUpdate \(status)")
     }
 
 }

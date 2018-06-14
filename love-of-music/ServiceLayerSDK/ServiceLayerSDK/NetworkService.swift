@@ -157,9 +157,9 @@ class NetworkService<ObjectType: ModelType, PageObjectType: PageModelType> {
             let responseDict = json as? [String: AnyObject] ?? [String: AnyObject]()
 
             #if DEBUG
-                if let response = NSString(data: data!, encoding: String.Encoding.utf8.rawValue) {
-                    print("response: \(response)")
-                }
+//                if let response = NSString(data: data!, encoding: String.Encoding.utf8.rawValue) {
+//                    print("response: \(response)")
+//                }
             #endif
             self.parseAndStore(query, responseDict: responseDict, range: range) { [weak self] (result) in
                 self?.saveDate(query, range: range)
