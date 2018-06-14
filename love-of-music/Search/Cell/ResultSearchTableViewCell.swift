@@ -12,6 +12,7 @@ class ResultSearchTableViewCell: UITableViewCell, CellIdentifier {
 
     func configure(viewModel: ResultSearchCellViewModel) {
         textLabel?.text = viewModel.title
+        detailTextLabel?.text = viewModel.country
     }
     
 }
