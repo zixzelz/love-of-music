@@ -24,9 +24,9 @@ class ViewControllerViewModel: ViewControllerViewModeling {
         return lvm
     }()
 
-    lazy var fetchResult: FetchResult<ReleasesPageEntity, ReleasesEntity, ReleasesPageEntity, ReleasesQuery> = {
+    lazy var fetchResult: PageFetchResult<ReleasesPageEntity, ReleasesQuery> = {
         let networkService = releasesService.networkService
-        return FetchResult(networkService: networkService, cachePolicy: .cachedThenLoad, pageSize: Constants.pageSize) { filterId -> NSFetchedResultsController<ReleasesPageEntity> in
+        return PageFetchResult(networkService: networkService, cachePolicy: .cachedThenLoad, pageSize: Constants.pageSize) { filterId -> NSFetchedResultsController<ReleasesPageEntity> in
 
             let context = CoreDataHelper.managedObjectContext
             let predicate = NSPredicate(format: "\(#keyPath(ReleasesPageEntity.filterId)) = %@", filterId)

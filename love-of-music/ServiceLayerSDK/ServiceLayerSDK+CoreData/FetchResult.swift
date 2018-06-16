@@ -41,9 +41,106 @@ protocol FetchResultType: class {
     func loadNextPageIfNeeded()
 }
 
-class FetchResult <FetchObjectType: NSFetchRequestResult, ObjectType, PageObjectType: PageModelType, NetworkServiceQuery: NetworkServiceQueryType>: NSObject, FetchResultType, NSFetchedResultsControllerDelegate where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+class FetchResult <FetchObjectType: NSFetchRequestResult>: NSObject, FetchResultType, NSFetchedResultsControllerDelegate {
 
-    private let networkService: NetworkService<ObjectType, PageObjectType>
+    fileprivate var fetchedResultsController: NSFetchedResultsController<FetchObjectType>?
+
+    fileprivate var _state: MutableProperty<FetchResultState>
+    lazy var state: Property<FetchResultState> = {
+        return Property(_state)
+    }()
+
+    fileprivate var _didUpdate: MutableProperty<[UpdateType]>
+    lazy var didUpdate: Property<[UpdateType]> = {
+        return Property(_didUpdate)
+    }()
+
+    fileprivate override init() {
+        _state = MutableProperty(value: .none)
+        _didUpdate = MutableProperty(value: [])
+        super.init()
+    }
+
+//    private func updateFetchedResultsController(filterId: String) {
+//        let predicate = NSPredicate(format: "filterId = %@", filterId) //#keyPath(ReleasesPageEntity.filterId)
+//        fetchedResultsController.fetchRequest.predicate = predicate
+//        NSFetchedResultsController<NSFetchRequestResult>.deleteCache(withName: nil)
+//        try? fetchedResultsController.performFetch()
+//    }
+
+    //MARK: NSFetchedResultsControllerDelegate
+
+    var numberOfFetchedObjects: Int {
+        let count = fetchedResultsController?.fetchedObjects?.count ?? 0
+        return count
+    }
+
+    func object(at indexPath: IndexPath) -> FetchObjectType {
+        guard let fetchedResultsController = fetchedResultsController else {
+            fatalError("indexPath out of range")
+        }
+        return fetchedResultsController.object(at: indexPath)
+    }
+
+    func loadNextPageIfNeeded() {
+        preconditionFailure("Should be overriden")
+    }
+
+    //MARK: NSFetchedResultsControllerDelegate
+
+    fileprivate var changedItems: [UpdateType]?
+
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        print("♻️ controllerWillChangeContent: \(String(describing: fetchedResultsController?.fetchedObjects?.count)), \(numberOfFetchedObjects)")
+        changedItems = []
+    }
+
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        if let newIndexPath = newIndexPath {
+            switch type {
+            case .insert:
+                changedItems?.append(.insert(newIndexPath))
+            case .delete:
+                changedItems?.append(.delete(newIndexPath))
+            case .update:
+                changedItems?.append(.update(newIndexPath))
+            case .move:
+                if let indexPath = indexPath {
+                    changedItems?.append(.move(indexPath, newIndexPath))
+                }
+            }
+            print("didChange \(newIndexPath) \(type.rawValue)")
+        }
+    }
+
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        print("✅ controllerDidChangeContent: \(String(describing: fetchedResultsController?.fetchedObjects?.count)), \(numberOfFetchedObjects)")
+    }
+
+}
+
+extension FetchResult {
+
+    static func pageResult <Query: NetworkServiceQueryType> (
+        networkService service: NetworkService<FetchObjectType.ObjectType, FetchObjectType>,
+        query: Query?, //Workaround, because I can't specify generic parameter with not used in function signature
+        cachePolicy: CachePolicy,
+        pageSize: Int? = nil,
+        fetchedResultsController: @escaping (_ filterId: String) -> NSFetchedResultsController<FetchObjectType>
+    ) -> FetchResult<FetchObjectType> where Query.QueryInfo == FetchObjectType.ObjectType.QueryInfo, FetchObjectType: PageModelType {
+
+        return PageFetchResult<FetchObjectType, Query>(
+            networkService: service,
+            cachePolicy: cachePolicy,
+            fetchedResultsController: fetchedResultsController
+        )
+    }
+}
+//, ObjectType, PageObjectType: PageModelType
+class PageFetchResult <FetchObjectType: NSFetchRequestResult, NetworkServiceQuery: NetworkServiceQueryType>: FetchResult<FetchObjectType>
+where NetworkServiceQuery.QueryInfo == FetchObjectType.ObjectType.QueryInfo, FetchObjectType: PageModelType {
+
+    private let networkService: NetworkService<FetchObjectType.ObjectType, FetchObjectType>
     private var query: NetworkServiceQuery?
     private let cachePolicy: CachePolicy
     private let pageSize: Int?
@@ -51,19 +148,8 @@ class FetchResult <FetchObjectType: NSFetchRequestResult, ObjectType, PageObject
     private var totalCount: Int
 
     private var _fetchedResultsController: (_ filterId: String) -> NSFetchedResultsController<FetchObjectType>
-    private var fetchedResultsController: NSFetchedResultsController<FetchObjectType>?
 
-    private var _state: MutableProperty<FetchResultState>
-    lazy var state: Property<FetchResultState> = {
-        return Property(_state)
-    }()
-
-    private var _didUpdate: MutableProperty<[UpdateType]>
-    lazy var didUpdate: Property<[UpdateType]> = {
-        return Property(_didUpdate)
-    }()
-
-    init(networkService service: NetworkService<ObjectType, PageObjectType>, cachePolicy: CachePolicy, pageSize: Int? = nil, fetchedResultsController: @escaping (_ filterId: String) -> NSFetchedResultsController<FetchObjectType>) { //} where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+    init(networkService service: NetworkService<FetchObjectType.ObjectType, FetchObjectType>, cachePolicy: CachePolicy, pageSize: Int? = nil, fetchedResultsController: @escaping (_ filterId: String) -> NSFetchedResultsController<FetchObjectType>) {
 
         self.networkService = service
         self.cachePolicy = cachePolicy
@@ -71,11 +157,12 @@ class FetchResult <FetchObjectType: NSFetchRequestResult, ObjectType, PageObject
         self.numberOfLoadedPages = 0
         self.totalCount = 0
 
-        _state = MutableProperty(value: .none)
-        _didUpdate = MutableProperty(value: [])
         _fetchedResultsController = fetchedResultsController//FetchResult.makeFetchedResultsController(pageSize: pageSize)
 
         super.init()
+
+        _state = MutableProperty(value: .none)
+        _didUpdate = MutableProperty(value: [])
     }
 
     func performFetch(query: NetworkServiceQuery?) {
@@ -151,37 +238,12 @@ class FetchResult <FetchObjectType: NSFetchRequestResult, ObjectType, PageObject
 
     }
 
-//    private func updateFetchedResultsController(filterId: String) {
-//        let predicate = NSPredicate(format: "filterId = %@", filterId) //#keyPath(ReleasesPageEntity.filterId)
-//        fetchedResultsController.fetchRequest.predicate = predicate
-//        NSFetchedResultsController<NSFetchRequestResult>.deleteCache(withName: nil)
-//        try? fetchedResultsController.performFetch()
-//    }
-
-    //MARK: NSFetchedResultsControllerDelegate
-
-    var numberOfFetchedObjects: Int {
-        let count = fetchedResultsController?.fetchedObjects?.count ?? 0
-        let limitCount = pageSize.map { min(count, $0 * numberOfLoadedPages) }
-        return limitCount ?? count
-    }
-
-    func object(at indexPath: IndexPath) -> FetchObjectType {
-        guard let fetchedResultsController = fetchedResultsController else {
-            fatalError("indexPath out of range")
-        }
-        return fetchedResultsController.object(at: indexPath)
-    }
-
-    private var loadingPage: Bool = false
-    func loadNextPageIfNeeded() {
+    override func loadNextPageIfNeeded() {
 
         guard _state.value != .loading, totalCount > numberOfFetchedObjects else {
             print("loadPage canceled")
             return
         }
-
-        loadingPage = true
 
         let page = numberOfLoadedPages
         loadPage(page) { [weak self] _ in
@@ -190,47 +252,19 @@ class FetchResult <FetchObjectType: NSFetchRequestResult, ObjectType, PageObject
             }
 
             strongSelf.numberOfLoadedPages += 1
-            strongSelf.loadingPage = false
             print("loadPage finished pages: \(strongSelf.numberOfLoadedPages)")
         }
     }
 
     //MARK: NSFetchedResultsControllerDelegate
 
-    private var changedItems: [UpdateType]?
-
-    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        print("♻️ controllerWillChangeContent: \(String(describing: fetchedResultsController?.fetchedObjects?.count)), \(numberOfFetchedObjects)")
-        changedItems = []
-    }
-
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        if let newIndexPath = newIndexPath {
-            switch type {
-            case .insert:
-                changedItems?.append(.insert(newIndexPath))
-            case .delete:
-                changedItems?.append(.delete(newIndexPath))
-            case .update:
-                changedItems?.append(.update(newIndexPath))
-            case .move:
-                if let indexPath = indexPath {
-                    changedItems?.append(.move(indexPath, newIndexPath))
-                }
-            }
-            print("didChange \(newIndexPath) \(type.rawValue)")
-        }
-    }
-
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        print("✅ controllerDidChangeContent: \(String(describing: fetchedResultsController?.fetchedObjects?.count)), \(numberOfFetchedObjects)")
+    override var numberOfFetchedObjects: Int {
+        let count = fetchedResultsController?.fetchedObjects?.count ?? 0
+        let limitCount = pageSize.map { min(count, $0 * numberOfLoadedPages) }
+        return limitCount ?? count
     }
 
 }
-
-//extension FetchResult where FetchObjectType == PageModelType {
-//
-//}
 
 //class PageFetchResult <ObjectType, PageObjectType: PageModelType & NSFetchRequestResult, NetworkServiceQuery: NetworkServiceQueryType>: FetchResult<ObjectType, PageObjectType, NetworkServiceQuery> where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
 //

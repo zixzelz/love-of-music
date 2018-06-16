@@ -24,12 +24,17 @@ class ResultSearchTableViewModel: ResultSearchTableViewModeling {
         return lvm
     }()
 
-    lazy var fetchResult: FetchResult<AlbumPageEntity, AlbumEntity, AlbumPageEntity, AlbumQuery> = {
+    lazy var fetchResult: PageFetchResult<AlbumPageEntity, AlbumQuery> = {
         let networkService = albumService.networkService
-        return FetchResult(networkService: networkService, cachePolicy: .cachedThenLoad, pageSize: Constants.pageSize) { filterId -> NSFetchedResultsController<AlbumPageEntity> in
+
+        return PageFetchResult(
+            networkService: networkService,
+            cachePolicy: .cachedThenLoad,
+            pageSize: Constants.pageSize
+        ) { (filterId) -> NSFetchedResultsController<AlbumPageEntity> in
 
             let context = CoreDataHelper.managedObjectContext
-            let predicate = NSPredicate(format: "\(#keyPath(ReleasesPageEntity.filterId)) = %@", filterId)
+            let predicate = NSPredicate(format: "\(#keyPath(AlbumPageEntity.filterId)) = %@", filterId)
 
             let fetchRequest = NSFetchRequest<AlbumPageEntity>()
             fetchRequest.entity = NSEntityDescription.entity(forEntityName: String(describing: AlbumPageEntity.self), in: context)
