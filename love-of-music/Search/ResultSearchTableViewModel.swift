@@ -60,11 +60,22 @@ class ResultSearchTableViewModel: ResultSearchTableViewModeling {
             if let text = text, text.count > 0 {
                 let query: AlbumQuery? = AlbumQuery(queryInfo: .query(text: text))
                 self?.fetchResult.performFetch(query: query)
+                self?.addRecentSearchItem(with: text)
             } else {
                 self?.fetchResult.performFetch(query: nil)
             }
         }
 
+    }
+
+    private var recentSearchItemToken: dispatch_cancelable_closure?
+    private func addRecentSearchItem(with text: String) {
+        // solution just for imagine
+        cancel_delay(recentSearchItemToken)
+        recentSearchItemToken = delay(2) {
+            print("added SearchHistory item \(text)")
+            SearchHistoryService().addItem(title: text)
+        }
     }
 
     init() {

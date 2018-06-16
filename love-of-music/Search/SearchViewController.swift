@@ -8,6 +8,10 @@
 
 import UIKit
 
+protocol SearchViewModeling {
+    var listViewModel: ListViewModel<String> { get }
+}
+
 class SearchViewController: UITableViewController {
 
     lazy var searchController: UISearchController = {
@@ -21,13 +25,36 @@ class SearchViewController: UITableViewController {
         return vc
     }()
 
+    private var viewModel: SearchViewModeling!
+
+    private var contentDataSource: TableViewDataSource<String>? {
+        didSet {
+            tableView.dataSource = contentDataSource
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        tableView.registerNib(SearchTableViewCell.self)
+
+        viewModel = SearchViewModel()
+        bind(with: viewModel)
 
         setupSearchController()
 
         navigationItem.title = "Discogs"
         tableView.tableFooterView = UIView()
+    }
+
+    private func bind(with viewModel: SearchViewModeling) {
+
+        contentDataSource = TableViewDataSource(tableView: tableView, listViewModel: viewModel.listViewModel,
+            map: { (tableView, indexpath, title) -> UITableViewCell in
+                let cell: SearchTableViewCell = tableView.dequeueCell(for: indexpath)
+                cell.textLabel?.text = title
+                return cell
+            })
     }
 
     private func setupSearchController() {
@@ -54,5 +81,4 @@ class SearchViewController: UITableViewController {
             navigationController?.navigationBar.subviews.first?.clipsToBounds = true
         }
     }
-
 }

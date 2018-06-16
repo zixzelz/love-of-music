@@ -37,6 +37,8 @@
 		448A97D020C6BB2D0004667E /* CoreDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97CE20C6BB2C0004667E /* CoreDataStore.swift */; };
 		448A97D320C6C05A0004667E /* ReleasesEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97D220C6C05A0004667E /* ReleasesEntity.swift */; };
 		448A97D520C7D01D0004667E /* ReleasesPageEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448A97D420C7D01D0004667E /* ReleasesPageEntity.swift */; };
+		44909C4920D4645D004576FB /* SearchHistoryEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44909C4720D4645D004576FB /* SearchHistoryEntity.swift */; };
+		44909C4C20D46505004576FB /* SearchHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44909C4B20D46505004576FB /* SearchHistoryService.swift */; };
 		449D4DA620D080660086C8AB /* ResultSearchTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449D4DA520D080660086C8AB /* ResultSearchTableViewController.swift */; };
 		449D4DA820D0830A0086C8AB /* ResultSearchTableViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449D4DA720D0830A0086C8AB /* ResultSearchTableViewModel.swift */; };
 		449D4DAA20D084FE0086C8AB /* ResultSearchCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449D4DA920D084FE0086C8AB /* ResultSearchCellViewModel.swift */; };
@@ -48,6 +50,9 @@
 		449D4DB720D134E40086C8AB /* AlbumPageEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449D4DB620D134E40086C8AB /* AlbumPageEntity.swift */; };
 		449D4DB920D14FFA0086C8AB /* Delay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449D4DB820D14FFA0086C8AB /* Delay.swift */; };
 		44D16C4320C8248700F7845F /* CoreDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 44D16C4120C8248700F7845F /* CoreDataModel.xcdatamodeld */; };
+		44F3419C20D50AFE00FF4546 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F3419B20D50AFE00FF4546 /* SearchViewModel.swift */; };
+		44F3419F20D50C9C00FF4546 /* SearchTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F3419D20D50C9C00FF4546 /* SearchTableViewCell.swift */; };
+		44F341A020D50C9C00FF4546 /* SearchTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 44F3419E20D50C9C00FF4546 /* SearchTableViewCell.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -83,6 +88,8 @@
 		448A97CE20C6BB2C0004667E /* CoreDataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStore.swift; sourceTree = "<group>"; };
 		448A97D220C6C05A0004667E /* ReleasesEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleasesEntity.swift; sourceTree = "<group>"; };
 		448A97D420C7D01D0004667E /* ReleasesPageEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleasesPageEntity.swift; sourceTree = "<group>"; };
+		44909C4720D4645D004576FB /* SearchHistoryEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchHistoryEntity.swift; sourceTree = "<group>"; };
+		44909C4B20D46505004576FB /* SearchHistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchHistoryService.swift; sourceTree = "<group>"; };
 		449D4DA520D080660086C8AB /* ResultSearchTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultSearchTableViewController.swift; sourceTree = "<group>"; };
 		449D4DA720D0830A0086C8AB /* ResultSearchTableViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultSearchTableViewModel.swift; sourceTree = "<group>"; };
 		449D4DA920D084FE0086C8AB /* ResultSearchCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultSearchCellViewModel.swift; sourceTree = "<group>"; };
@@ -94,6 +101,9 @@
 		449D4DB620D134E40086C8AB /* AlbumPageEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumPageEntity.swift; sourceTree = "<group>"; };
 		449D4DB820D14FFA0086C8AB /* Delay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Delay.swift; sourceTree = "<group>"; };
 		44D16C4220C8248700F7845F /* CoreDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreDataModel.xcdatamodel; sourceTree = "<group>"; };
+		44F3419B20D50AFE00FF4546 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
+		44F3419D20D50C9C00FF4546 /* SearchTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTableViewCell.swift; sourceTree = "<group>"; };
+		44F3419E20D50C9C00FF4546 /* SearchTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SearchTableViewCell.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -192,14 +202,15 @@
 			path = "love-of-music/ServiceLayerSDK/ServiceLayerSDK+Cocoa";
 			sourceTree = SOURCE_ROOT;
 		};
-		4405DADE20CF2D580029632E /* ServiceLayer */ = {
+		4405DADE20CF2D580029632E /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				44909C4B20D46505004576FB /* SearchHistoryService.swift */,
 				4405DADF20CF2D580029632E /* ReleasesService.swift */,
 				449D4DB220D118CF0086C8AB /* AlbumService.swift */,
 				4405DAE020CF2D580029632E /* NetworkServiceQueryType+Default.swift */,
 			);
-			path = ServiceLayer;
+			path = Services;
 			sourceTree = "<group>";
 		};
 		440B314420D07D2A0022B9E4 /* Search */ = {
@@ -207,6 +218,7 @@
 			children = (
 				449D4DAF20D0FBF10086C8AB /* Cell */,
 				440B314520D07D650022B9E4 /* SearchViewController.swift */,
+				44F3419B20D50AFE00FF4546 /* SearchViewModel.swift */,
 				449D4DA520D080660086C8AB /* ResultSearchTableViewController.swift */,
 				449D4DA720D0830A0086C8AB /* ResultSearchTableViewModel.swift */,
 			);
@@ -236,10 +248,10 @@
 				4405DAB920CF2A780029632E /* ServiceLayerSDK */,
 				448A97CC20C6BB2C0004667E /* CoreData */,
 				448A97D120C6C0210004667E /* Models */,
-				4405DADE20CF2D580029632E /* ServiceLayer */,
+				4405DADE20CF2D580029632E /* Services */,
 				4405DAAD20CF164A0029632E /* Releases */,
-				448A979920C6B9020004667E /* AppDelegate.swift */,
 				440B314420D07D2A0022B9E4 /* Search */,
+				448A979920C6B9020004667E /* AppDelegate.swift */,
 				448A979D20C6B9030004667E /* Main.storyboard */,
 				448A97A020C6B9050004667E /* Assets.xcassets */,
 				448A97A220C6B9050004667E /* LaunchScreen.storyboard */,
@@ -260,6 +272,7 @@
 		448A97D120C6C0210004667E /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				44909C4720D4645D004576FB /* SearchHistoryEntity.swift */,
 				448A97D220C6C05A0004667E /* ReleasesEntity.swift */,
 				448A97D420C7D01D0004667E /* ReleasesPageEntity.swift */,
 				449D4DB420D1330F0086C8AB /* AlbumEntity.swift */,
@@ -272,6 +285,8 @@
 		449D4DAF20D0FBF10086C8AB /* Cell */ = {
 			isa = PBXGroup;
 			children = (
+				44F3419D20D50C9C00FF4546 /* SearchTableViewCell.swift */,
+				44F3419E20D50C9C00FF4546 /* SearchTableViewCell.xib */,
 				449D4DA920D084FE0086C8AB /* ResultSearchCellViewModel.swift */,
 				449D4DAB20D0FB920086C8AB /* ResultSearchTableViewCell.swift */,
 				449D4DAC20D0FB920086C8AB /* ResultSearchTableViewCell.xib */,
@@ -341,6 +356,7 @@
 				449D4DAE20D0FB920086C8AB /* ResultSearchTableViewCell.xib in Resources */,
 				448A97A120C6B9050004667E /* Assets.xcassets in Resources */,
 				448A979F20C6B9030004667E /* Main.storyboard in Resources */,
+				44F341A020D50C9C00FF4546 /* SearchTableViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -364,6 +380,7 @@
 				4405DAD720CF2CEB0029632E /* QueryInfoType.swift in Sources */,
 				449D4DA820D0830A0086C8AB /* ResultSearchTableViewModel.swift in Sources */,
 				44D16C4320C8248700F7845F /* CoreDataModel.xcdatamodeld in Sources */,
+				44909C4920D4645D004576FB /* SearchHistoryEntity.swift in Sources */,
 				4405DAD320CF2CEB0029632E /* NetworkService.swift in Sources */,
 				449D4DB920D14FFA0086C8AB /* Delay.swift in Sources */,
 				449D4DAD20D0FB920086C8AB /* ResultSearchTableViewCell.swift in Sources */,
@@ -371,14 +388,17 @@
 				4405DAD120CF2CEB0029632E /* ListViewModel.swift in Sources */,
 				4405DAB120CF20500029632E /* ReleasesCellViewModel.swift in Sources */,
 				448A97D520C7D01D0004667E /* ReleasesPageEntity.swift in Sources */,
+				44F3419F20D50C9C00FF4546 /* SearchTableViewCell.swift in Sources */,
 				449D4DB520D1330F0086C8AB /* AlbumEntity.swift in Sources */,
 				449D4DAA20D084FE0086C8AB /* ResultSearchCellViewModel.swift in Sources */,
 				4405DAD020CF2CEB0029632E /* FetchResult.swift in Sources */,
 				448A97CF20C6BB2D0004667E /* CoreDataHelper.swift in Sources */,
 				4405DAD520CF2CEB0029632E /* Parsable.swift in Sources */,
+				44F3419C20D50AFE00FF4546 /* SearchViewModel.swift in Sources */,
 				4405DAD220CF2CEB0029632E /* ParsableManagedObjectExtension.swift in Sources */,
 				4405DAD420CF2CEB0029632E /* ManagedObjectType.swift in Sources */,
 				4405DAD820CF2CEB0029632E /* CachePolicy.swift in Sources */,
+				44909C4C20D46505004576FB /* SearchHistoryService.swift in Sources */,
 				448A97D320C6C05A0004667E /* ReleasesEntity.swift in Sources */,
 				4405DAE120CF2D580029632E /* ReleasesService.swift in Sources */,
 				440B314620D07D650022B9E4 /* SearchViewController.swift in Sources */,

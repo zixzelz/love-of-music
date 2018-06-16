@@ -61,13 +61,6 @@ class FetchResult <FetchObjectType: NSFetchRequestResult>: NSObject, FetchResult
         super.init()
     }
 
-//    private func updateFetchedResultsController(filterId: String) {
-//        let predicate = NSPredicate(format: "filterId = %@", filterId) //#keyPath(ReleasesPageEntity.filterId)
-//        fetchedResultsController.fetchRequest.predicate = predicate
-//        NSFetchedResultsController<NSFetchRequestResult>.deleteCache(withName: nil)
-//        try? fetchedResultsController.performFetch()
-//    }
-
     //MARK: NSFetchedResultsControllerDelegate
 
     var numberOfFetchedObjects: Int {
@@ -121,6 +114,19 @@ class FetchResult <FetchObjectType: NSFetchRequestResult>: NSObject, FetchResult
 
 extension FetchResult {
 
+    static func basicResult (
+        fetchedResultsController: @escaping () -> NSFetchedResultsController<FetchObjectType>
+    ) -> FetchResult<FetchObjectType> {
+
+        return BasicFetchResult<FetchObjectType>(
+            fetchedResultsController: fetchedResultsController
+        )
+    }
+
+}
+
+extension FetchResult {
+
     static func pageResult <Query: NetworkServiceQueryType> (
         networkService service: NetworkService<FetchObjectType.ObjectType, FetchObjectType>,
         query: Query?, //Workaround, because I can't specify generic parameter with not used in function signature
@@ -136,7 +142,8 @@ extension FetchResult {
         )
     }
 }
-//, ObjectType, PageObjectType: PageModelType
+
+// TODO: make it private
 class PageFetchResult <FetchObjectType: NSFetchRequestResult, NetworkServiceQuery: NetworkServiceQueryType>: FetchResult<FetchObjectType>
 where NetworkServiceQuery.QueryInfo == FetchObjectType.ObjectType.QueryInfo, FetchObjectType: PageModelType {
 
@@ -160,9 +167,6 @@ where NetworkServiceQuery.QueryInfo == FetchObjectType.ObjectType.QueryInfo, Fet
         _fetchedResultsController = fetchedResultsController//FetchResult.makeFetchedResultsController(pageSize: pageSize)
 
         super.init()
-
-        _state = MutableProperty(value: .none)
-        _didUpdate = MutableProperty(value: [])
     }
 
     func performFetch(query: NetworkServiceQuery?) {
@@ -266,39 +270,50 @@ where NetworkServiceQuery.QueryInfo == FetchObjectType.ObjectType.QueryInfo, Fet
 
 }
 
-//class PageFetchResult <ObjectType, PageObjectType: PageModelType & NSFetchRequestResult, NetworkServiceQuery: NetworkServiceQueryType>: FetchResult<ObjectType, PageObjectType, NetworkServiceQuery> where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
-//
-//    init(networkService service: NetworkService<ObjectType, PageObjectType>, cachePolicy: CachePolicy, pageSize: Int) {
-//        super.init(networkService: service, cachePolicy: cachePolicy, pageSize: pageSize) { () -> NSFetchedResultsController<FetchObjectType> in
-//
-//            let context = CoreDataHelper.managedObjectContext
-//
-//            let fetchRequest = NSFetchRequest<FetchObjectType>()
-//            fetchRequest.entity = NSEntityDescription.entity(forEntityName: String(describing: FetchObjectType.self), in: context)
-//            fetchRequest.relationshipKeyPathsForPrefetching = ["object"] //#keyPath(PageModelType.object)
-//            fetchRequest.sortDescriptors = [NSSortDescriptor(key: "order", ascending: true)] //#keyPath(PageObjectType.order)
-//            fetchRequest.fetchBatchSize = pageSize
-//
-//            return NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
-//        }
-//    }
-//
-//}
+private class BasicFetchResult <FetchObjectType: NSFetchRequestResult>: FetchResult<FetchObjectType> {
 
-//private extension FetchResult {
-//
-//    private static func makeFetchedResultsController(pageSize: Int?) -> NSFetchedResultsController<FetchObjectType> {
-//        let context = CoreDataHelper.managedObjectContext
-//
-//        let fetchRequest = NSFetchRequest<FetchObjectType>()
-//        fetchRequest.entity = NSEntityDescription.entity(forEntityName: String(describing: FetchObjectType.self), in: context)
-//        fetchRequest.relationshipKeyPathsForPrefetching = ["object"] //#keyPath(PageModelType.object)
-//        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "order", ascending: true)] //#keyPath(PageObjectType.order)
-//
-//        if let pageSize = pageSize {
-//            fetchRequest.fetchBatchSize = pageSize
-//        }
-//
-//        return NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
-//    }
-//}
+    private var _fetchedResultsController: () -> NSFetchedResultsController<FetchObjectType>
+
+    init(fetchedResultsController: @escaping () -> NSFetchedResultsController<FetchObjectType>) {
+        _fetchedResultsController = fetchedResultsController
+
+        super.init()
+
+        DispatchQueue.main.async {
+            self.setup()
+        }
+    }
+
+    private func setup() {
+
+        fetchedResultsController = _fetchedResultsController()
+        fetchedResultsController?.delegate = self
+
+        do {
+            try fetchedResultsController?.performFetch()
+        } catch {
+            fatalError("Failed to initialize FetchedResultsController: \(error)")
+        }
+
+        print("✅new fetchedResultsController: \(String(describing: fetchedResultsController?.fetchedObjects?.count))")
+
+        _state.value = .loaded
+        _didUpdate.value = []
+
+        changedItems = []
+    }
+
+    override func loadNextPageIfNeeded() {
+    }
+
+    //MARK: NSFetchedResultsControllerDelegate
+
+    override func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        print("✅ controllerDidChangeContent: \(String(describing: fetchedResultsController?.fetchedObjects?.count)), \(numberOfFetchedObjects)")
+
+        if let changedItems = changedItems {
+            _didUpdate.value = changedItems
+        }
+    }
+
+}

@@ -122,7 +122,7 @@ extension NSManagedObjectContext {
             }
         } catch {
 
-            NSLog("Unresolved error \(error)")
+            print("Unresolved error \(error)")
             abort()
         }
     }

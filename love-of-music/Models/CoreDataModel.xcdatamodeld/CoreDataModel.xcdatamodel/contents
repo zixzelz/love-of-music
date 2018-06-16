@@ -13,7 +13,7 @@
     <entity name="AlbumPageEntity" representedClassName="AlbumPageEntity" syncable="YES">
         <attribute name="filterId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="order" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <relationship name="object" maxCount="1" deletionRule="No Action" destinationEntity="AlbumEntity" inverseName="pages" inverseEntity="AlbumEntity" syncable="YES"/>
+        <relationship name="object" maxCount="1" deletionRule="Cascade" destinationEntity="AlbumEntity" inverseName="pages" inverseEntity="AlbumEntity" syncable="YES"/>
     </entity>
     <entity name="ReleasesEntity" representedClassName="ReleasesEntity" syncable="YES">
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
@@ -25,10 +25,16 @@
         <attribute name="order" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <relationship name="object" maxCount="1" deletionRule="Cascade" destinationEntity="ReleasesEntity" inverseName="pages" inverseEntity="ReleasesEntity" syncable="YES"/>
     </entity>
+    <entity name="SearchHistoryEntity" representedClassName="SearchHistoryEntity" syncable="YES">
+        <attribute name="date" attributeType="Date" minDateTimeInterval="550836120" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="itemId" attributeType="String" syncable="YES"/>
+        <attribute name="title" attributeType="String" syncable="YES"/>
+    </entity>
     <elements>
-        <element name="ReleasesEntity" positionX="-63" positionY="-18" width="128" height="90"/>
-        <element name="ReleasesPageEntity" positionX="-54" positionY="9" width="128" height="90"/>
         <element name="AlbumEntity" positionX="-63" positionY="27" width="128" height="165"/>
         <element name="AlbumPageEntity" positionX="-54" positionY="36" width="128" height="90"/>
+        <element name="ReleasesEntity" positionX="-63" positionY="-18" width="128" height="90"/>
+        <element name="ReleasesPageEntity" positionX="-54" positionY="9" width="128" height="90"/>
+        <element name="SearchHistoryEntity" positionX="-54" positionY="72" width="128" height="90"/>
     </elements>
 </model>
