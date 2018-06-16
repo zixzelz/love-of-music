@@ -61,8 +61,6 @@ class FetchResult <FetchObjectType: NSFetchRequestResult>: NSObject, FetchResult
         super.init()
     }
 
-    //MARK: NSFetchedResultsControllerDelegate
-
     var numberOfFetchedObjects: Int {
         let count = fetchedResultsController?.fetchedObjects?.count ?? 0
         return count
@@ -92,23 +90,13 @@ class FetchResult <FetchObjectType: NSFetchRequestResult>: NSObject, FetchResult
 
         switch type {
         case .insert:
-            if let newIndexPath = newIndexPath, newIndexPath.row < numberOfFetchedObjects {
-                changedItems?.append(.insert(newIndexPath))
-            }
+            changedItems?.append(.insert(newIndexPath!))
         case .delete:
-            if let indexPath = indexPath, indexPath.row < numberOfFetchedObjects {
-                changedItems?.append(.delete(indexPath))
-            }
+            changedItems?.append(.delete(indexPath!))
         case .update:
-            if let indexPath = indexPath, indexPath.row < numberOfFetchedObjects {
-                changedItems?.append(.update(indexPath))
-            }
+            changedItems?.append(.update(indexPath!))
         case .move:
-            if let indexPath = indexPath, let newIndexPath = newIndexPath, indexPath.row < numberOfFetchedObjects, newIndexPath.row < numberOfFetchedObjects {
-//                changedItems?.append(.move(indexPath, newIndexPath))
-                changedItems?.append(.delete(indexPath))
-                changedItems?.append(.insert(newIndexPath))
-            }
+            changedItems?.append(.move(indexPath!, newIndexPath!))
         }
         print("didChange [\(indexPath) \(newIndexPath)] \(type.rawValue)")
     }
@@ -210,20 +198,35 @@ where NetworkServiceQuery.QueryInfo == FetchObjectType.ObjectType.QueryInfo, Fet
         _state.value = .loading
         print("loadPage \(page)")
         fetchPage(page) { [weak self] numberOfItems in
-            guard let strongSelf = self else {
-                return
-            }
 
             self?.totalCount = numberOfItems
 
             DispatchQueue.main.async {
                 self?._state.value = .loaded
-                if let changedItems = strongSelf.changedItems {
-                    strongSelf._didUpdate.value = changedItems
-                }
+                self?.performUpdate()
             }
 
             completion?(numberOfItems)
+        }
+    }
+
+    private func performUpdate() {
+        if let changedItems = changedItems {
+
+            let count = numberOfFetchedObjects
+            let filteredList = changedItems.filter { update -> Bool in
+                switch update {
+                case
+                     .insert(let indexPath),
+                     .update(let indexPath),
+                     .delete(let indexPath):
+                    return indexPath.row < count
+                case .move(let atIndexPath, let toIndexPath):
+                    return atIndexPath.row < count && toIndexPath.row < count
+                }
+            }
+
+            _didUpdate.value = filteredList
         }
     }
 
@@ -245,7 +248,7 @@ where NetworkServiceQuery.QueryInfo == FetchObjectType.ObjectType.QueryInfo, Fet
                 print("error: \(result)")
                 return
             }
-            print("result: \(info.totalItems)")
+            print("fetchPage: \(page) result: \(info.totalItems)")
             completion(info.totalItems)
         }
 
@@ -268,8 +271,6 @@ where NetworkServiceQuery.QueryInfo == FetchObjectType.ObjectType.QueryInfo, Fet
             print("loadPage finished pages: \(strongSelf.numberOfLoadedPages)")
         }
     }
-
-    //MARK: NSFetchedResultsControllerDelegate
 
     override var numberOfFetchedObjects: Int {
         let count = fetchedResultsController?.fetchedObjects?.count ?? 0

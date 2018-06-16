@@ -59,26 +59,19 @@ class TableViewDataSource <CellViewModel>: NSObject, UITableViewDataSource {
                 return
             }
 
-            var itemsToInsert: [IndexPath] = []
-            var itemsToUpdate: [IndexPath] = []
-            var itemsToDelete: [IndexPath] = []
-
             strongSelf.tableView.beginUpdates()
             for update in list {
                 switch update {
                 case .insert(let indexPath):
-                    itemsToInsert.append(indexPath)
+                    strongSelf.tableView.insertRows(at: [indexPath], with: .automatic)
                 case .update(let indexPath):
-                    itemsToUpdate.append(indexPath)
+                    strongSelf.tableView.reloadRows(at: [indexPath], with: .automatic)
                 case .delete(let indexPath):
-                    itemsToDelete.append(indexPath)
+                    strongSelf.tableView.deleteRows(at: [indexPath], with: .automatic)
                 case .move(let atIndexPath, let toIndexPath):
                     strongSelf.tableView.moveRow(at: atIndexPath, to: toIndexPath)
                 }
             }
-            strongSelf.tableView.insertRows(at: itemsToInsert, with: .automatic)
-            strongSelf.tableView.reloadRows(at: itemsToUpdate, with: .automatic)
-            strongSelf.tableView.deleteRows(at: itemsToDelete, with: .automatic)
             print("tableView.endUpdates()")
             strongSelf.tableView.endUpdates()
 
