@@ -21,7 +21,7 @@ class ResultSearchTableViewController: UITableViewController {
 
     weak var paretViewController: UIViewController?
 
-    private var viewModel: ResultSearchTableViewModeling {
+    private(set) var viewModel: ResultSearchTableViewModeling {
         didSet {
             if isViewLoaded {
                 bind(with: viewModel)

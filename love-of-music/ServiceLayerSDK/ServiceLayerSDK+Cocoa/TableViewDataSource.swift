@@ -51,6 +51,7 @@ class TableViewDataSource <CellViewModel>: NSObject, UITableViewDataSource {
                     inset = strongSelf.tableView.adjustedContentInset.top
                 }
                 strongSelf.tableView.setContentOffset(CGPoint(x: 0, y: -inset), animated: false)
+                print("tableView.reloadData()")
                 strongSelf.tableView.reloadData()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     strongSelf.tableView.setContentOffset(CGPoint(x: 0, y: -inset), animated: true)
@@ -78,6 +79,7 @@ class TableViewDataSource <CellViewModel>: NSObject, UITableViewDataSource {
             strongSelf.tableView.insertRows(at: itemsToInsert, with: .automatic)
             strongSelf.tableView.reloadRows(at: itemsToUpdate, with: .automatic)
             strongSelf.tableView.deleteRows(at: itemsToDelete, with: .automatic)
+            print("tableView.endUpdates()")
             strongSelf.tableView.endUpdates()
 
         }

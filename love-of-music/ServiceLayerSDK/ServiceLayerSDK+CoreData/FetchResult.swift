@@ -89,21 +89,28 @@ class FetchResult <FetchObjectType: NSFetchRequestResult>: NSObject, FetchResult
     }
 
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        if let newIndexPath = newIndexPath {
-            switch type {
-            case .insert:
+
+        switch type {
+        case .insert:
+            if let newIndexPath = newIndexPath, newIndexPath.row < numberOfFetchedObjects {
                 changedItems?.append(.insert(newIndexPath))
-            case .delete:
-                changedItems?.append(.delete(newIndexPath))
-            case .update:
-                changedItems?.append(.update(newIndexPath))
-            case .move:
-                if let indexPath = indexPath {
-                    changedItems?.append(.move(indexPath, newIndexPath))
-                }
             }
-            print("didChange \(newIndexPath) \(type.rawValue)")
+        case .delete:
+            if let indexPath = indexPath, indexPath.row < numberOfFetchedObjects {
+                changedItems?.append(.delete(indexPath))
+            }
+        case .update:
+            if let indexPath = indexPath, indexPath.row < numberOfFetchedObjects {
+                changedItems?.append(.update(indexPath))
+            }
+        case .move:
+            if let indexPath = indexPath, let newIndexPath = newIndexPath, indexPath.row < numberOfFetchedObjects, newIndexPath.row < numberOfFetchedObjects {
+//                changedItems?.append(.move(indexPath, newIndexPath))
+                changedItems?.append(.delete(indexPath))
+                changedItems?.append(.insert(newIndexPath))
+            }
         }
+        print("didChange [\(indexPath) \(newIndexPath)] \(type.rawValue)")
     }
 
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
@@ -177,6 +184,7 @@ where NetworkServiceQuery.QueryInfo == FetchObjectType.ObjectType.QueryInfo, Fet
             numberOfLoadedPages = 0
             totalCount = 0
             _state.value = .none
+            _didUpdate.value = []
             return
         }
 
@@ -200,6 +208,7 @@ where NetworkServiceQuery.QueryInfo == FetchObjectType.ObjectType.QueryInfo, Fet
 
     private func loadPage(_ page: Int, completion: ((_ numberOfItems: Int) -> Void)? = nil) {
         _state.value = .loading
+        print("loadPage \(page)")
         fetchPage(page) { [weak self] numberOfItems in
             guard let strongSelf = self else {
                 return

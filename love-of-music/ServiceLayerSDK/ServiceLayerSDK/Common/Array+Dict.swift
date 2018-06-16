@@ -18,7 +18,8 @@ extension Array {
             if res[c.0] == nil {
                 res[c.0] = c.1
             } else {
-                assertionFailure("Duplicated id")
+//                assertionFailure("Duplicated id")
+                print("❌ Duplicated id \(c.0) \(c.1)")
                 let id = UUID().uuidString as! K
                 res[id] = c.1
             }

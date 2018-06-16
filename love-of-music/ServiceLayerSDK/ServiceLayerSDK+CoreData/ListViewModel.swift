@@ -19,6 +19,11 @@ protocol ListViewModelType {
     func cellViewModel(at indexpath: IndexPath) -> CellViewModel
 
     func loadNextPageIfNeeded()
+
+    var selectedCells: Property<Set<IndexPath>> { get }
+    func selectRowAtIndexPath(_ indexPath: IndexPath)
+    func deselectRowAtIndexPath(_ indexPath: IndexPath)
+    func resetSelection()
 }
 
 class ListViewModel<CellViewModel>: ListViewModelType {
@@ -29,6 +34,11 @@ class ListViewModel<CellViewModel>: ListViewModelType {
 
     var didUpdate: Property<[UpdateType]> {
         preconditionFailure("Should be overriden")
+    }
+
+    private var _selectedCells: MutableProperty<Set<IndexPath>>
+    var selectedCells: Property<Set<IndexPath>> {
+        return Property(_selectedCells)
     }
 
     var numberOfItems: Int {
@@ -43,7 +53,20 @@ class ListViewModel<CellViewModel>: ListViewModelType {
         preconditionFailure("Should be overriden")
     }
 
+    func selectRowAtIndexPath(_ indexPath: IndexPath) {
+        _selectedCells.value.insert(indexPath)
+    }
+
+    func deselectRowAtIndexPath(_ indexPath: IndexPath) {
+        _selectedCells.value.remove(indexPath)
+    }
+
+    func resetSelection() {
+        _selectedCells.value.removeAll()
+    }
+
     init() {
+        _selectedCells = MutableProperty(value: [])
     }
 }
 

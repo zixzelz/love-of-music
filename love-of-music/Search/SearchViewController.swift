@@ -61,6 +61,7 @@ class SearchViewController: UITableViewController {
 
         searchController.searchResultsUpdater = resultsTableViewController
         searchController.searchBar.placeholder = "Search artists"
+        searchController.delegate = self
 
         //        if #available(iOS 9.1, *) {
         //            searchController.obscuresBackgroundDuringPresentation = false
@@ -80,5 +81,19 @@ class SearchViewController: UITableViewController {
         if #available(iOS 11.0, *) {
             navigationController?.navigationBar.subviews.first?.clipsToBounds = true
         }
+    }
+
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        let text = viewModel.listViewModel.cellViewModel(at: indexPath)
+        searchController.searchBar.text = text
+        searchController.isActive = true
+    }
+}
+
+extension SearchViewController: UISearchControllerDelegate {
+    func didDismissSearchController(_ searchController: UISearchController) {
+        resultsTableViewController.viewModel.search(with: nil)
     }
 }
