@@ -18,5 +18,6 @@ class AlbumEntity: NSManagedObject {
     @NSManaged var country: String?
     @NSManaged var year: String?
     @NSManaged var genre: String?
+    @NSManaged var style: String?
     @NSManaged var type: String?
 }

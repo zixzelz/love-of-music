@@ -87,6 +87,14 @@ extension AlbumEntity: ModelType {
         year = json["year"] as? String
         genre = json["genre"] as? String
         type = json["type"] as? String
+
+        if let genres = json["genre"] as? NSArray {
+            genre = genres.componentsJoined(by: ", ")
+        }
+        
+        if let styles = json["style"] as? NSArray {
+            style = styles.componentsJoined(by: ", ")
+        }
     }
 
     // MARK: - Paging

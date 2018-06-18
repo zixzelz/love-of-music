@@ -11,6 +11,8 @@ import UIKit
 protocol ResultSearchTableViewModeling {
     var listViewModel: ListViewModel<ResultSearchCellViewModel> { get }
     func search(with text: String?)
+    
+    func viewModel(at indexPath: IndexPath) -> AlbumDetailViewModeling
 }
 
 class ResultSearchTableViewController: UITableViewController {
@@ -92,6 +94,19 @@ class ResultSearchTableViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         _willDisplayCell.value = indexPath
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let c = UIStoryboard(name: "Main", bundle: nil)
+        
+        if let vc = c.instantiateViewController(withIdentifier: "AlbumDetailViewControllerIdentifier") as? AlbumDetailViewController {
+            let vm = viewModel.viewModel(at: indexPath)
+            vc.viewModel = vm
+
+            paretViewController?.navigationController?.pushViewController(vc, animated: true)
+        }
+        
     }
 }
 

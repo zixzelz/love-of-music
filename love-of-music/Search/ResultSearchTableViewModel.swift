@@ -68,6 +68,11 @@ class ResultSearchTableViewModel: ResultSearchTableViewModeling {
 
     }
 
+    func viewModel(at indexPath: IndexPath) -> AlbumDetailViewModeling {
+        let obj = fetchResult.object(at: indexPath)
+        return AlbumDetailViewModel(item: obj.object)
+    }
+
     private var recentSearchItemToken: dispatch_cancelable_closure?
     private func addRecentSearchItem(with text: String) {
         // solution just for imagine
