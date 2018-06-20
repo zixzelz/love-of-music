@@ -69,7 +69,9 @@ class TableViewDataSource <CellViewModel>: NSObject, UITableViewDataSource {
                 case .delete(let indexPath):
                     strongSelf.tableView.deleteRows(at: [indexPath], with: .automatic)
                 case .move(let atIndexPath, let toIndexPath):
-                    strongSelf.tableView.moveRow(at: atIndexPath, to: toIndexPath)
+                    strongSelf.tableView.deleteRows(at: [atIndexPath], with: .automatic)
+                    strongSelf.tableView.insertRows(at: [toIndexPath], with: .automatic)
+//                    strongSelf.tableView.moveRow(at: atIndexPath, to: toIndexPath)
                 }
             }
             print("tableView.endUpdates()")

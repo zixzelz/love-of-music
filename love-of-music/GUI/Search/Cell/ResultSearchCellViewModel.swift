@@ -15,8 +15,13 @@ class ResultSearchCellViewModel {
     var title: String? {
         return release.title
     }
+
     var country: String? {
         return release.country
+    }
+
+    var imageURL: String? {
+        return release.thumb
     }
 
     init(release: AlbumEntity) {
