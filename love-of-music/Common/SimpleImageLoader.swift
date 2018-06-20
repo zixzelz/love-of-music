@@ -11,7 +11,7 @@ import UIKit
 
 class SimpleImageLoader {
 
-    private static let imageCashe = NSCache<NSString, UIImage>()
+    private static let imageCaсhe = NSCache<NSString, UIImage>()
 
     static func loadImage(urlString: String, completion: @escaping (UIImage?) -> ()) {
 
@@ -19,12 +19,12 @@ class SimpleImageLoader {
             completion(nil)
             return
         }
-        if let imageFromCashe = imageFromCashe(for: urlString) {
-            completion(imageFromCashe)
+        if let imageFromCache = imageFromCache(for: urlString) {
+            completion(imageFromCache)
             return
         }
         if let imageFromDocument = getImageFromDocumentDirectory(key: urlString) {
-            saveImageToCashe(image: imageFromDocument, for: urlString)
+            saveImageToCaсhe(image: imageFromDocument, for: urlString)
             completion(imageFromDocument)
             return
         }
@@ -49,7 +49,7 @@ class SimpleImageLoader {
                 completion(image)
             }
 
-            saveImageToCashe(image: image, for: urlString)
+            saveImageToCaсhe(image: image, for: urlString)
             saveImageToDocumentDirectory(image: image, for: urlString)
         }
     }
@@ -68,12 +68,12 @@ class SimpleImageLoader {
         }.resume()
     }
 
-    static private func saveImageToCashe(image: UIImage, for url: String) {
-        imageCashe.setObject(image, forKey: url as NSString)
+    static private func saveImageToCaсhe(image: UIImage, for url: String) {
+        imageCaсhe.setObject(image, forKey: url as NSString)
     }
 
-    static private func imageFromCashe(for url: String) -> UIImage? {
-        guard let image = imageCashe.object(forKey: url as NSString) else {
+    static private func imageFromCache(for url: String) -> UIImage? {
+        guard let image = imageCaсhe.object(forKey: url as NSString) else {
             return nil
         }
         return image
@@ -111,8 +111,8 @@ class SimpleImageLoader {
 
     }
 
-    static func cleanAllCash() {
-        imageCashe.removeAllObjects()
+    static func cleanAllCach() {
+        imageCaсhe.removeAllObjects()
     }
 
 }
