@@ -9,6 +9,7 @@
 import UIKit
 
 protocol AlbumDetailViewModeling {
+    var imageUrl: String? { get }
     var ganre: String? { get }
     var style: String? { get }
     var year: String? { get }
@@ -17,6 +18,7 @@ protocol AlbumDetailViewModeling {
 
 class AlbumDetailViewController: UIViewController {
 
+    @IBOutlet private weak var imageView: SimpleImageView!
     @IBOutlet private weak var ganreLabel: UILabel!
     @IBOutlet private weak var styleLabel: UILabel!
     @IBOutlet private weak var yearLabel: UILabel!
@@ -37,6 +39,7 @@ class AlbumDetailViewController: UIViewController {
 
     func bind(viewModel: AlbumDetailViewModeling?) {
         navigationItem.title = viewModel?.title
+        imageView.setImage(url: viewModel?.imageUrl, placeholder: UIImage(named: "placeholder-music"))
         ganreLabel.text = viewModel?.ganre
         styleLabel.text = viewModel?.style
         yearLabel.text = viewModel?.year

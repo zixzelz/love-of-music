@@ -32,4 +32,8 @@ class AlbumDetailViewModel: AlbumDetailViewModeling {
         return item.title
     }
 
+    var imageUrl: String? {
+        return item.thumb
+    }
+
 }
