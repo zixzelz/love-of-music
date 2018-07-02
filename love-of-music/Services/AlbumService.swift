@@ -22,6 +22,7 @@ class AlbumService {
 
 enum AlbumQueryInfo: QueryInfoType {
     case query(text: String)
+    case album(text: String)
     case `default`
 }
 
@@ -39,12 +40,16 @@ class AlbumQuery: NetworkServiceQueryType {
 
     func parameters(range: NSRange?) -> [String: String]? {
 
-        guard case .query(let text) = queryInfo else {
-            return nil
+        var list = [String: String]()
+        switch queryInfo {
+        case .query(let text):
+            list["q"] = text
+        case .album(let text):
+            list["q"] = text
+            list["type"] = "artist"
+        case .default: break
         }
 
-        var list = [String: String]()
-        list["q"] = text
         list["key"] = "bQOLwOvcehVBchRvdQev"
         list["secret"] = "lHECHYPFPvIkHeHwWbFbCdHWjHPdhSHF"
 
@@ -91,7 +96,7 @@ extension AlbumEntity: ModelType {
         if let genres = json["genre"] as? NSArray {
             genre = genres.componentsJoined(by: ", ")
         }
-        
+
         if let styles = json["style"] as? NSArray {
             style = styles.componentsJoined(by: ", ")
         }
