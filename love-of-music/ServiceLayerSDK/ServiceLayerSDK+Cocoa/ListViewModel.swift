@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import CoreData
 
 protocol ListViewModelType {
     associatedtype CellViewModel
@@ -122,8 +121,12 @@ private class ResultListViewModel <FetchResult: FetchResultType, CellViewModel>:
         fetchResult.loadNextPageIfNeeded()
     }
 
+    private var scopedDisposable: ScopedDisposable?
     private func bind(fetchResult: FetchResult) {
-        fetchResult.state.observeValues { [weak self] state in
+        let list = CompositeDisposable()
+        scopedDisposable = ScopedDisposable(list)
+
+        list += fetchResult.state.observeValues { [weak self] state in
             self?.didStatusUpdate(status: state)
         }
     }

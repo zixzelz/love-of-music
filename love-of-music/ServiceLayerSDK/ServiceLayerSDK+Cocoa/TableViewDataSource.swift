@@ -81,10 +81,13 @@ class TableViewDataSource <CellViewModel>: NSObject, UITableViewDataSource {
         tableView.reloadData()
     }
 
+    private var pagingScopedDisposable: ScopedDisposable?
     private func bindPaging(_ paging: Paging) {
+        let list = CompositeDisposable()
+        pagingScopedDisposable = ScopedDisposable(list)
 
         let pool = paging.pool
-        paging.willDisplayCell.observeValues { [unowned self] (indexPath) in
+        list += paging.willDisplayCell.observeValues { [unowned self] (indexPath) in
 
             if indexPath.row + pool > self.totalCount {
                 print("Set need load new page")

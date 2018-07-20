@@ -51,6 +51,7 @@
 		449D4DB520D1330F0086C8AB /* AlbumEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449D4DB420D1330F0086C8AB /* AlbumEntity.swift */; };
 		449D4DB720D134E40086C8AB /* AlbumPageEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449D4DB620D134E40086C8AB /* AlbumPageEntity.swift */; };
 		449D4DB920D14FFA0086C8AB /* Delay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449D4DB820D14FFA0086C8AB /* Delay.swift */; };
+		449F56BB21023E570097E092 /* DictionaryExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449F56BA21023E570097E092 /* DictionaryExtension.swift */; };
 		44A3B97320DAA7FE00EB36F5 /* SimpleImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A3B97220DAA7FE00EB36F5 /* SimpleImageLoader.swift */; };
 		44A3B97720DAAA7000EB36F5 /* SimpleImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A3B97620DAAA7000EB36F5 /* SimpleImageView.swift */; };
 		44D16C4320C8248700F7845F /* CoreDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 44D16C4120C8248700F7845F /* CoreDataModel.xcdatamodeld */; };
@@ -106,6 +107,7 @@
 		449D4DB420D1330F0086C8AB /* AlbumEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumEntity.swift; sourceTree = "<group>"; };
 		449D4DB620D134E40086C8AB /* AlbumPageEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumPageEntity.swift; sourceTree = "<group>"; };
 		449D4DB820D14FFA0086C8AB /* Delay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Delay.swift; sourceTree = "<group>"; };
+		449F56BA21023E570097E092 /* DictionaryExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryExtension.swift; sourceTree = "<group>"; };
 		44A3B97220DAA7FE00EB36F5 /* SimpleImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleImageLoader.swift; sourceTree = "<group>"; };
 		44A3B97620DAAA7000EB36F5 /* SimpleImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleImageView.swift; sourceTree = "<group>"; };
 		44D16C4220C8248700F7845F /* CoreDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreDataModel.xcdatamodel; sourceTree = "<group>"; };
@@ -150,6 +152,7 @@
 			children = (
 				449D4DB820D14FFA0086C8AB /* Delay.swift */,
 				44A3B97220DAA7FE00EB36F5 /* SimpleImageLoader.swift */,
+				449F56BA21023E570097E092 /* DictionaryExtension.swift */,
 				4405DABA20CF2AC10029632E /* SimpleReactive */,
 			);
 			path = Common;
@@ -177,7 +180,6 @@
 			isa = PBXGroup;
 			children = (
 				4405DABE20CF2CEB0029632E /* FetchResult.swift */,
-				4405DABF20CF2CEB0029632E /* ListViewModel.swift */,
 				4405DAC020CF2CEB0029632E /* ParsableManagedObjectExtension.swift */,
 			);
 			name = "ServiceLayerSDK+CoreData";
@@ -215,6 +217,7 @@
 				4405DACE20CF2CEB0029632E /* CollectionViewDataSource.swift */,
 				4405DACF20CF2CEB0029632E /* TableViewDataSource.swift */,
 				449D4DB020D0FC800086C8AB /* UITableViewExtension.swift */,
+				4405DABF20CF2CEB0029632E /* ListViewModel.swift */,
 			);
 			name = "ServiceLayerSDK+Cocoa";
 			path = "love-of-music/ServiceLayerSDK/ServiceLayerSDK+Cocoa";
@@ -409,6 +412,7 @@
 				4405DABC20CF2ADA0029632E /* Property.swift in Sources */,
 				4405DAD620CF2CEB0029632E /* ModelType.swift in Sources */,
 				449D4DB320D118CF0086C8AB /* AlbumService.swift in Sources */,
+				449F56BB21023E570097E092 /* DictionaryExtension.swift in Sources */,
 				449D4DA620D080660086C8AB /* ResultSearchTableViewController.swift in Sources */,
 				4405DADB20CF2CEB0029632E /* LocalService.swift in Sources */,
 				448A97D020C6BB2D0004667E /* CoreDataStore.swift in Sources */,

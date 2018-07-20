@@ -11,7 +11,11 @@ import UIKit
 
 class SimpleImageLoader {
 
-    private static let imageCaсhe = NSCache<NSString, UIImage>()
+    private static let imageCaсhe = { () -> NSCache<NSString, UIImage> in
+        let cache = NSCache<NSString, UIImage>()
+        cache.countLimit = 50
+        return cache
+    }()
 
     static func loadImage(urlString: String, completion: @escaping (UIImage?) -> ()) {
 

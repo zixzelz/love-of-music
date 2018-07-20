@@ -49,7 +49,9 @@ class SearchViewController: UITableViewController {
 
     private func bind(with viewModel: SearchViewModeling) {
 
-        contentDataSource = TableViewDataSource(tableView: tableView, listViewModel: viewModel.listViewModel,
+        contentDataSource = TableViewDataSource(
+            tableView: tableView,
+            listViewModel: viewModel.listViewModel,
             map: { (tableView, indexpath, title) -> UITableViewCell in
                 let cell: SearchTableViewCell = tableView.dequeueCell(for: indexpath)
                 cell.textLabel?.text = title
@@ -94,6 +96,6 @@ class SearchViewController: UITableViewController {
 
 extension SearchViewController: UISearchControllerDelegate {
     func didDismissSearchController(_ searchController: UISearchController) {
-        resultsTableViewController.viewModel.search(with: nil)
+//        resultsTableViewController.viewModel.search(with: nil)
     }
 }

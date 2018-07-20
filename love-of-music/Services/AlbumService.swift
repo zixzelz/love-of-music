@@ -71,7 +71,7 @@ extension AlbumEntity: ModelType {
     typealias QueryInfo = AlbumQueryInfo
 
     static func identifier(_ json: [String: AnyObject]) -> String? {
-        let id = json["id"] as? Int
+        let id = json.int(for: "id")
         return id.map { String($0) }
     }
 
@@ -86,26 +86,26 @@ extension AlbumEntity: ModelType {
     }
 
     func update(_ json: [String: AnyObject], queryInfo: QueryInfo) {
-        title = json["title"] as? String
-        thumb = json["thumb"] as? String
-        country = json["country"] as? String
-        year = json["year"] as? String
-        genre = json["genre"] as? String
-        type = json["type"] as? String
+        title = json.string(for: "title")
+        thumb = json.string(for: "thumb")
+        country = json.string(for: "country")
+        year = json.string(for: "year")
+        genre = json.string(for: "genre")
+        type = json.string(for: "type")
 
-        if let genres = json["genre"] as? NSArray {
-            genre = genres.componentsJoined(by: ", ")
+        if let genres: [String] = json.arr(for: "genre") {
+            genre = genres.joined(separator: ", ")
         }
 
-        if let styles = json["style"] as? NSArray {
-            style = styles.componentsJoined(by: ", ")
+        if let styles: [String] = json.arr(for: "style") {
+            style = styles.joined(separator: ", ")
         }
     }
 
     // MARK: - Paging
 
     static func totalItems(_ json: [String: AnyObject]) -> Int {
-        return json["pagination"]?["items"] as? Int ?? 0
+        return json.dictValue(for: "pagination").intValue(for: "items")
     }
 
     // MARK: - ManagedObjectType

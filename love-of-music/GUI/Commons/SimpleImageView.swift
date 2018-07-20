@@ -26,8 +26,11 @@ class SimpleImageView: UIImageView {
         })
         setImageTask = task
 
-        SimpleImageLoader.loadImage(urlString: url) { [weak task] (image) in
-            task?.task(image)
+        SimpleImageLoader.loadImage(urlString: url) { [weak self, weak task] (image) in
+            if let task = task {
+                task.task(image)
+                self?.setImageTask = nil
+            }
         }
     }
 
