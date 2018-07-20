@@ -8,17 +8,21 @@
 
 import Foundation
 
+public enum ParseError: Error {
+    case invalidData
+}
+
 protocol Parsable: class {
 
     associatedtype QueryInfo: QueryInfoType
     associatedtype ParsableContext: Any
 
-    static func identifier(_ json: [String: AnyObject]) -> String? // should use nil as identifier when items of response doesn't have identifier
+    static func identifier(_ json: [String: AnyObject]) throws -> String
     static func objects(_ json: [String: AnyObject]) -> [[String: AnyObject]]?
     static func parsableContext(_ context: ManagedObjectContextType) -> ParsableContext
 
-    func fill(_ json: [String: AnyObject], queryInfo: QueryInfo, context: ParsableContext) // TODO: [!] add possibility to throw error in case when required fields are empty
-    func update(_ json: [String: AnyObject], queryInfo: QueryInfo)
+    func fill(_ json: [String: AnyObject], queryInfo: QueryInfo, context: ParsableContext) throws
+    func update(_ json: [String: AnyObject], queryInfo: QueryInfo) throws
 }
 
 protocol Paging: class {

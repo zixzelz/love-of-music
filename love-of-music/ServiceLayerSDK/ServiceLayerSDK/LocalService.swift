@@ -122,21 +122,25 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
             var handledPageItemsKey = [String]()
             for jsonItem in items {
 
-                guard let identifier = ObjectType.identifier(jsonItem) else {
+                guard let identifier = try? ObjectType.identifier(jsonItem) else {
                     completionHandler(.failure(.wrongResponseFormat))
-                    return
+                    continue
                 }
 
                 if let cachedPageItem = cachedPageItemsMap[identifier] {
-                    cachedPageItem.object.update(jsonItem, queryInfo: query.queryInfo)
-                    cachedPageItem.order = itemOrder
-                    handledPageItemsKey.append(identifier)
+                    do {
+                        try cachedPageItem.object.update(jsonItem, queryInfo: query.queryInfo)
+                        cachedPageItem.order = itemOrder
+                        handledPageItemsKey.append(identifier)
+                    } catch { }
                 } else {
                     guard let item = ObjectType.insert(inContext: context) as? ObjectType else {
                         fatalError("Unexpected object type")
                     }
-                    item.fill(jsonItem, queryInfo: query.queryInfo, context: parsableContext)
-                    _ = PageObjectType(filterId: filterId, object: item, order: itemOrder, inContext: context)
+                    do {
+                        try item.fill(jsonItem, queryInfo: query.queryInfo, context: parsableContext)
+                        _ = PageObjectType(filterId: filterId, object: item, order: itemOrder, inContext: context)
+                    } catch { }
                 }
 
                 itemOrder += 1
@@ -158,19 +162,21 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
     // json: {item}
     private func parseAndStoreItem (_ json: [String: AnyObject], cachedItemsMap: [String: ObjectType], context: ManagedObjectContextType, queryInfo: ObjectType.QueryInfo) throws -> ObjectType {
 
-        var item: ObjectType?
+        do {
+            let identifier = try ObjectType.identifier(json)
+            var item: ObjectType? = cachedItemsMap[identifier]
 
-        if let identifier = ObjectType.identifier(json) {
-            item = cachedItemsMap[identifier]
-        }
+            if let _ = item {
+                try item?.update(json, queryInfo: queryInfo)
+            } else {
+                item = ObjectType.insert(inContext: context) as? ObjectType
+                try item?.fill(json, queryInfo: queryInfo, context: parsableContext)
+            }
 
-        if let _ = item {
-            item?.update(json, queryInfo: queryInfo)
-        } else {
-            item = ObjectType.insert(inContext: context) as? ObjectType
-            item?.fill(json, queryInfo: queryInfo, context: parsableContext)
+            return item!
+        } catch ParseError.invalidData {
+            throw ServiceError.wrongResponseFormat
         }
-        return item! // todo: throw error
     }
 
     func cleanCache < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, completionHandler: @escaping EmptyCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {

@@ -70,9 +70,11 @@ extension AlbumEntity: ModelType {
 
     typealias QueryInfo = AlbumQueryInfo
 
-    static func identifier(_ json: [String: AnyObject]) -> String? {
-        let id = json.int(for: "id")
-        return id.map { String($0) }
+    static func identifier(_ json: [String: AnyObject]) throws -> String {
+        guard let id = json.int(for: "id").map({ String($0) }) else {
+            throw ParseError.invalidData
+        }
+        return id
     }
 
     static func objects(_ json: [String: AnyObject]) -> [[String: AnyObject]]? {
@@ -80,12 +82,12 @@ extension AlbumEntity: ModelType {
         return json["results"] as? [[String: AnyObject]]
     }
 
-    func fill(_ json: [String: AnyObject], queryInfo: QueryInfo, context: Void) {
-        albumId = ReleasesEntity.identifier(json)!
-        update(json, queryInfo: queryInfo)
+    func fill(_ json: [String: AnyObject], queryInfo: QueryInfo, context: Void) throws {
+        albumId = try AlbumEntity.identifier(json)
+        try update(json, queryInfo: queryInfo)
     }
 
-    func update(_ json: [String: AnyObject], queryInfo: QueryInfo) {
+    func update(_ json: [String: AnyObject], queryInfo: QueryInfo) throws {
         title = json.string(for: "title")
         thumb = json.string(for: "thumb")
         country = json.string(for: "country")
