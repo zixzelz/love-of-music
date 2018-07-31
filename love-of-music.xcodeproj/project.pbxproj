@@ -58,6 +58,7 @@
 		44F3419C20D50AFE00FF4546 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F3419B20D50AFE00FF4546 /* SearchViewModel.swift */; };
 		44F3419F20D50C9C00FF4546 /* SearchTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F3419D20D50C9C00FF4546 /* SearchTableViewCell.swift */; };
 		44F341A020D50C9C00FF4546 /* SearchTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 44F3419E20D50C9C00FF4546 /* SearchTableViewCell.xib */; };
+		44FAF95D2110B95D00C87D01 /* ModelUpdating.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44FAF95C2110B95D00C87D01 /* ModelUpdating.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -114,6 +115,7 @@
 		44F3419B20D50AFE00FF4546 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		44F3419D20D50C9C00FF4546 /* SearchTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTableViewCell.swift; sourceTree = "<group>"; };
 		44F3419E20D50C9C00FF4546 /* SearchTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SearchTableViewCell.xib; sourceTree = "<group>"; };
+		44FAF95C2110B95D00C87D01 /* ModelUpdating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelUpdating.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -203,6 +205,7 @@
 			children = (
 				4405DAC420CF2CEB0029632E /* ManagedObjectType.swift */,
 				4405DAC520CF2CEB0029632E /* Parsable.swift */,
+				44FAF95C2110B95D00C87D01 /* ModelUpdating.swift */,
 				4405DAC620CF2CEB0029632E /* ModelType.swift */,
 				4405DAC720CF2CEB0029632E /* QueryInfoType.swift */,
 				4405DAC820CF2CEB0029632E /* CachePolicy.swift */,
@@ -416,6 +419,7 @@
 				449D4DA620D080660086C8AB /* ResultSearchTableViewController.swift in Sources */,
 				4405DADB20CF2CEB0029632E /* LocalService.swift in Sources */,
 				448A97D020C6BB2D0004667E /* CoreDataStore.swift in Sources */,
+				44FAF95D2110B95D00C87D01 /* ModelUpdating.swift in Sources */,
 				44A3B97720DAAA7000EB36F5 /* SimpleImageView.swift in Sources */,
 				448A979C20C6B9030004667E /* ViewController.swift in Sources */,
 				4405DAD720CF2CEB0029632E /* QueryInfoType.swift in Sources */,

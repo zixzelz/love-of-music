@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol ModelType: Parsable, Paging, ManagedObjectType {
+protocol ModelType: Parsable, Paging, ManagedObjectType, ModelUpdating {
 
 }
 
@@ -20,7 +20,7 @@ extension ModelType {
 
 }
 
-protocol PageModelType: ManagedObjectType {
+protocol PageModelType: ManagedObjectType, ModelUpdating {
     associatedtype ObjectType: ModelType
 
     var filterId: String { get }

@@ -130,7 +130,7 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
                 if let cachedPageItem = cachedPageItemsMap[identifier] {
                     do {
                         try cachedPageItem.object.update(jsonItem, queryInfo: query.queryInfo)
-                        cachedPageItem.order = itemOrder
+                        cachedPageItem.updateIfNeeded(keyPath: \PageObjectType.order, value: itemOrder, force: false)
                         handledPageItemsKey.append(identifier)
                     } catch { }
                 } else {

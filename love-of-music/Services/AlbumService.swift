@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class AlbumService {
 
@@ -88,20 +89,17 @@ extension AlbumEntity: ModelType {
     }
 
     func update(_ json: [String: AnyObject], queryInfo: QueryInfo) throws {
-        title = json.string(for: "title")
-        thumb = json.string(for: "thumb")
-        country = json.string(for: "country")
-        year = json.string(for: "year")
-        genre = json.string(for: "genre")
-        type = json.string(for: "type")
+        updateIfNeeded(keyPath: \AlbumEntity.title, value: json.string(for: "title"), force: false)
+        updateIfNeeded(keyPath: \AlbumEntity.thumb, value: json.string(for: "thumb"), force: false)
+        updateIfNeeded(keyPath: \AlbumEntity.country, value: json.string(for: "country"), force: false)
+        updateIfNeeded(keyPath: \AlbumEntity.year, value: json.string(for: "year"), force: false)
+        updateIfNeeded(keyPath: \AlbumEntity.type, value: json.string(for: "type"), force: false)
 
-        if let genres: [String] = json.arr(for: "genre") {
-            genre = genres.joined(separator: ", ")
-        }
+        let genre = json.arr(for: "genre")?.joined(separator: ", ")
+        updateIfNeeded(keyPath: \AlbumEntity.genre, value: genre, force: false)
 
-        if let styles: [String] = json.arr(for: "style") {
-            style = styles.joined(separator: ", ")
-        }
+        let style = json.arr(for: "style")?.joined(separator: ", ")
+        updateIfNeeded(keyPath: \AlbumEntity.style, value: style, force: false)
     }
 
     // MARK: - Paging

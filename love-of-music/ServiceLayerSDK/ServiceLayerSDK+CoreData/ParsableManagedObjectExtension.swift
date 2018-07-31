@@ -120,3 +120,11 @@ extension ManagedObjectConveniance {
     }
 
 }
+
+//extension NSFetchRequestResult where Self: NSManagedObject {
+//    public func updateIfNeeded<V>(keyPath: ReferenceWritableKeyPath<Self, V>, value: V, force: Bool = false) where V: Equatable {
+//        if isInserted || force || self[keyPath: keyPath] != value {
+//            self[keyPath: keyPath] = value
+//        }
+//    }
+//}
