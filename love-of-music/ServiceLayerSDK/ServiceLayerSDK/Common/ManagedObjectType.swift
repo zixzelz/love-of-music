@@ -37,3 +37,28 @@ extension ManagedObjectType {
         return objects(withPredicate: predicate, fetchLimit: fetchLimit, inContext: context, sortBy: nil)
     }
 }
+
+extension ManagedObjectType {
+
+//    public func updateIfNeeded<V: Equatable>(keyPath: ReferenceWritableKeyPath<Self, V>, value: V) {
+//        if self[keyPath: keyPath] != value {
+//            guard let keyPathString = keyPath._kvcKeyPathString else {
+//                self[keyPath: keyPath] = value
+//                return
+//            }
+//            self.setValue(value, forKeyPath: keyPathString)
+//        }
+//    }
+
+    public func updateIfNeeded<V: Equatable>(keyPath: ReferenceWritableKeyPath<Self, V>, value: V) {
+        if self[keyPath: keyPath] != value {
+            self[keyPath: keyPath] = value
+        }
+    }
+
+    public func updateIfNeeded<V: Equatable>(keyPath: ReferenceWritableKeyPath<Self, V?>, value: V?) {
+        if self[keyPath: keyPath] != value {
+            self[keyPath: keyPath] = value
+        }
+    }
+}

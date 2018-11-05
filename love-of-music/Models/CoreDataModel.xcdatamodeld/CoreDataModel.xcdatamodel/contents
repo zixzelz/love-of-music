@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14270.9" systemVersion="17F77" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14315.18" systemVersion="18A391" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="AlbumEntity" representedClassName="AlbumEntity" syncable="YES">
         <attribute name="albumId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="albumType" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="country" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="genre" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="style" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="thumb" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="year" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="pages" optional="YES" toMany="YES" deletionRule="Deny" destinationEntity="AlbumPageEntity" inverseName="object" inverseEntity="AlbumPageEntity" syncable="YES"/>
     </entity>
@@ -32,10 +32,10 @@
         <attribute name="title" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="AlbumEntity" positionX="-63" positionY="27" width="128" height="180"/>
-        <element name="AlbumPageEntity" positionX="-54" positionY="36" width="128" height="90"/>
-        <element name="ReleasesEntity" positionX="-63" positionY="-18" width="128" height="90"/>
-        <element name="ReleasesPageEntity" positionX="-54" positionY="9" width="128" height="90"/>
-        <element name="SearchHistoryEntity" positionX="-54" positionY="72" width="128" height="90"/>
+        <element name="AlbumEntity" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="AlbumPageEntity" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="ReleasesEntity" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="ReleasesPageEntity" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="SearchHistoryEntity" positionX="0" positionY="0" width="0" height="0"/>
     </elements>
 </model>

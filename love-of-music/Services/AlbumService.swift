@@ -68,46 +68,102 @@ class AlbumQuery: NetworkServiceQueryType {
 
 extension AlbumEntity: ModelType {
 
+    struct Mapper {
+
+        struct ItemMap: MapperProtocol {
+            let dict: NSDictionary
+
+            public init(_ dict: NSDictionary) {
+                self.dict = dict
+            }
+
+            static func identifier(_ object: NSDictionary) -> String? {
+                return object.int(for: "id").map({ String($0) })
+            }
+
+            var identifier: String? {
+                return type(of: self).identifier(dict)
+            }
+
+            var title: String? {
+                return dict.string(for: "title")
+            }
+
+            var thumb: String? {
+                return dict.string(for: "thumb")
+            }
+
+            var country: String? {
+                return dict.string(for: "country")
+            }
+
+            var year: String? {
+                return dict.string(for: "year")
+            }
+
+            var albumType: String? {
+                return dict.string(for: "type")
+            }
+
+            var genre: String? {
+                return dict.arr(for: "genre").map { $0.joined(separator: ", ") }
+            }
+
+            var style: String? {
+                return dict.arr(for: "style").map { $0.joined(separator: ", ") }
+            }
+        }
+
+        let dict: NSDictionary
+
+        public init(_ dict: NSDictionary) {
+            self.dict = dict
+        }
+
+        var items: [NSDictionary]? {
+            return dict.dictArr(for: "results")
+        }
+
+        var totalItems: Int {
+            return dict.dict(for: "pagination")?.int(for: "items") ?? 0
+        }
+
+    }
+
     typealias QueryInfo = AlbumQueryInfo
 
-    static func identifier(_ json: [String: AnyObject]) throws -> String {
-        guard let id = json.int(for: "id").map({ String($0) }) else {
+    static func identifier(_ json: NSDictionary) throws -> String {
+        let mapper = Mapper.ItemMap(json)
+        guard let id = mapper.identifier else {
             throw ParseError.invalidData
         }
         return id
     }
 
-    static func objects(_ json: [String: AnyObject]) -> [[String: AnyObject]]? {
-
-        return json["results"] as? [[String: AnyObject]]
+    static func objects(_ json: NSDictionary) -> [NSDictionary]? {
+        let mapper = Mapper(json)
+        return mapper.items
     }
 
-    func fill(_ json: [String: AnyObject], queryInfo: QueryInfo, context: Void) throws {
-        albumId = try AlbumEntity.identifier(json)
-        try update(json, queryInfo: queryInfo)
-    }
+    func fill(_ json: NSDictionary, queryInfo: QueryInfo, context: Void) throws {
+        let identifier = try AlbumEntity.identifier(json)
 
-    func update(_ json: [String: AnyObject], queryInfo: QueryInfo) throws {
-        title = json.string(for: "title")
-        thumb = json.string(for: "thumb")
-        country = json.string(for: "country")
-        year = json.string(for: "year")
-        genre = json.string(for: "genre")
-        type = json.string(for: "type")
-
-        if let genres: [String] = json.arr(for: "genre") {
-            genre = genres.joined(separator: ", ")
-        }
-
-        if let styles: [String] = json.arr(for: "style") {
-            style = styles.joined(separator: ", ")
-        }
+        let mapper = Mapper.ItemMap(json)
+        updateIfNeeded(keyPath: \AlbumEntity.albumId, value: identifier)
+        updateIfNeeded(keyPath: \AlbumEntity.title, value: mapper.title)
+        updateIfNeeded(keyPath: \AlbumEntity.thumb, value: mapper.thumb)
+        updateIfNeeded(keyPath: \AlbumEntity.country, value: mapper.country)
+        updateIfNeeded(keyPath: \AlbumEntity.year, value: mapper.year)
+        updateIfNeeded(keyPath: \AlbumEntity.genre, value: mapper.genre)
+        updateIfNeeded(keyPath: \AlbumEntity.albumType, value: mapper.albumType)
+        updateIfNeeded(keyPath: \AlbumEntity.style, value: mapper.style)        
     }
 
     // MARK: - Paging
 
-    static func totalItems(_ json: [String: AnyObject]) -> Int {
-        return json.dictValue(for: "pagination").intValue(for: "items")
+    static func totalItems(_ json: NSDictionary) -> Int {
+        let mapper = Mapper(json)
+        return mapper.totalItems
     }
 
     // MARK: - ManagedObjectType

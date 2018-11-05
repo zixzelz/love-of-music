@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D6E8AA92188ADC100D3441C /* Mapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E8AA82188ADC100D3441C /* Mapper.swift */; };
 		2D904A9120D80BDA0047FBAF /* AlbumDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D904A9020D80BDA0047FBAF /* AlbumDetailViewController.swift */; };
 		2D904A9320D810110047FBAF /* AlbumDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D904A9220D810110047FBAF /* AlbumDetailViewModel.swift */; };
 		4405DAAC20CF15600029632E /* ViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DAAB20CF15600029632E /* ViewControllerViewModel.swift */; };
@@ -61,6 +62,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2D6E8AA82188ADC100D3441C /* Mapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mapper.swift; sourceTree = "<group>"; };
 		2D904A9020D80BDA0047FBAF /* AlbumDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDetailViewController.swift; sourceTree = "<group>"; };
 		2D904A9220D810110047FBAF /* AlbumDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDetailViewModel.swift; sourceTree = "<group>"; };
 		4405DAAB20CF15600029632E /* ViewControllerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerViewModel.swift; sourceTree = "<group>"; };
@@ -207,6 +209,7 @@
 				4405DAC720CF2CEB0029632E /* QueryInfoType.swift */,
 				4405DAC820CF2CEB0029632E /* CachePolicy.swift */,
 				4405DAC920CF2CEB0029632E /* Array+Dict.swift */,
+				2D6E8AA82188ADC100D3441C /* Mapper.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -419,6 +422,7 @@
 				44A3B97720DAAA7000EB36F5 /* SimpleImageView.swift in Sources */,
 				448A979C20C6B9030004667E /* ViewController.swift in Sources */,
 				4405DAD720CF2CEB0029632E /* QueryInfoType.swift in Sources */,
+				2D6E8AA92188ADC100D3441C /* Mapper.swift in Sources */,
 				2D904A9320D810110047FBAF /* AlbumDetailViewModel.swift in Sources */,
 				2D904A9120D80BDA0047FBAF /* AlbumDetailViewController.swift in Sources */,
 				449D4DA820D0830A0086C8AB /* ResultSearchTableViewModel.swift in Sources */,

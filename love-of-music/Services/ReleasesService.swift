@@ -62,33 +62,72 @@ struct ReleasesQuery: NetworkServiceQueryType {
 
 extension ReleasesEntity: ModelType {
 
+    struct Mapper {
+
+        struct ItemMap: MapperProtocol {
+            let dict: NSDictionary
+
+            public init(_ dict: NSDictionary) {
+                self.dict = dict
+            }
+
+            static func identifier(_ object: NSDictionary) -> String? {
+                return object.int(for: "id").map({ String($0) })
+            }
+
+            var identifier: String? {
+                return type(of: self).identifier(dict)
+            }
+
+            var title: String? {
+                return dict.string(for: "title")
+            }
+        }
+
+        let dict: NSDictionary
+
+        public init(_ dict: NSDictionary) {
+            self.dict = dict
+        }
+
+        var items: [NSDictionary]? {
+            return dict.dictArr(for: "releases")
+        }
+
+        var totalItems: Int {
+            return dict.dict(for: "pagination")?.int(for: "items") ?? 0
+        }
+
+    }
+
     typealias QueryInfo = ReleasesQueryInfo
 
-    static func identifier(_ json: [String: AnyObject]) throws -> String {
-        guard let id = json.int(for: "id").map({ String($0) }) else {
+    static func identifier(_ json: NSDictionary) throws -> String {
+        let mapper = Mapper.ItemMap(json)
+        guard let id = mapper.identifier else {
             throw ParseError.invalidData
         }
         return id
     }
 
-    static func objects(_ json: [String: AnyObject]) -> [[String: AnyObject]]? {
-
-        return json["releases"] as? [[String: AnyObject]]
+    static func objects(_ json: NSDictionary) -> [NSDictionary]? {
+        let mapper = Mapper(json)
+        return mapper.items
     }
 
-    func fill(_ json: [String: AnyObject], queryInfo: QueryInfo, context: Void) throws {
-        userId = try ReleasesEntity.identifier(json)
-        try update(json, queryInfo: queryInfo)
-    }
+    func fill(_ json: NSDictionary, queryInfo: QueryInfo, context: Void) throws {
+        let identifier = try ReleasesEntity.identifier(json)
 
-    func update(_ json: [String: AnyObject], queryInfo: QueryInfo) throws {
-        title = json["title"] as? String
+        let mapper = Mapper.ItemMap(json)
+        updateIfNeeded(keyPath: \ReleasesEntity.userId, value: identifier)
+        updateIfNeeded(keyPath: \ReleasesEntity.title, value: mapper.title)
     }
 
     // MARK: - Paging
 
-    static func totalItems(_ json: [String: AnyObject]) -> Int {
-        return json["pagination"]?["items"] as? Int ?? 0
+    static func totalItems(_ json: NSDictionary) -> Int {
+        let mapper = Mapper(json)
+        return mapper.totalItems
     }
 
     // MARK: - ManagedObjectType

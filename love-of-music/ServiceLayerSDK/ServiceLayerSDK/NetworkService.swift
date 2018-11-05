@@ -153,8 +153,12 @@ class NetworkService<ObjectType: ModelType, PageObjectType: PageModelType> {
                 return
             }
 
-            let json = try? JSONSerialization.jsonObject(with: data!, options: .mutableContainers)
-            let responseDict = json as? [String: AnyObject] ?? [String: AnyObject]()
+            guard let data = data,
+                let jsonObj = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers),
+                let responseDict = jsonObj as? NSDictionary else {
+                    completionHandler(.failure(.wrongResponseFormat))
+                    return
+            }
 
             #if DEBUG
 //                if let response = NSString(data: data!, encoding: String.Encoding.utf8.rawValue) {
@@ -171,7 +175,7 @@ class NetworkService<ObjectType: ModelType, PageObjectType: PageModelType> {
         return task
     }
 
-    private func parseAndStore < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, responseDict: [String: AnyObject], range: NSRange?, completionHandler: @escaping StoreCompletionHandlet) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+    private func parseAndStore < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, responseDict: NSDictionary, range: NSRange?, completionHandler: @escaping StoreCompletionHandlet) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
 
         if let range = range {
             let filterIdentifier = query.filterIdentifier
