@@ -13,11 +13,11 @@ typealias ReleasesCompletionHandlet = (ServiceResult<[ReleasesEntity], ServiceEr
 
 class ReleasesService {
 
-    let localService: LocalService<ReleasesEntity, ReleasesPageEntity>
-    let networkService: NetworkService<ReleasesEntity, ReleasesPageEntity>
+    let localService: PageLocalService<ReleasesEntity, ReleasesPageEntity>
+    let networkService: NetworkService<ReleasesEntity>
 
     init() {
-        localService = LocalService()
+        localService = PageLocalService()
         networkService = NetworkService(localService: localService)
     }
 
@@ -40,6 +40,10 @@ enum ReleasesQueryInfo: QueryInfoType {
 struct ReleasesQuery: NetworkServiceQueryType {
 
     var queryInfo: ReleasesQueryInfo = .default
+
+    var identifier: String {
+        return filterIdentifier
+    }
 
     var path: String = "https://api.discogs.com/artists/2/releases"
 

@@ -10,11 +10,11 @@ import UIKit
 
 class AlbumService {
 
-    let localService: LocalService<AlbumEntity, AlbumPageEntity>
-    let networkService: NetworkService<AlbumEntity, AlbumPageEntity>
+    let localService: PageLocalService<AlbumEntity, AlbumPageEntity>
+    let networkService: NetworkService<AlbumEntity>
 
     init() {
-        localService = LocalService()
+        localService = PageLocalService()
         networkService = NetworkService(localService: localService)
     }
 
@@ -29,6 +29,10 @@ enum AlbumQueryInfo: QueryInfoType {
 class AlbumQuery: NetworkServiceQueryType {
 
     var queryInfo: AlbumQueryInfo = .default
+
+    var identifier: String {
+        return filterIdentifier
+    }
 
     init(queryInfo: AlbumQueryInfo) {
         self.queryInfo = queryInfo
@@ -156,7 +160,7 @@ extension AlbumEntity: ModelType {
         updateIfNeeded(keyPath: \AlbumEntity.year, value: mapper.year)
         updateIfNeeded(keyPath: \AlbumEntity.genre, value: mapper.genre)
         updateIfNeeded(keyPath: \AlbumEntity.albumType, value: mapper.albumType)
-        updateIfNeeded(keyPath: \AlbumEntity.style, value: mapper.style)        
+        updateIfNeeded(keyPath: \AlbumEntity.style, value: mapper.style)
     }
 
     // MARK: - Paging

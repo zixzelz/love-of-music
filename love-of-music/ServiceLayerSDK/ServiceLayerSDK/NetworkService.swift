@@ -32,7 +32,15 @@ extension NetworkServiceQueryType {
     }
 }
 
-class NetworkService<ObjectType: ModelType, PageObjectType: PageModelType> {
+//class NetworkService {
+//
+//    class func networkService<ObjectType: ModelType>(localService: LocalService<ObjectType, Void>) -> NetworkService {
+//        return MainNetworkService()
+//    }
+//
+//}
+
+class NetworkService<ObjectType: ModelType> {
 
     typealias NetworkServiceFetchItemCompletionHandlet = (ServiceResult<ObjectType, ServiceError>) -> ()
     typealias FetchItemsCompletionHandler = (ServiceResult<[ObjectType], ServiceError>) -> ()
@@ -40,13 +48,13 @@ class NetworkService<ObjectType: ModelType, PageObjectType: PageModelType> {
     typealias FetchCompletionHandler = (ServiceResult<LocalServiceFetchInfo, ServiceError>) -> ()
     private typealias StoreCompletionHandlet = (ServiceResult<LocalServiceFetchInfo, ServiceError>) -> ()
 
-    private let localService: LocalService<ObjectType, PageObjectType>
+    private let localService: LocalService<ObjectType>
 
-    init (localService: LocalService<ObjectType, PageObjectType>) {
+    init (localService: LocalService<ObjectType>) {
         self.localService = localService
     }
 
-    func fetchDataItem <NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, completionHandler: @escaping NetworkServiceFetchItemCompletionHandlet) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+    func fetchDataItem <NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, completionHandler: @escaping NetworkServiceFetchItemCompletionHandlet) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
         fetchDataItems(query, cache: cache) { (result) in
 
@@ -64,7 +72,7 @@ class NetworkService<ObjectType: ModelType, PageObjectType: PageModelType> {
         }
     }
 
-    func fetchDataItems < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil, completionHandler: @escaping FetchItemsCompletionHandler) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+    func fetchDataItems < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil, completionHandler: @escaping FetchItemsCompletionHandler) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
         let fetchCompletion: FetchCompletionHandler = { [weak self] (result) in
             switch result {
@@ -99,12 +107,12 @@ class NetworkService<ObjectType: ModelType, PageObjectType: PageModelType> {
         }
     }
 
-    func fetchPageData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil, completionHandler: @escaping FetchPageCompletionHandler) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+    func fetchPageData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil, completionHandler: @escaping FetchPageCompletionHandler) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
         fetchData(query, cache: cache, range: range, completionHandler: completionHandler)
     }
 
-    private func fetchData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil, completionHandler: @escaping FetchCompletionHandler) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+    private func fetchData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil, completionHandler: @escaping FetchCompletionHandler) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
         switch cache {
         case .cachedOnly: break
@@ -123,7 +131,7 @@ class NetworkService<ObjectType: ModelType, PageObjectType: PageModelType> {
         }
     }
 
-    @discardableResult private func resumeRequest < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, range: NSRange? = nil, completionHandler: @escaping StoreCompletionHandlet) -> URLSessionDataTask? where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+    @discardableResult private func resumeRequest < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, range: NSRange? = nil, completionHandler: @escaping StoreCompletionHandlet) -> URLSessionDataTask? where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
         let session = urlSession()
 
@@ -175,14 +183,9 @@ class NetworkService<ObjectType: ModelType, PageObjectType: PageModelType> {
         return task
     }
 
-    private func parseAndStore < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, responseDict: NSDictionary, range: NSRange?, completionHandler: @escaping StoreCompletionHandlet) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+    private func parseAndStore < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, responseDict: NSDictionary, range: NSRange?, completionHandler: @escaping StoreCompletionHandlet) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
-        if let range = range {
-            let filterIdentifier = query.filterIdentifier
-            localService.parseAndStorePages(query, json: responseDict, range: range, filterId: filterIdentifier, completionHandler: completionHandler)
-        } else {
-            localService.parseAndStore(query, json: responseDict, completionHandler: completionHandler)
-        }
+        localService.parseAndStore(query, json: responseDict, range: range, completionHandler: completionHandler)
     }
 
     // MARK - Utils

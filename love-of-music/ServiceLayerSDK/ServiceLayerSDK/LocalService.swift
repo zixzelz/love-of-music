@@ -12,6 +12,7 @@ protocol LocalServiceQueryType {
 
     associatedtype QueryInfo: QueryInfoType
 
+    var identifier: String { get }
     var queryInfo: QueryInfo { get }
 
     var predicate: NSPredicate? { get }
@@ -29,13 +30,13 @@ internal struct LocalServiceFetchInfo {
     var totalItems: Int
 }
 
-class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
+class LocalService <ObjectType: ModelType> {
 
     typealias LocalServiceFetchCompletionHandler = (ServiceResult<[ObjectType], ServiceError>) -> ()
     typealias LocalServiceCompletionHandler = (ServiceResult<LocalServiceFetchInfo, ServiceError>) -> ()
     typealias EmptyCompletionHandler = (ServiceResult<Void, ServiceError>) -> ()
 
-    private lazy var parsableContext: ObjectType.ParsableContext = {
+    fileprivate lazy var parsableContext: ObjectType.ParsableContext = {
         let context = ObjectType.managedObjectContext()
         return ObjectType.parsableContext(context)
     }()
@@ -55,16 +56,11 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
     }
 
     // json: {"objectsCollection": [{item}, {item}, ...]}
-    func parseAndStore <LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: NSDictionary, completionHandler: @escaping LocalServiceCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
-        store(query, json: json, completionHandler: completionHandler)
+    func parseAndStore <LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: NSDictionary, range: NSRange?, completionHandler: @escaping LocalServiceCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
+        store(query, json: json, range: range, completionHandler: completionHandler)
     }
 
-    // json: {"objectsCollection": [{item}, {item}, ...]}
-    func parseAndStorePages <LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: NSDictionary, range: NSRange, filterId: String, completionHandler: @escaping LocalServiceCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
-        storePage(query, json: json, filterId: filterId, range: range, completionHandler: completionHandler)
-    }
-
-    private func store < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: NSDictionary, completionHandler: @escaping LocalServiceCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
+    fileprivate func store < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: NSDictionary, range: NSRange?, completionHandler: @escaping LocalServiceCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
         guard let items = ObjectType.objects(json) else {
             completionHandler(.failure(.wrongResponseFormat))
@@ -106,60 +102,7 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
         }
     }
 
-    private func storePage < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: NSDictionary, filterId: String, range: NSRange, completionHandler: @escaping LocalServiceCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
-
-        guard let items = ObjectType.objects(json) else {
-            completionHandler(.failure(.wrongResponseFormat))
-            return
-        }
-
-        var itemOrder = range.location
-        let context = ObjectType.managedObjectContext()
-        let parsableContext = self.parsableContext
-        context.perform {
-
-            let cachedPageItemsMap = self.pageItemsMap(filterId: filterId, fromOrder: range.location, context: context)
-            var handledPageItemsKey = [String]()
-            for jsonItem in items {
-
-                guard let identifier = try? ObjectType.identifier(jsonItem) else {
-                    completionHandler(.failure(.wrongResponseFormat))
-                    continue
-                }
-
-                if let cachedPageItem = cachedPageItemsMap[identifier] {
-                    do {
-                        try cachedPageItem.object.fill(jsonItem, queryInfo: query.queryInfo, context: parsableContext)
-                        cachedPageItem.updateIfNeeded(keyPath: \PageObjectType.order, value: itemOrder)
-                        handledPageItemsKey.append(identifier)
-                    } catch { }
-                } else {
-                    guard let item = ObjectType.insert(inContext: context) as? ObjectType else {
-                        fatalError("Unexpected object type")
-                    }
-                    do {
-                        try item.fill(jsonItem, queryInfo: query.queryInfo, context: parsableContext)
-                        _ = PageObjectType(filterId: filterId, object: item, order: itemOrder, inContext: context)
-                    } catch { }
-                }
-
-                itemOrder += 1
-            }
-
-            let itemForDelete = cachedPageItemsMap.filter { !handledPageItemsKey.contains($0.0) }
-            for (_, page) in itemForDelete {
-                page.delete(context: context)
-            }
-
-            context.saveIfNeeded()
-
-            let totalItems = ObjectType.totalItems(json)
-            let info = LocalServiceFetchInfo(totalItems: totalItems)
-            completionHandler(.success(info))
-        }
-    }
-
-    // json: {item}
+// json: {item}
     private func parseAndStoreItem (_ json: NSDictionary, cachedItemsMap: [String: ObjectType], context: ManagedObjectContextType, queryInfo: ObjectType.QueryInfo) throws -> ObjectType {
 
         do {
@@ -206,6 +149,70 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
 
         return map ?? [:]
     }
+}
+
+class PageLocalService <ObjectType: ModelType, PageObjectType: PageModelType>: LocalService<ObjectType> {
+
+    fileprivate override func store < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: NSDictionary, range: NSRange?, completionHandler: @escaping LocalServiceCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+
+        guard let range = range else {
+            assertionFailure("range should not be nil")
+            completionHandler(.failure(.internalError))
+            return
+        }
+
+        guard let items = ObjectType.objects(json) else {
+            completionHandler(.failure(.wrongResponseFormat))
+            return
+        }
+
+        var itemOrder = range.location
+        let filterId = query.identifier
+        let context = ObjectType.managedObjectContext()
+        let parsableContext = self.parsableContext
+        context.perform {
+
+            let cachedPageItemsMap = self.pageItemsMap(filterId: filterId, fromOrder: range.location, context: context)
+            var handledPageItemsKey = [String]()
+
+            for jsonItem in items {
+
+                guard let identifier = try? ObjectType.identifier(jsonItem) else {
+                    completionHandler(.failure(.wrongResponseFormat))
+                    continue
+                }
+
+                if let cachedPageItem = cachedPageItemsMap[identifier] {
+                    do {
+                        try cachedPageItem.object.fill(jsonItem, queryInfo: query.queryInfo, context: parsableContext)
+                        cachedPageItem.updateIfNeeded(keyPath: \PageObjectType.order, value: itemOrder)
+                        handledPageItemsKey.append(identifier)
+                    } catch { }
+                } else {
+                    guard let item = ObjectType.insert(inContext: context) as? ObjectType else {
+                        fatalError("Unexpected object type")
+                    }
+                    do {
+                        try item.fill(jsonItem, queryInfo: query.queryInfo, context: parsableContext)
+                        _ = PageObjectType(filterId: filterId, object: item, order: itemOrder, inContext: context)
+                    } catch { }
+                }
+
+                itemOrder += 1
+            }
+
+            let itemForDelete = cachedPageItemsMap.filter { !handledPageItemsKey.contains($0.0) }
+            for (_, page) in itemForDelete {
+                page.delete(context: context)
+            }
+
+            context.saveIfNeeded()
+
+            let totalItems = ObjectType.totalItems(json)
+            let info = LocalServiceFetchInfo(totalItems: totalItems)
+            completionHandler(.success(info))
+        }
+    }
 
     private func pageItemsMap(filterId: String, fromOrder: Int, context: ManagedObjectContextType) -> [String: PageObjectType] {
         let predicate = NSPredicate(format: "filterId == %@ && order >= %d", filterId, fromOrder)
@@ -215,4 +222,5 @@ class LocalService <ObjectType: ModelType, PageObjectType: PageModelType> {
 
         return map ?? [:]
     }
+
 }

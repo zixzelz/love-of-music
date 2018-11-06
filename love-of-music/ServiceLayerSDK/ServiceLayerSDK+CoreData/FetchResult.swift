@@ -123,7 +123,7 @@ extension FetchResult {
 extension FetchResult {
 
     static func pageResult <Query: NetworkServiceQueryType> (
-        networkService service: NetworkService<FetchObjectType.ObjectType, FetchObjectType>,
+        networkService service: NetworkService<FetchObjectType.ObjectType>,
         query: Query?, //Workaround, because I can't specify generic parameter with not used in function signature
         cachePolicy: CachePolicy,
         pageSize: Int? = nil,
@@ -142,7 +142,7 @@ extension FetchResult {
 class PageFetchResult <FetchObjectType: NSFetchRequestResult, NetworkServiceQuery: NetworkServiceQueryType>: FetchResult<FetchObjectType>
 where NetworkServiceQuery.QueryInfo == FetchObjectType.ObjectType.QueryInfo, FetchObjectType: PageModelType {
 
-    private let networkService: NetworkService<FetchObjectType.ObjectType, FetchObjectType>
+    private let networkService: NetworkService<FetchObjectType.ObjectType>
     private var query: NetworkServiceQuery?
     private let cachePolicy: CachePolicy
     private let pageSize: Int?
@@ -151,7 +151,7 @@ where NetworkServiceQuery.QueryInfo == FetchObjectType.ObjectType.QueryInfo, Fet
 
     private var _fetchedResultsController: (_ filterId: String) -> NSFetchedResultsController<FetchObjectType>
 
-    init(networkService service: NetworkService<FetchObjectType.ObjectType, FetchObjectType>, cachePolicy: CachePolicy, pageSize: Int? = nil, fetchedResultsController: @escaping (_ filterId: String) -> NSFetchedResultsController<FetchObjectType>) {
+    init(networkService service: NetworkService<FetchObjectType.ObjectType>, cachePolicy: CachePolicy, pageSize: Int? = nil, fetchedResultsController: @escaping (_ filterId: String) -> NSFetchedResultsController<FetchObjectType>) {
 
         self.networkService = service
         self.cachePolicy = cachePolicy
