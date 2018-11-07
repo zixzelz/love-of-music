@@ -7,14 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		074844FE67AB7D1BC8FD1F4D /* Pods_love_of_music.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9E5915CCFB47FA5BF9855E5 /* Pods_love_of_music.framework */; };
 		2D6E8AA92188ADC100D3441C /* Mapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E8AA82188ADC100D3441C /* Mapper.swift */; };
 		2D904A9120D80BDA0047FBAF /* AlbumDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D904A9020D80BDA0047FBAF /* AlbumDetailViewController.swift */; };
 		2D904A9320D810110047FBAF /* AlbumDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D904A9220D810110047FBAF /* AlbumDetailViewModel.swift */; };
+		2DF7AD4B2191E4C700D158F4 /* ReactiveFetchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7AD4A2191E4C700D158F4 /* ReactiveFetchResult.swift */; };
+		2DF7AD4E2191E5EB00D158F4 /* FetchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF7AD4D2191E5EB00D158F4 /* FetchResult.swift */; };
 		4405DAAC20CF15600029632E /* ViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DAAB20CF15600029632E /* ViewControllerViewModel.swift */; };
 		4405DAB120CF20500029632E /* ReleasesCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DAB020CF20500029632E /* ReleasesCellViewModel.swift */; };
 		4405DAB720CF27450029632E /* DefaultTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DAB620CF27450029632E /* DefaultTableViewCell.swift */; };
 		4405DABC20CF2ADA0029632E /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DABB20CF2ADA0029632E /* Property.swift */; };
-		4405DAD020CF2CEB0029632E /* FetchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DABE20CF2CEB0029632E /* FetchResult.swift */; };
+		4405DAD020CF2CEB0029632E /* FetchResult+FetchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DABE20CF2CEB0029632E /* FetchResult+FetchResult.swift */; };
 		4405DAD120CF2CEB0029632E /* ListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DABF20CF2CEB0029632E /* ListViewModel.swift */; };
 		4405DAD220CF2CEB0029632E /* ParsableManagedObjectExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DAC020CF2CEB0029632E /* ParsableManagedObjectExtension.swift */; };
 		4405DAD320CF2CEB0029632E /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DAC220CF2CEB0029632E /* NetworkService.swift */; };
@@ -65,11 +68,13 @@
 		2D6E8AA82188ADC100D3441C /* Mapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mapper.swift; sourceTree = "<group>"; };
 		2D904A9020D80BDA0047FBAF /* AlbumDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDetailViewController.swift; sourceTree = "<group>"; };
 		2D904A9220D810110047FBAF /* AlbumDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDetailViewModel.swift; sourceTree = "<group>"; };
+		2DF7AD4A2191E4C700D158F4 /* ReactiveFetchResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReactiveFetchResult.swift; sourceTree = "<group>"; };
+		2DF7AD4D2191E5EB00D158F4 /* FetchResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchResult.swift; sourceTree = "<group>"; };
 		4405DAAB20CF15600029632E /* ViewControllerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerViewModel.swift; sourceTree = "<group>"; };
 		4405DAB020CF20500029632E /* ReleasesCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleasesCellViewModel.swift; sourceTree = "<group>"; };
 		4405DAB620CF27450029632E /* DefaultTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultTableViewCell.swift; sourceTree = "<group>"; };
 		4405DABB20CF2ADA0029632E /* Property.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Property.swift; sourceTree = "<group>"; };
-		4405DABE20CF2CEB0029632E /* FetchResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchResult.swift; sourceTree = "<group>"; };
+		4405DABE20CF2CEB0029632E /* FetchResult+FetchResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "FetchResult+FetchResult.swift"; sourceTree = "<group>"; };
 		4405DABF20CF2CEB0029632E /* ListViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListViewModel.swift; sourceTree = "<group>"; };
 		4405DAC020CF2CEB0029632E /* ParsableManagedObjectExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParsableManagedObjectExtension.swift; sourceTree = "<group>"; };
 		4405DAC220CF2CEB0029632E /* NetworkService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
@@ -116,6 +121,9 @@
 		44F3419B20D50AFE00FF4546 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		44F3419D20D50C9C00FF4546 /* SearchTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTableViewCell.swift; sourceTree = "<group>"; };
 		44F3419E20D50C9C00FF4546 /* SearchTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SearchTableViewCell.xib; sourceTree = "<group>"; };
+		6688183537B3BEF5E2837195 /* Pods-love-of-music.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-love-of-music.debug.xcconfig"; path = "Pods/Target Support Files/Pods-love-of-music/Pods-love-of-music.debug.xcconfig"; sourceTree = "<group>"; };
+		76DD8E6F1617F44ADCE1CB44 /* Pods-love-of-music.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-love-of-music.release.xcconfig"; path = "Pods/Target Support Files/Pods-love-of-music/Pods-love-of-music.release.xcconfig"; sourceTree = "<group>"; };
+		E9E5915CCFB47FA5BF9855E5 /* Pods_love_of_music.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_love_of_music.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,6 +131,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				074844FE67AB7D1BC8FD1F4D /* Pods_love_of_music.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,6 +145,15 @@
 				2D904A9220D810110047FBAF /* AlbumDetailViewModel.swift */,
 			);
 			path = AlbumDetail;
+			sourceTree = "<group>";
+		};
+		2DF7AD4C2191E4D500D158F4 /* Commons */ = {
+			isa = PBXGroup;
+			children = (
+				2DF7AD4A2191E4C700D158F4 /* ReactiveFetchResult.swift */,
+				2DF7AD4D2191E5EB00D158F4 /* FetchResult.swift */,
+			);
+			path = Commons;
 			sourceTree = "<group>";
 		};
 		4405DAAD20CF164A0029632E /* Releases */ = {
@@ -163,6 +181,7 @@
 		4405DAB920CF2A780029632E /* ServiceLayerSDK */ = {
 			isa = PBXGroup;
 			children = (
+				2DF7AD4C2191E4D500D158F4 /* Commons */,
 				4405DAC120CF2CEB0029632E /* ServiceLayerSDK */,
 				4405DABD20CF2CEB0029632E /* ServiceLayerSDK+CoreData */,
 				4405DACD20CF2CEB0029632E /* ServiceLayerSDK+Cocoa */,
@@ -181,7 +200,7 @@
 		4405DABD20CF2CEB0029632E /* ServiceLayerSDK+CoreData */ = {
 			isa = PBXGroup;
 			children = (
-				4405DABE20CF2CEB0029632E /* FetchResult.swift */,
+				4405DABE20CF2CEB0029632E /* FetchResult+FetchResult.swift */,
 				4405DAC020CF2CEB0029632E /* ParsableManagedObjectExtension.swift */,
 			);
 			name = "ServiceLayerSDK+CoreData";
@@ -254,6 +273,8 @@
 			children = (
 				448A979820C6B9020004667E /* love-of-music */,
 				448A979720C6B9020004667E /* Products */,
+				9AC2517B5AB62D04810D757B /* Pods */,
+				58575A9ED0C0578D34AE0D58 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -336,6 +357,23 @@
 			path = Commons;
 			sourceTree = "<group>";
 		};
+		58575A9ED0C0578D34AE0D58 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E9E5915CCFB47FA5BF9855E5 /* Pods_love_of_music.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9AC2517B5AB62D04810D757B /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				6688183537B3BEF5E2837195 /* Pods-love-of-music.debug.xcconfig */,
+				76DD8E6F1617F44ADCE1CB44 /* Pods-love-of-music.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -343,6 +381,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 448A97A820C6B9050004667E /* Build configuration list for PBXNativeTarget "love-of-music" */;
 			buildPhases = (
+				7D28F6A1440A148EF7916216 /* [CP] Check Pods Manifest.lock */,
 				448A979220C6B9020004667E /* Sources */,
 				448A979320C6B9020004667E /* Frameworks */,
 				448A979420C6B9020004667E /* Resources */,
@@ -404,11 +443,37 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		7D28F6A1440A148EF7916216 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-love-of-music-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		448A979220C6B9020004667E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2DF7AD4B2191E4C700D158F4 /* ReactiveFetchResult.swift in Sources */,
 				4405DAE220CF2D580029632E /* NetworkServiceQueryType+Default.swift in Sources */,
 				4405DADD20CF2CEB0029632E /* TableViewDataSource.swift in Sources */,
 				4405DADA20CF2CEB0029632E /* ServiceError.swift in Sources */,
@@ -438,7 +503,7 @@
 				44F3419F20D50C9C00FF4546 /* SearchTableViewCell.swift in Sources */,
 				449D4DB520D1330F0086C8AB /* AlbumEntity.swift in Sources */,
 				449D4DAA20D084FE0086C8AB /* ResultSearchCellViewModel.swift in Sources */,
-				4405DAD020CF2CEB0029632E /* FetchResult.swift in Sources */,
+				4405DAD020CF2CEB0029632E /* FetchResult+FetchResult.swift in Sources */,
 				448A97CF20C6BB2D0004667E /* CoreDataHelper.swift in Sources */,
 				4405DAD520CF2CEB0029632E /* Parsable.swift in Sources */,
 				44F3419C20D50AFE00FF4546 /* SearchViewModel.swift in Sources */,
@@ -450,6 +515,7 @@
 				4405DAE120CF2D580029632E /* ReleasesService.swift in Sources */,
 				440B314620D07D650022B9E4 /* SearchViewController.swift in Sources */,
 				449D4DB120D0FC800086C8AB /* UITableViewExtension.swift in Sources */,
+				2DF7AD4E2191E5EB00D158F4 /* FetchResult.swift in Sources */,
 				44A3B97320DAA7FE00EB36F5 /* SimpleImageLoader.swift in Sources */,
 				4405DAD920CF2CEB0029632E /* Array+Dict.swift in Sources */,
 				4405DADC20CF2CEB0029632E /* CollectionViewDataSource.swift in Sources */,
@@ -597,6 +663,7 @@
 		};
 		448A97A920C6B9050004667E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6688183537B3BEF5E2837195 /* Pods-love-of-music.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -616,6 +683,7 @@
 		};
 		448A97AA20C6B9050004667E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 76DD8E6F1617F44ADCE1CB44 /* Pods-love-of-music.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;

@@ -1,6 +1,31 @@
-# xcode
+# xcode noise
+[bB]uild/*
+*.pbxuser
+!default.pbxuser
+*.mode*
+!default.mode1v3
+!default.mode2v3
+*.perspective
+*.perspectivev3
+!default.perspectivev3
+
+
+# xcode 4
 xcuserdata
 *.xcuserstate
+# *.xcworkspace
+# *.xcodeproj/*.xcworkspacedata
+!default.xcworkspace
+
+*.moved-aside*
+
+# IB
+*~.nib
+*~.xib
+
+# Cocoapods
+[Pp]ods/
+
 
 # Builds
 .bundle_identifier
