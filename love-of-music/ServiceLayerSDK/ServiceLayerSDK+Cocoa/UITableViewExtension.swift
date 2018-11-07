@@ -10,8 +10,16 @@ import UIKit
 
 extension UITableView {
 
-    public func dequeueCell < Cell: UITableViewCell> (for indexPath: IndexPath) -> Cell where Cell: CellIdentifier  {
+    public func dequeueCell < Cell: UITableViewCell> (for indexPath: IndexPath) -> Cell where Cell: CellIdentifier {
         guard let cell = dequeueReusableCell(withIdentifier: Cell.identifier, for: indexPath) as? Cell else {
+            fatalError("Could not dequeue cell with identifier: \(Cell.identifier)")
+        }
+
+        return cell
+    }
+
+    public func dequeueHeaderFooter < Cell: UITableViewHeaderFooterView> () -> Cell where Cell: CellIdentifier {
+        guard let cell = dequeueReusableHeaderFooterView(withIdentifier: Cell.identifier) as? Cell else {
             fatalError("Could not dequeue cell with identifier: \(Cell.identifier)")
         }
 
@@ -20,6 +28,10 @@ extension UITableView {
 
     public func register< Cell: UITableViewCell > (_: Cell.Type) where Cell: CellIdentifier {
         register(Cell.self, forCellReuseIdentifier: Cell.identifier)
+    }
+
+    public func register< Cell: UITableViewHeaderFooterView > (_: Cell.Type) where Cell: CellIdentifier {
+        register(Cell.self, forHeaderFooterViewReuseIdentifier: Cell.identifier)
     }
 
     public func registerNib < Cell: UITableViewCell > (_ aClass: Cell.Type) where Cell: CellIdentifier {

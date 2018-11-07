@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import ReactiveSwift
+import Result
 
 protocol ViewControllerViewModeling {
 
@@ -26,7 +28,7 @@ class ViewController: UIViewController {
         }
     }
 
-    private var _willDisplayCell: MutableProperty<IndexPath> = MutableProperty(value: IndexPath(row: 0, section: 0)) // make as optional, add ignoreNill with ReactiveCocoa
+    fileprivate let (willDisplayCellSignal, willDisplayCellObserver) = Signal<IndexPath, NoError>.pipe()
 
     private var viewModel: ViewControllerViewModeling! {
         didSet {
@@ -46,10 +48,8 @@ class ViewController: UIViewController {
 
     private func bind(with viewModel: ViewControllerViewModeling) {
 
-        let willDisplayCell = Property(_willDisplayCell)
-
         contentDataSource = TableViewDataSource(tableView: tableView, listViewModel: viewModel.listViewModel,
-            paging: (Constants.pagingPool, willDisplayCell),
+            paging: (Constants.pagingPool, willDisplayCellSignal),
             map: { (tableView, indexpath, cellVM) -> UITableViewCell in
                 let cell = tableView.dequeueReusableCell(withIdentifier: "DefaultCell", for: indexpath) as! DefaultTableViewCell
                 cell.configure(viewModel: cellVM)
@@ -62,6 +62,6 @@ class ViewController: UIViewController {
 
 extension ViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        _willDisplayCell.value = indexPath
+        willDisplayCellObserver.send(value: indexPath)
     }
 }

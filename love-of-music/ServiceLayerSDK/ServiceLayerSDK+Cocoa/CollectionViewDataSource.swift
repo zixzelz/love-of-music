@@ -26,11 +26,11 @@ class CollectionViewDataSource <CellViewModel>: NSObject, UICollectionViewDataSo
     //MARK: UICollectionViewDataSource
 
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
+        return listViewModel.numberOfSections()
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return listViewModel.numberOfItems
+        return listViewModel.numberOfRows(inSection: section)
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

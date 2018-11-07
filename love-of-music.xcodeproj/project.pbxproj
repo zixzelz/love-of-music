@@ -16,7 +16,6 @@
 		4405DAAC20CF15600029632E /* ViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DAAB20CF15600029632E /* ViewControllerViewModel.swift */; };
 		4405DAB120CF20500029632E /* ReleasesCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DAB020CF20500029632E /* ReleasesCellViewModel.swift */; };
 		4405DAB720CF27450029632E /* DefaultTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DAB620CF27450029632E /* DefaultTableViewCell.swift */; };
-		4405DABC20CF2ADA0029632E /* Property.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DABB20CF2ADA0029632E /* Property.swift */; };
 		4405DAD020CF2CEB0029632E /* FetchResult+FetchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DABE20CF2CEB0029632E /* FetchResult+FetchResult.swift */; };
 		4405DAD120CF2CEB0029632E /* ListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DABF20CF2CEB0029632E /* ListViewModel.swift */; };
 		4405DAD220CF2CEB0029632E /* ParsableManagedObjectExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4405DAC020CF2CEB0029632E /* ParsableManagedObjectExtension.swift */; };
@@ -504,7 +503,6 @@
 				4405DAE220CF2D580029632E /* NetworkServiceQueryType+Default.swift in Sources */,
 				4405DADD20CF2CEB0029632E /* TableViewDataSource.swift in Sources */,
 				4405DADA20CF2CEB0029632E /* ServiceError.swift in Sources */,
-				4405DABC20CF2ADA0029632E /* Property.swift in Sources */,
 				4405DAD620CF2CEB0029632E /* ModelType.swift in Sources */,
 				449D4DB320D118CF0086C8AB /* AlbumService.swift in Sources */,
 				449F56BB21023E570097E092 /* DictionaryExtension.swift in Sources */,

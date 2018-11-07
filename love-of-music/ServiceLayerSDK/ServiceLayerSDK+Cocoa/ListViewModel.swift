@@ -7,14 +7,17 @@
 //
 
 import UIKit
+import ReactiveSwift
+import Result
 
 protocol ListViewModelType {
     associatedtype CellViewModel
 
     var state: Property<FetchResultState> { get }
-    var didUpdate: Property<[UpdateType]> { get }
+    var didUpdate: Signal<[UpdateType], NoError> { get }
 
-    var numberOfItems: Int { get }
+    func numberOfSections() -> Int
+    func numberOfRows(inSection section: Int) -> Int
     func cellViewModel(at indexpath: IndexPath) -> CellViewModel
 
     func loadNextPageIfNeeded()
@@ -27,24 +30,34 @@ protocol ListViewModelType {
 
 class ListViewModel<CellViewModel>: ListViewModelType {
 
+    let allowsMultipleSelection: Bool
+
     var state: Property<FetchResultState> {
         preconditionFailure("Should be overriden")
     }
 
-    var didUpdate: Property<[UpdateType]> {
+    var didUpdate: Signal<[UpdateType], NoError> {
         preconditionFailure("Should be overriden")
     }
 
-    private var _selectedCells: MutableProperty<Set<IndexPath>>
+    fileprivate var _selectedCells: MutableProperty<Set<IndexPath>>
     var selectedCells: Property<Set<IndexPath>> {
         return Property(_selectedCells)
     }
 
-    var numberOfItems: Int {
+    func numberOfSections() -> Int {
+        preconditionFailure("Should be overriden")
+    }
+
+    func numberOfRows(inSection section: Int) -> Int {
         preconditionFailure("Should be overriden")
     }
 
     func cellViewModel(at indexPath: IndexPath) -> CellViewModel {
+        preconditionFailure("Should be overriden")
+    }
+
+    func section(at index: Int) -> String? {
         preconditionFailure("Should be overriden")
     }
 
@@ -53,19 +66,20 @@ class ListViewModel<CellViewModel>: ListViewModelType {
     }
 
     func selectRowAtIndexPath(_ indexPath: IndexPath) {
-        _selectedCells.value.insert(indexPath)
+        preconditionFailure("Should be overriden")
     }
 
     func deselectRowAtIndexPath(_ indexPath: IndexPath) {
-        _selectedCells.value.remove(indexPath)
+        preconditionFailure("Should be overriden")
     }
 
     func resetSelection() {
-        _selectedCells.value.removeAll()
+        preconditionFailure("Should be overriden")
     }
 
-    init() {
-        _selectedCells = MutableProperty(value: [])
+    init(allowsMultipleSelection: Bool = false) {
+        _selectedCells = MutableProperty([])
+        self.allowsMultipleSelection = allowsMultipleSelection
     }
 }
 
@@ -73,27 +87,42 @@ extension ListViewModel {
 
     static func model<FetchResult: FetchResultType>(
         fetchResult: FetchResult,
+        allowsMultipleSelection: Bool = false,
+        mapSectionTitle: ((Int) -> String?)? = nil,
         cellViewModel: @escaping (_ item: FetchResult.FetchObjectType) -> CellViewModel
     ) -> ListViewModel<CellViewModel> {
 
-        return ResultListViewModel<FetchResult, CellViewModel>(fetchResult: fetchResult, cellViewModel: cellViewModel)
+        return ResultListViewModel<FetchResult, CellViewModel>(
+            fetchResult: fetchResult,
+            allowsMultipleSelection: allowsMultipleSelection,
+            mapSectionTitle: mapSectionTitle,
+            cellViewModel: cellViewModel
+        )
     }
 
 }
 
 private class ResultListViewModel <FetchResult: FetchResultType, CellViewModel>: ListViewModel<CellViewModel> {
 
+    typealias SectionMap = (Int) -> String?
     typealias CellViewModelMapClosure = (_ item: FetchResult.FetchObjectType) -> CellViewModel
 
     private let fetchResult: FetchResult
     private let cellViewModelClosure: CellViewModelMapClosure
+    private let sectionMap: SectionMap?
+
+    private var selectedMap = [IndexPath: FetchResult.FetchObjectType]()
+    private var allSelectedObjects: [FetchResult.FetchObjectType] = []
 
     init(
         fetchResult: FetchResult,
+        allowsMultipleSelection: Bool = false,
+        mapSectionTitle: SectionMap? = nil,
         cellViewModel: @escaping CellViewModelMapClosure) {
 
         self.fetchResult = fetchResult
         self.cellViewModelClosure = cellViewModel
+        self.sectionMap = mapSectionTitle
 
         super.init()
 
@@ -104,12 +133,16 @@ private class ResultListViewModel <FetchResult: FetchResultType, CellViewModel>:
         return fetchResult.state
     }
 
-    override var didUpdate: Property<[UpdateType]> {
+    override var didUpdate: Signal<[UpdateType], NoError> {
         return fetchResult.didUpdate
     }
 
-    override var numberOfItems: Int {
-        return fetchResult.numberOfFetchedObjects
+    override func numberOfSections() -> Int {
+        return fetchResult.numberOfSections()
+    }
+
+    override func numberOfRows(inSection section: Int) -> Int {
+        return fetchResult.numberOfRows(inSection: section)
     }
 
     override func cellViewModel(at indexPath: IndexPath) -> CellViewModel {
@@ -117,22 +150,80 @@ private class ResultListViewModel <FetchResult: FetchResultType, CellViewModel>:
         return cellViewModelClosure(object)
     }
 
+    override func section(at index: Int) -> String? {
+        guard let sectionMap = self.sectionMap else {
+            return nil
+        }
+        return sectionMap(index)
+    }
+
     override func loadNextPageIfNeeded() {
         fetchResult.loadNextPageIfNeeded()
     }
 
-    private var scopedDisposable: ScopedDisposable?
+    private var scopedDisposable: ScopedDisposable<AnyDisposable>?
     private func bind(fetchResult: FetchResult) {
         let list = CompositeDisposable()
         scopedDisposable = ScopedDisposable(list)
 
-        list += fetchResult.state.observeValues { [weak self] state in
+        list += fetchResult.state.producer.startWithValues() { [weak self] state in
             self?.didStatusUpdate(status: state)
         }
+
+        list += didUpdate.observeValues { [weak self] _ in
+            self?.updateSelectionMap()
+        }
+    }
+
+    override func selectRowAtIndexPath(_ indexPath: IndexPath) {
+        guard selectedMap[indexPath] == nil else {
+            return
+        }
+
+        if !allowsMultipleSelection {
+            selectedMap.removeAll()
+            allSelectedObjects.removeAll()
+        }
+
+        let object = fetchResult.object(at: indexPath)
+        allSelectedObjects.append(object)
+        selectedMap[indexPath] = object
+        updateSelection()
+    }
+
+    override func deselectRowAtIndexPath(_ indexPath: IndexPath) {
+        allSelectedObjects.remove(at: indexPath.row)
+        selectedMap.removeValue(forKey: indexPath)
+        updateSelection()
+    }
+
+    override func resetSelection() {
+        allSelectedObjects.removeAll()
+        selectedMap.removeAll()
+        updateSelection()
     }
 
     private func didStatusUpdate(status: FetchResultState) {
         print("[ResultListViewModel] didStatusUpdate \(status)")
+    }
+
+    private func updateSelectionMap() {
+
+        var newMap = [IndexPath: FetchResult.FetchObjectType]()
+        for object in allSelectedObjects {
+            if let newIndexPath = fetchResult.indexPathForObject(object) {
+                newMap[newIndexPath] = object
+            }
+        }
+        selectedMap = newMap
+        updateSelection()
+    }
+
+    private func updateSelection() {
+        let selectedIndexPaths = Set(selectedMap.keys)
+        if _selectedCells.value != selectedIndexPaths {
+            _selectedCells.value = selectedIndexPaths
+        }
     }
 
 }

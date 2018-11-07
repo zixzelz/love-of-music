@@ -7,25 +7,31 @@
 //
 
 import UIKit
+import ReactiveSwift
+import Result
 
 class TableViewDataSource <CellViewModel>: NSObject, UITableViewDataSource {
 
     typealias CellMap = (_ tableView: UITableView, _ indexPath: IndexPath, _ cellVM: CellViewModel) -> UITableViewCell
-    typealias Paging = (pool: Int, willDisplayCell: Property<IndexPath>)
+    typealias Paging = (pool: Int, willDisplayCell: Signal<IndexPath, NoError>)
+    typealias EmptyView = () -> UIView
 
     private var tableView: UITableView
     private var listViewModel: ListViewModel<CellViewModel>
     private var cellMap: CellMap
+    private var emptyView: EmptyView?
 
     init(
         tableView: UITableView,
         listViewModel: ListViewModel<CellViewModel>,
         paging: Paging? = nil,
+        emptyView: EmptyView? = nil,
         map: @escaping CellMap) {
 
         self.tableView = tableView
         self.listViewModel = listViewModel
         self.cellMap = map
+        self.emptyView = emptyView
 
         super.init()
         bind(listViewModel)
@@ -35,7 +41,7 @@ class TableViewDataSource <CellViewModel>: NSObject, UITableViewDataSource {
         }
     }
 
-    private var scopedDisposable: ScopedDisposable?
+    private var scopedDisposable: ScopedDisposable<AnyDisposable>?
     private func bind(_ listViewModel: ListViewModel<CellViewModel>) {
         let list = CompositeDisposable()
         scopedDisposable = ScopedDisposable(list)
@@ -46,16 +52,16 @@ class TableViewDataSource <CellViewModel>: NSObject, UITableViewDataSource {
             }
 
             guard list.count > 0 else {
-                var inset = strongSelf.tableView.contentInset.top
-                if #available(iOS 11.0, *) {
-                    inset = strongSelf.tableView.adjustedContentInset.top
-                }
-                strongSelf.tableView.setContentOffset(CGPoint(x: 0, y: -inset), animated: false)
+                //                var inset = strongSelf.tableView.contentInset.top
+                //                if #available(iOS 11.0, *) {
+                //                    inset = strongSelf.tableView.adjustedContentInset.top
+                //                }
+                //                strongSelf.tableView.setContentOffset(CGPoint(x: 0, y: -inset), animated: false)
                 print("tableView.reloadData()")
                 strongSelf.tableView.reloadData()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    strongSelf.tableView.setContentOffset(CGPoint(x: 0, y: -inset), animated: true)
-                }
+                //                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                //                    strongSelf.tableView.setContentOffset(CGPoint(x: 0, y: -inset), animated: true)
+                //                }
                 return
             }
 
@@ -76,12 +82,28 @@ class TableViewDataSource <CellViewModel>: NSObject, UITableViewDataSource {
             }
             print("tableView.endUpdates()")
             strongSelf.tableView.endUpdates()
-
         }
+
+        list += listViewModel.state.producer.startWithValues { [weak self] state in
+            guard let strongSelf = self else {
+                return
+            }
+            switch state {
+            case .none, .loading:
+                strongSelf.tableView.backgroundView = nil
+            case .loaded:
+                if strongSelf.listViewModel.numberOfSections() > 0 && strongSelf.listViewModel.numberOfRows(inSection: 0) > 0 {
+                    strongSelf.tableView.backgroundView = nil
+                } else {
+                    strongSelf.tableView.backgroundView = strongSelf.emptyView?()
+                }
+            }
+        }
+
         tableView.reloadData()
     }
 
-    private var pagingScopedDisposable: ScopedDisposable?
+    private var pagingScopedDisposable: ScopedDisposable<AnyDisposable>?
     private func bindPaging(_ paging: Paging) {
         let list = CompositeDisposable()
         pagingScopedDisposable = ScopedDisposable(list)
@@ -99,13 +121,17 @@ class TableViewDataSource <CellViewModel>: NSObject, UITableViewDataSource {
     }
 
     private var totalCount: Int {
-        return listViewModel.numberOfItems
+        return listViewModel.numberOfRows(inSection: 0)
     }
 
     //MARK: UITableViewDataSource
 
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return listViewModel.numberOfSections()
+    }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return totalCount
+        return listViewModel.numberOfRows(inSection: section)
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -113,4 +139,7 @@ class TableViewDataSource <CellViewModel>: NSObject, UITableViewDataSource {
         return cellMap(tableView, indexPath, cellVM)
     }
 
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return listViewModel.section(at: section)
+    }
 }

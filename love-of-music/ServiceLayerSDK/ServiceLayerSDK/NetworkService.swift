@@ -107,9 +107,8 @@ class NetworkService<ObjectType: ModelType> {
         }
     }
 
-    func fetchPageData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil, completionHandler: @escaping FetchPageCompletionHandler) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
-
-        fetchData(query, cache: cache, range: range, completionHandler: completionHandler)
+    func loadData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, range: NSRange? = nil, completionHandler: @escaping FetchPageCompletionHandler) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
+        fetchData(query, cache: .reloadIgnoringCache, range: range, completionHandler: completionHandler)
     }
 
     private func fetchData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil, completionHandler: @escaping FetchCompletionHandler) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {

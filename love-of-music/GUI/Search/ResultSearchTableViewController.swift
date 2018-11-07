@@ -7,11 +7,13 @@
 //
 
 import UIKit
+import ReactiveSwift
+import Result
 
 protocol ResultSearchTableViewModeling {
     var listViewModel: ListViewModel<ResultSearchCellViewModel> { get }
     func search(with text: String?)
-    
+
     func viewModel(at indexPath: IndexPath) -> AlbumDetailViewModeling
 }
 
@@ -31,7 +33,7 @@ class ResultSearchTableViewController: UITableViewController {
         }
     }
 
-    private var _willDisplayCell: MutableProperty<IndexPath> = MutableProperty(value: IndexPath(row: 0, section: 0)) // make as optional
+    fileprivate let (willDisplayCellSignal, willDisplayCellObserver) = Signal<IndexPath, NoError>.pipe()
     private var contentDataSource: TableViewDataSource<ResultSearchCellViewModel>? {
         didSet {
             tableView.dataSource = contentDataSource
@@ -61,22 +63,20 @@ class ResultSearchTableViewController: UITableViewController {
         bind(with: viewModel)
     }
 
-    private var scopedDisposable: ScopedDisposable?
+    private var scopedDisposable: ScopedDisposable<AnyDisposable>?
     private func bind(with viewModel: ResultSearchTableViewModeling) {
         let list = CompositeDisposable()
         scopedDisposable = ScopedDisposable(list)
 
-        let willDisplayCell = Property(_willDisplayCell)
-
         contentDataSource = TableViewDataSource(tableView: tableView, listViewModel: viewModel.listViewModel,
-            paging: (Constants.pagingPool, willDisplayCell),
+            paging: (Constants.pagingPool, willDisplayCellSignal),
             map: { (tableView, indexpath, cellVM) -> UITableViewCell in
                 let cell: ResultSearchTableViewCell = tableView.dequeueCell(for: indexpath)
                 cell.configure(viewModel: cellVM)
                 return cell
             })
 
-        list += viewModel.listViewModel.state.observeValues { [weak self] (state) in
+        list += viewModel.listViewModel.state.producer.startWithValues { [weak self] state in
             switch state {
             case .loading:
                 self?.loadingTableFooterView.spinner.startAnimating()
@@ -93,20 +93,20 @@ class ResultSearchTableViewController: UITableViewController {
     //MARK: - UITableViewDelegate
 
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        _willDisplayCell.value = indexPath
+        willDisplayCellObserver.send(value: indexPath)
     }
-    
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let c = UIStoryboard(name: "Main", bundle: nil)
-        
+
         if let vc = c.instantiateViewController(withIdentifier: "AlbumDetailViewControllerIdentifier") as? AlbumDetailViewController {
             let vm = viewModel.viewModel(at: indexPath)
             vc.viewModel = vm
 
             paretViewController?.navigationController?.pushViewController(vc, animated: true)
         }
-        
+
     }
 }
 
