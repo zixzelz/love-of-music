@@ -11,49 +11,184 @@ import ReactiveSwift
 import Result
 import CoreData
 
-class FetchResult <FetchObjectType: NSFetchRequestResult>: NSObject, FetchResultType, NSFetchedResultsControllerDelegate {
+extension FetchResult {
+
+    static func basicResult <FetchObjectType> (fr: NSFetchedResultsController<FetchObjectType>) -> FetchResult<FetchObjectType> where FetchObjectType: NSFetchRequestResult {
+        return CustomFetchResult<FetchObjectType>(fr: fr, load: { _ -> SignalProducer<PageInfo?, ServiceError> in
+            return SignalProducer.empty
+        })
+    }
+
+    static func customResult <FetchObjectType> (fr: NSFetchedResultsController<FetchObjectType>, pageSize: Int? = nil, load: @escaping CustomFetchResult<FetchObjectType>.LoadAction) -> FetchResult<FetchObjectType> where FetchObjectType: NSFetchRequestResult {
+        return CustomFetchResult<FetchObjectType>(fr: fr, pageSize: pageSize, load: load)
+    }
+
+}
+
+class CustomFetchResult<PageObjectType: NSFetchRequestResult>: FetchResult<PageObjectType>, NSFetchedResultsControllerDelegate {
+
+    typealias LoadAction = (_ range: NSRange?) -> SignalProducer<PageInfo?, ServiceError>
+
+    fileprivate let cachePolicy: CachePolicy
+    fileprivate let pageSize: Int?
+    fileprivate var numberOfLoadedPages: Int
+    fileprivate var totalCount: Int?
+    private let loadAction: LoadAction
 
     fileprivate var fetchedResultsController: NSFetchedResultsController<FetchObjectType>?
 
     fileprivate var _state: MutableProperty<FetchResultState>
-    lazy var state: Property<FetchResultState> = {
+    private lazy var stateProperty: Property<FetchResultState> = {
         return Property(_state)
     }()
-
-    var didUpdate: Signal<[UpdateType], NoError>
-    fileprivate var didUpdateObserver: Signal<[UpdateType], NoError>.Observer
-
-    fileprivate override init() {
-        _state = MutableProperty(.none)
-        (didUpdate, didUpdateObserver) = Signal<[UpdateType], NoError>.pipe()
-        super.init()
+    override var state: Property<FetchResultState> {
+        return stateProperty
     }
 
-    func numberOfSections() -> Int {
+    fileprivate var didUpdateObserver: Signal<[UpdateType], NoError>.Observer
+    private var didUpdateSignal: Signal<[UpdateType], NoError>
+    override var didUpdate: Signal<[UpdateType], NoError> {
+        return didUpdateSignal
+    }
+
+    fileprivate init(fetchedResults: NSFetchedResultsController<PageObjectType>?, cachePolicyForFirstLoad: CachePolicy = .cachedThenLoad, pageSize: Int? = nil, load: @escaping LoadAction) {
+        _state = MutableProperty(.none)
+        (didUpdateSignal, didUpdateObserver) = Signal<[UpdateType], NoError>.pipe()
+
+        self.cachePolicy = cachePolicyForFirstLoad
+        self.pageSize = pageSize
+        self.loadAction = load
+        self.numberOfLoadedPages = 0
+        self.totalCount = 0
+
+        super.init()
+
+        self.fetchedResultsController = fetchedResults
+        fetchedResults?.delegate = self
+
+        reload()
+    }
+
+    convenience init(fr: NSFetchedResultsController<PageObjectType>, cachePolicyForFirstLoad: CachePolicy = .cachedThenLoad, pageSize: Int? = nil, load: @escaping LoadAction) {
+        self.init(fetchedResults: fr, cachePolicyForFirstLoad: cachePolicyForFirstLoad, pageSize: pageSize, load: load)
+    }
+
+    func reload() {
+        try? fetchedResultsController?.performFetch()
+
+        totalCount = 0
+        performFetch()
+    }
+
+    private func performFetch() {
+
+        numberOfLoadedPages = 1
+        totalCount = 0
+
+        changedItems = []
+
+        switch cachePolicy {
+        case .cachedOnly:
+            didUpdateObserver.send(value: [])
+        case .cachedThenLoad:
+            didUpdateObserver.send(value: [])
+            loadPage(0)
+        case .cachedElseLoad:
+            if let count = fetchedResultsController?.fetchedObjects?.count, count > 0 {
+                didUpdateObserver.send(value: [])
+            } else {
+                loadPage(0)
+            }
+        case .reloadIgnoringCache:
+            loadPage(0)
+        }
+    }
+
+    override func loadNextPageIfNeeded() {
+
+        let numberOfFetchedObjects = visibleCount
+        guard _state.value != .loading, let totalCount = totalCount, totalCount > numberOfFetchedObjects else {
+            print("loadPage canceled")
+            return
+        }
+
+        let page = numberOfLoadedPages
+        loadPage(page) { [weak self] _ in
+            guard let strongSelf = self else {
+                return
+            }
+
+            print("loadPage finished pages: \(strongSelf.numberOfLoadedPages)")
+        }
+    }
+
+    private func loadPage(_ page: Int, completion: ((_ numberOfItems: Int) -> Void)? = nil) {
+        _state.value = .loading
+        print("loadPage \(page)")
+
+        let range = pageSize.map { NSRange(location: page * $0, length: $0) }
+        loadAction(range).startWithResult { [weak self] result in
+            switch result {
+            case .success(let pageInfo):
+                self?.numberOfLoadedPages = page + 1
+                self?.totalCount = pageInfo?.totalCount
+
+            case .failure:
+                self?.totalCount = 0
+            }
+            DispatchQueue.main.async {
+                self?._state.value = .loaded
+                self?.performUpdate()
+            }
+        }
+    }
+
+    private func performUpdate() {
+        if let changedItems = changedItems {
+
+            let count = numberOfRows(inSection: 0)
+            let filteredList = changedItems.filter { update -> Bool in
+                switch update {
+                case
+                     .insert(let indexPath),
+                     .update(let indexPath),
+                     .delete(let indexPath):
+                    return indexPath.row < count
+                case .move(let atIndexPath, let toIndexPath):
+                    return atIndexPath.row < count && toIndexPath.row < count
+                }
+            }
+
+            didUpdateObserver.send(value: filteredList)
+        }
+    }
+
+    fileprivate var visibleCount: Int {
+        let count = fetchedResultsController?.fetchedObjects?.count ?? 0
+        let limitCount = pageSize.map { min(count, $0 * numberOfLoadedPages) }
+        return limitCount ?? count
+    }
+
+    override func numberOfSections() -> Int {
         return 1
     }
 
-    func numberOfRows(inSection section: Int) -> Int {
-        let count = fetchedResultsController?.fetchedObjects?.count ?? 0
-        return count
+    override func numberOfRows(inSection section: Int) -> Int {
+        return visibleCount
     }
 
-    func object(at indexPath: IndexPath) -> FetchObjectType {
+    override func object(at indexPath: IndexPath) -> FetchObjectType {
         guard let fetchedResultsController = fetchedResultsController else {
             fatalError("indexPath out of range")
         }
         return fetchedResultsController.object(at: indexPath)
     }
 
-    func indexPathForObject(_ object: FetchObjectType) -> IndexPath? {
+    override func indexPathForObject(_ object: FetchObjectType) -> IndexPath? {
         return fetchedResultsController?.indexPath(forObject: object)
     }
 
-    func loadNextPageIfNeeded() {
-        preconditionFailure("Should be overriden")
-    }
-
-//MARK: NSFetchedResultsControllerDelegate
+    //MARK: NSFetchedResultsControllerDelegate
 
     fileprivate var changedItems: [UpdateType]?
 
@@ -83,63 +218,27 @@ class FetchResult <FetchObjectType: NSFetchRequestResult>: NSObject, FetchResult
 
 }
 
-extension FetchResult {
-
-    static func basicResult (
-        fetchedResultsController: @escaping () -> NSFetchedResultsController<FetchObjectType>
-    ) -> FetchResult<FetchObjectType> {
-
-        return BasicFetchResult<FetchObjectType>(
-            fetchedResultsController: fetchedResultsController
-        )
-    }
-
-}
-
-//extension FetchResult {
-//
-//    static func pageResult <PageObjectType: NSFetchRequestResult> (
-//        networkService service: NetworkService<PageObjectType.ObjectType>,
-////        query: Query?, //Workaround, because I can't specify generic parameter with not used in function signature
-//        cachePolicy: CachePolicy,
-//        pageSize: Int? = nil,
-//        fetchedResultsController: @escaping (_ filterId: String) -> NSFetchedResultsController<PageObjectType>
-//    ) -> FetchResult<PageObjectType> where PageObjectType: PageModelType {
-//
-//        return PageFetchResult<PageObjectType>(
-//            networkService: service,
-//            cachePolicy: cachePolicy,
-//            fetchedResultsController: fetchedResultsController
-//        )
-//    }
-//}
-//, Query.QueryInfo == PageObjectType.ObjectType.QueryInfo
-// TODO: make it private
-class PageFetchResult <PageObjectType: NSFetchRequestResult, NetworkServiceQuery: NetworkServiceQueryType>: FetchResult<PageObjectType>
+class PageFetchResult <PageObjectType: NSFetchRequestResult, NetworkServiceQuery: NetworkServiceQueryType>: CustomFetchResult<PageObjectType>
 where PageObjectType: PageModelType, NetworkServiceQuery.QueryInfo == PageObjectType.ObjectType.QueryInfo {
-
-//    typealias NetworkServiceQuery = NetworkServiceQueryType where Query.QueryInfo == PageObjectType.ObjectType.QueryInfo
 
     private let networkService: NetworkService<PageObjectType.ObjectType>
     private var query: NetworkServiceQuery?
-    private let cachePolicy: CachePolicy
-    private let pageSize: Int?
-    private var numberOfLoadedPages: Int
-    private var totalCount: Int
 
     private var _fetchedResultsController: (_ filterId: String) -> NSFetchedResultsController<FetchObjectType>
+
+    private init(fr: NSFetchedResultsController<PageObjectType>, pageSize: Int? = nil, load: @escaping LoadAction) {
+        fatalError("Private")
+    }
 
     init(networkService service: NetworkService<PageObjectType.ObjectType>, cachePolicy: CachePolicy, pageSize: Int? = nil, fetchedResultsController: @escaping (_ filterId: String) -> NSFetchedResultsController<FetchObjectType>) {
 
         self.networkService = service
-        self.cachePolicy = cachePolicy
-        self.pageSize = pageSize
-        self.numberOfLoadedPages = 0
-        self.totalCount = 0
 
         _fetchedResultsController = fetchedResultsController//FetchResult.makeFetchedResultsController(pageSize: pageSize)
 
-        super.init()
+        super.init(fetchedResults: nil, pageSize: pageSize) { (range) -> SignalProducer<PageInfo?, ServiceError> in
+            return SignalProducer.empty
+        }
     }
 
     func performFetch(query: NetworkServiceQuery?) {
@@ -188,26 +287,6 @@ where PageObjectType: PageModelType, NetworkServiceQuery.QueryInfo == PageObject
         }
     }
 
-    private func performUpdate() {
-        if let changedItems = changedItems {
-
-            let count = numberOfRows(inSection: 0)
-            let filteredList = changedItems.filter { update -> Bool in
-                switch update {
-                case
-                     .insert(let indexPath),
-                     .update(let indexPath),
-                     .delete(let indexPath):
-                    return indexPath.row < count
-                case .move(let atIndexPath, let toIndexPath):
-                    return atIndexPath.row < count && toIndexPath.row < count
-                }
-            }
-
-            didUpdateObserver.send(value: filteredList)
-        }
-    }
-
     private func fetchPage(_ page: Int, completion: @escaping (_ numberOfItems: Int) -> Void) {
 
         guard let query = query else {
@@ -230,6 +309,26 @@ where PageObjectType: PageModelType, NetworkServiceQuery.QueryInfo == PageObject
             completion(info.totalItems)
         }
 
+    }
+
+    private func performUpdate() {
+        if let changedItems = changedItems {
+
+            let count = numberOfRows(inSection: 0)
+            let filteredList = changedItems.filter { update -> Bool in
+                switch update {
+                case
+                     .insert(let indexPath),
+                     .update(let indexPath),
+                     .delete(let indexPath):
+                    return indexPath.row < count
+                case .move(let atIndexPath, let toIndexPath):
+                    return atIndexPath.row < count && toIndexPath.row < count
+                }
+            }
+
+            didUpdateObserver.send(value: filteredList)
+        }
     }
 
     override func loadNextPageIfNeeded() {
@@ -255,54 +354,6 @@ where PageObjectType: PageModelType, NetworkServiceQuery.QueryInfo == PageObject
         let count = fetchedResultsController?.fetchedObjects?.count ?? 0
         let limitCount = pageSize.map { min(count, $0 * numberOfLoadedPages) }
         return limitCount ?? count
-    }
-
-}
-
-private class BasicFetchResult <FetchObjectType: NSFetchRequestResult>: FetchResult<FetchObjectType> {
-
-    private var _fetchedResultsController: () -> NSFetchedResultsController<FetchObjectType>
-
-    init(fetchedResultsController: @escaping () -> NSFetchedResultsController<FetchObjectType>) {
-        _fetchedResultsController = fetchedResultsController
-
-        super.init()
-
-        DispatchQueue.main.async {
-            self.setup()
-        }
-    }
-
-    private func setup() {
-
-        fetchedResultsController = _fetchedResultsController()
-        fetchedResultsController?.delegate = self
-
-        do {
-            try fetchedResultsController?.performFetch()
-        } catch {
-            fatalError("Failed to initialize FetchedResultsController: \(error)")
-        }
-
-        print("✅new fetchedResultsController: \(String(describing: fetchedResultsController?.fetchedObjects?.count))")
-
-        _state.value = .loaded
-        didUpdateObserver.send(value: [])
-
-        changedItems = []
-    }
-
-    override func loadNextPageIfNeeded() {
-    }
-
-    //MARK: NSFetchedResultsControllerDelegate
-
-    override func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        print("✅ controllerDidChangeContent: \(String(describing: fetchedResultsController?.fetchedObjects?.count))")
-
-        if let changedItems = changedItems {
-            didUpdateObserver.send(value: changedItems)
-        }
     }
 
 }

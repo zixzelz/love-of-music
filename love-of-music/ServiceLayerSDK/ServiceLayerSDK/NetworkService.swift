@@ -7,9 +7,28 @@
 //
 
 import Foundation
+import ReactiveSwift
 
 public enum NetworkServiceMethod: String {
     case GET = "GET"
+}
+
+struct PageInfo {
+    let totalCount: Int
+}
+
+struct ServiceResponse<T> {
+    let pageInfo: PageInfo?
+    private let itemsBlock: () -> [T]
+
+    var items: [T] {
+        return itemsBlock()
+    }
+
+    init(pageInfo: PageInfo?, itemsBlock: @escaping () -> [T]) {
+        self.pageInfo = pageInfo
+        self.itemsBlock = itemsBlock
+    }
 }
 
 enum ServiceResult<T, Err: Error> {
@@ -111,6 +130,28 @@ class NetworkService<ObjectType: ModelType> {
         fetchData(query, cache: .reloadIgnoringCache, range: range, completionHandler: completionHandler)
     }
 
+    func loadNewData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil) -> SignalProducer<ServiceResponse<ObjectType>, ServiceError> where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
+        return SignalProducer<ServiceResponse<ObjectType>, ServiceError> { (observer, lifetime) in
+            self.fetchData(query, cache: .reloadIgnoringCache, range: range) { result in
+
+                guard !lifetime.hasEnded else {
+                    return
+                }
+
+                switch result {
+                case .success(let value):
+                    let pageInfo = PageInfo(totalCount: value.totalItems)
+                    let response = ServiceResponse<ObjectType>(pageInfo: pageInfo, itemsBlock: {
+                        return []
+                    })
+                    observer.send(value: response)
+                case .failure(let error):
+                    observer.send(error: error)
+                }
+            }
+        }
+    }
+
     private func fetchData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil, completionHandler: @escaping FetchCompletionHandler) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
         switch cache {
@@ -152,7 +193,6 @@ class NetworkService<ObjectType: ModelType> {
         let task = session.dataTask(with: request) { (data: Data?, response: URLResponse?, error: Error?) in
 
             if let error = error {
-
                 NSLog("[Error] response error: \(error)")
                 DispatchQueue.main.async {
                     completionHandler(.failure(.networkError(error: error)))
@@ -275,4 +315,21 @@ private extension Dictionary where Key == String, Value == String {
         return parameterArray.joined(separator: "&")
     }
 
+}
+
+extension SignalProducer {
+
+//    func voidResponse() -> SignalProducer<ServiceResponse<Void>, Error> {
+//        return self.map { _ -> ServiceResponse<Void> in
+//            return Response(response: nil, error: nil, fromCache: false)
+//        }
+//    }
+
+//    func legacyMapToNoErrorResponse() -> SignalProducer<Response<Value, NoError>, NoError> {
+//        return self.map { _ -> Response<Value, NoError> in
+//            return Response(response: nil, error: nil, fromCache: false)
+//            }.flatMapError { error in
+//                return SignalProducer<Response<Value, NoError>, NoError>(value: Response(response: nil, error: nil, fromCache: false))
+//        }
+//    }
 }

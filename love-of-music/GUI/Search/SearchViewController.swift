@@ -19,7 +19,7 @@ class SearchViewController: UITableViewController {
     }()
 
     lazy var resultsTableViewController: ResultSearchTableViewController = {
-        let vm = ResultSearchTableViewModel()
+        let vm = AlternativeResultSearchTableViewModel()
         let vc = ResultSearchTableViewController(viewModel: vm)
         vc.paretViewController = self
         return vc

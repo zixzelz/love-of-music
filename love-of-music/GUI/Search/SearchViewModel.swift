@@ -20,17 +20,15 @@ class SearchViewModel: SearchViewModeling {
 
     lazy var fetchResult: FetchResult<SearchHistoryEntity> = {
 
-        return FetchResult.basicResult() {
+        let context = CoreDataHelper.managedObjectContext
 
-            let context = CoreDataHelper.managedObjectContext
+        let fetchRequest = NSFetchRequest<SearchHistoryEntity>()
+        fetchRequest.entity = NSEntityDescription.entity(forEntityName: String(describing: SearchHistoryEntity.self), in: context)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "\(#keyPath(SearchHistoryEntity.date))", ascending: false)]
+        fetchRequest.fetchLimit = 30
 
-            let fetchRequest = NSFetchRequest<SearchHistoryEntity>()
-            fetchRequest.entity = NSEntityDescription.entity(forEntityName: String(describing: SearchHistoryEntity.self), in: context)
-            fetchRequest.sortDescriptors = [NSSortDescriptor(key: "\(#keyPath(SearchHistoryEntity.date))", ascending: false)]
-            fetchRequest.fetchLimit = 30
+        let fr = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
 
-            return NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
-        }
+        return FetchResult<SearchHistoryEntity>.basicResult(fr: fr)
     }()
-
 }

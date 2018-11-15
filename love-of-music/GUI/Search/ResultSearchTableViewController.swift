@@ -10,8 +10,20 @@ import UIKit
 import ReactiveSwift
 import Result
 
-protocol ResultSearchTableViewModeling {
+protocol GeneralResultSearchTableViewModeling {
+    func search(with text: String?)
+    func viewModel(at indexPath: IndexPath) -> AlbumDetailViewModeling
+}
+
+protocol ResultSearchTableViewModeling: GeneralResultSearchTableViewModeling {
     var listViewModel: ListViewModel<ResultSearchCellViewModel> { get }
+    func search(with text: String?)
+
+    func viewModel(at indexPath: IndexPath) -> AlbumDetailViewModeling
+}
+
+protocol AlternativeResultSearchTableViewModeling: GeneralResultSearchTableViewModeling {
+    var listViewModel: Property<ListViewModel<ResultSearchCellViewModel>> { get }
     func search(with text: String?)
 
     func viewModel(at indexPath: IndexPath) -> AlbumDetailViewModeling
@@ -25,12 +37,28 @@ class ResultSearchTableViewController: UITableViewController {
 
     weak var paretViewController: UIViewController?
 
-    private(set) var viewModel: ResultSearchTableViewModeling {
+    private(set) var viewModel: ResultSearchTableViewModeling? {
         didSet {
             if isViewLoaded {
-                bind(with: viewModel)
+                if let viewModel = viewModel {
+                    bind(with: viewModel)
+                }
             }
         }
+    }
+
+    private(set) var alternativeViewModel: AlternativeResultSearchTableViewModeling? {
+        didSet {
+            if isViewLoaded {
+                if let alternativeViewModel = alternativeViewModel {
+                    bind(with: alternativeViewModel)
+                }
+            }
+        }
+    }
+
+    private var generalViewModel: GeneralResultSearchTableViewModeling? {
+        return viewModel ?? alternativeViewModel
     }
 
     fileprivate let (willDisplayCellSignal, willDisplayCellObserver) = Signal<IndexPath, NoError>.pipe()
@@ -49,6 +77,11 @@ class ResultSearchTableViewController: UITableViewController {
         super.init(style: UITableViewStyle.plain)
     }
 
+    init(viewModel: AlternativeResultSearchTableViewModeling) {
+        self.alternativeViewModel = viewModel
+        super.init(style: UITableViewStyle.plain)
+    }
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -60,7 +93,12 @@ class ResultSearchTableViewController: UITableViewController {
         tableView.registerNib(ResultSearchTableViewCell.self)
         tableView.tableFooterView = loadingTableFooterView
 
-        bind(with: viewModel)
+
+        if let viewModel = viewModel {
+            bind(with: viewModel)
+        } else if let alternativeViewModel = alternativeViewModel {
+            bind(with: alternativeViewModel)
+        }
     }
 
     private var scopedDisposable: ScopedDisposable<AnyDisposable>?
@@ -86,8 +124,44 @@ class ResultSearchTableViewController: UITableViewController {
         }
     }
 
+    private func bind(with viewModel: AlternativeResultSearchTableViewModeling) {
+        let list = CompositeDisposable()
+        scopedDisposable = ScopedDisposable(list)
+
+        list += viewModel.listViewModel.producer.startWithValues { [unowned self] listViewModel in
+
+            self.contentDataSource = TableViewDataSource(tableView: self.tableView, listViewModel: listViewModel,
+                paging: (Constants.pagingPool, self.willDisplayCellSignal),
+                map: { (tableView, indexpath, cellVM) -> UITableViewCell in
+                    let cell: ResultSearchTableViewCell = tableView.dequeueCell(for: indexpath)
+                    cell.configure(viewModel: cellVM)
+                    return cell
+                }
+            )
+        }
+
+//        contentDataSource = TableViewDataSource(tableView: tableView, listViewModel: viewModel.listViewModel,
+//            paging: (Constants.pagingPool, willDisplayCellSignal),
+//            map: { (tableView, indexpath, cellVM) -> UITableViewCell in
+//                let cell: ResultSearchTableViewCell = tableView.dequeueCell(for: indexpath)
+//                cell.configure(viewModel: cellVM)
+//                return cell
+//            })
+
+        list += viewModel.listViewModel.flatMap(.latest) {
+            return $0.state
+        }.producer.startWithValues { [weak self] state in
+            switch state {
+            case .loading:
+                self?.loadingTableFooterView.spinner.startAnimating()
+            case .loaded, .none:
+                self?.loadingTableFooterView.spinner.stopAnimating()
+            }
+        }
+    }
+
     private func filterContentForSearchText(_ searchText: String?) {
-        viewModel.search(with: searchText)
+        generalViewModel?.search(with: searchText)
     }
 
     //MARK: - UITableViewDelegate
@@ -100,8 +174,8 @@ class ResultSearchTableViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
         let c = UIStoryboard(name: "Main", bundle: nil)
 
-        if let vc = c.instantiateViewController(withIdentifier: "AlbumDetailViewControllerIdentifier") as? AlbumDetailViewController {
-            let vm = viewModel.viewModel(at: indexPath)
+        if let vc = c.instantiateViewController(withIdentifier: "AlbumDetailViewControllerIdentifier") as? AlbumDetailViewController, let vm = generalViewModel?.viewModel(at: indexPath) {
+
             vc.viewModel = vm
 
             paretViewController?.navigationController?.pushViewController(vc, animated: true)

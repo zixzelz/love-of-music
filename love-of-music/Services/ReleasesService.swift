@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import ReactiveSwift
 import CoreData
 
 typealias ReleasesCompletionHandlet = (ServiceResult<[ReleasesEntity], ServiceError>) -> Void
@@ -26,10 +27,10 @@ class ReleasesService {
 //        networkService.fetchData(query, cache: cache, completionHandler: completionHandler)
 //    }
 //
-//    func getItemsPage(_ cache: CachePolicy = .CachedThenLoad, range: NSRange, completionHandler: @escaping TeachersCompletionHandlet) {
-//        let query = ReleasesQuery()
-//        networkService.fetchData(query, cache: cache, range: range, completionHandler: completionHandler)
-//    }
+    func getItemsPage(_ cache: CachePolicy = .cachedThenLoad, range: NSRange?) -> SignalProducer<ServiceResponse<ReleasesEntity>, ServiceError> {
+        let query = ReleasesQuery()
+        return networkService.loadNewData(query, cache: cache, range: range)
+    }
 
 }
 
