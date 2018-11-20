@@ -122,12 +122,12 @@ class CustomFetchResult<PageObjectType: NSFetchRequestResult>: FetchResult<PageO
         }
     }
 
-    private func loadPage(_ page: Int, completion: ((_ numberOfItems: Int) -> Void)? = nil) {
+    fileprivate func loadPage(_ page: Int, completion: ((_ numberOfItems: Int) -> Void)? = nil) {
         _state.value = .loading
         print("loadPage \(page)")
 
         let range = pageSize.map { NSRange(location: page * $0, length: $0) }
-        loadAction(range).startWithResult { [weak self] result in
+        performLoad(range).startWithResult { [weak self] result in
             switch result {
             case .success(let pageInfo):
                 self?.numberOfLoadedPages = page + 1
@@ -141,6 +141,10 @@ class CustomFetchResult<PageObjectType: NSFetchRequestResult>: FetchResult<PageO
                 self?.performUpdate()
             }
         }
+    }
+
+    fileprivate func performLoad(_ range: NSRange?) -> SignalProducer<PageInfo?, ServiceError> {
+        return loadAction(range)
     }
 
     private func performUpdate() {
@@ -230,8 +234,7 @@ where PageObjectType: PageModelType, NetworkServiceQuery.QueryInfo == PageObject
         fatalError("Private")
     }
 
-    init(networkService service: NetworkService<PageObjectType.ObjectType>, cachePolicy: CachePolicy, pageSize: Int? = nil, fetchedResultsController: @escaping (_ filterId: String) -> NSFetchedResultsController<FetchObjectType>) {
-
+    init(networkService service: NetworkService<PageObjectType.ObjectType>, cachePolicy: CachePolicy, pageSize: Int, fetchedResultsController: @escaping (_ filterId: String) -> NSFetchedResultsController<FetchObjectType>) {
         self.networkService = service
 
         _fetchedResultsController = fetchedResultsController//FetchResult.makeFetchedResultsController(pageSize: pageSize)
@@ -271,44 +274,22 @@ where PageObjectType: PageModelType, NetworkServiceQuery.QueryInfo == PageObject
         loadPage(0)
     }
 
-    private func loadPage(_ page: Int, completion: ((_ numberOfItems: Int) -> Void)? = nil) {
-        _state.value = .loading
-        print("loadPage \(page)")
-        fetchPage(page) { [weak self] numberOfItems in
-
-            self?.totalCount = numberOfItems
-
-            DispatchQueue.main.async {
-                self?._state.value = .loaded
-                self?.performUpdate()
-            }
-
-            completion?(numberOfItems)
+    private func fetchRange(_ range: NSRange) -> SignalProducer<PageInfo?, ServiceError> {
+        guard let query = query else {
+            return SignalProducer.empty
         }
+        return networkService.loadNewData(query, cache: .reloadIgnoringCache, range: range).map { $0.pageInfo }
     }
 
-    private func fetchPage(_ page: Int, completion: @escaping (_ numberOfItems: Int) -> Void) {
+    override fileprivate func performLoad(_ range: NSRange?) -> SignalProducer<PageInfo?, ServiceError> {
+        guard let range = range else {
+            fatalError("Unexpected range")
+        }
 
         guard let query = query else {
-            return
+            return SignalProducer.empty
         }
-
-        let range = pageSize.map { NSRange(location: page * $0, length: $0) }
-
-        let oldFilterIdentifier = query.filterIdentifier
-        networkService.loadData(query, range: range) { [weak self] (result) in
-            guard let currentQuery = self?.query, oldFilterIdentifier == currentQuery.filterIdentifier else {
-                print("❌ fetchPageData for old query")
-                return
-            }
-            guard case .success(let info) = result else {
-                print("error: \(result)")
-                return
-            }
-            print("fetchPage: \(page) result: \(info.totalItems)")
-            completion(info.totalItems)
-        }
-
+        return networkService.loadNewData(query, cache: .reloadIgnoringCache, range: range).map { $0.pageInfo }
     }
 
     private func performUpdate() {
@@ -328,25 +309,6 @@ where PageObjectType: PageModelType, NetworkServiceQuery.QueryInfo == PageObject
             }
 
             didUpdateObserver.send(value: filteredList)
-        }
-    }
-
-    override func loadNextPageIfNeeded() {
-
-        let numberOfFetchedObjects = numberOfRows(inSection: 0)
-        guard _state.value != .loading, totalCount > numberOfFetchedObjects else {
-            print("loadPage canceled")
-            return
-        }
-
-        let page = numberOfLoadedPages
-        loadPage(page) { [weak self] _ in
-            guard let strongSelf = self else {
-                return
-            }
-
-            strongSelf.numberOfLoadedPages += 1
-            print("loadPage finished pages: \(strongSelf.numberOfLoadedPages)")
         }
     }
 
