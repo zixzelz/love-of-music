@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import ReactiveSwift
 
 public protocol LocalServiceQueryType {
 
@@ -67,50 +68,55 @@ public class LocalService <ObjectType: ModelType> {
 //    }
 
     // json: {"objectsCollection": [{item}, {item}, ...]}
-    func parseAndStore <LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: NSDictionary, range: NSRange?, completionHandler: @escaping LocalServiceCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
-        store(query, json: json, range: range, completionHandler: completionHandler)
+    func parseAndStore <LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: NSDictionary, range: NSRange?) -> SignalProducer<LocalServiceFetchInfo, ServiceError> where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
+        return store(query, json: json, range: range)
     }
 
-    fileprivate func store < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: NSDictionary, range: NSRange?, completionHandler: @escaping LocalServiceCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
+    fileprivate func store < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: NSDictionary, range: NSRange?) -> SignalProducer<LocalServiceFetchInfo, ServiceError> where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
         guard let items = ObjectType.objects(json) else {
-            completionHandler(.failure(.wrongResponseFormat))
-            return
+            return SignalProducer(error: .wrongResponseFormat)
         }
 
         let context = workingContext
-        context.perform {
 
-            let cachedItemsMap = self.itemsMap(predicate: query.predicate, sortBy: query.sortBy, context: context)
-            var handledItemsKey = [String]()
-            for item in items {
+        return SignalProducer { (observer, lifeTime) in
+            context.perform {
 
-                do {
-                    let newItem = try self.parseAndStoreItem(item, cachedItemsMap: cachedItemsMap, context: context, queryInfo: query.queryInfo)
-                    if let identifier = newItem.identifier {
-                        handledItemsKey.append(identifier)
-                    }
-                } catch let error as ServiceError {
-
-                    completionHandler(.failure(error))
-                    return
-                } catch {
-                    completionHandler(.failure(.internalError))
+                guard !lifeTime.hasEnded else {
                     return
                 }
+
+                let cachedItemsMap = self.itemsMap(predicate: query.predicate, sortBy: query.sortBy, context: context)
+                var handledItemsKey = [String]()
+                for item in items {
+
+                    do {
+                        let newItem = try self.parseAndStoreItem(item, cachedItemsMap: cachedItemsMap, context: context, queryInfo: query.queryInfo)
+                        if let identifier = newItem.identifier {
+                            handledItemsKey.append(identifier)
+                        }
+                    } catch let error as ServiceError {
+                        observer.send(error: error)
+                        return
+                    } catch {
+                        observer.send(error: .internalError)
+                        return
+                    }
+                }
+
+                let itemForDelete = cachedItemsMap.filter { !handledItemsKey.contains($0.0) }
+                for (_, item) in itemForDelete {
+                    item.delete(context: context)
+                }
+
+                context.saveIfNeeded()
+
+                let totalItems = ObjectType.totalItems(json)
+                let info = LocalServiceFetchInfo(totalItems: totalItems)
+                observer.send(value: info)
+                observer.sendCompleted()
             }
-
-            let itemForDelete = cachedItemsMap.filter { !handledItemsKey.contains($0.0) }
-            for (_, item) in itemForDelete {
-                item.delete(context: context)
-            }
-
-            context.saveIfNeeded()
-
-            let totalItems = ObjectType.totalItems(json)
-            let info = LocalServiceFetchInfo(totalItems: totalItems)
-            completionHandler(.success(info))
-
         }
     }
 
@@ -165,64 +171,67 @@ public class LocalService <ObjectType: ModelType> {
 
 public class PageLocalService <ObjectType: ModelType, PageObjectType: PageModelType>: LocalService<ObjectType> {
 
-    override fileprivate func store < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: NSDictionary, range: NSRange?, completionHandler: @escaping LocalServiceCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
+    override fileprivate func store < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: NSDictionary, range: NSRange?) -> SignalProducer<LocalServiceFetchInfo, ServiceError> where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo, PageObjectType.ObjectType == ObjectType {
 
         guard let range = range else {
             assertionFailure("range should not be nil")
-            completionHandler(.failure(.internalError))
-            return
+            return SignalProducer(error: .internalError)
         }
 
         guard let items = ObjectType.objects(json) else {
-            completionHandler(.failure(.wrongResponseFormat))
-            return
+            return SignalProducer(error: .wrongResponseFormat)
         }
 
         var itemOrder = range.location
         let filterId = query.identifier
         let context = workingContext
         let parsableContext = self.parsableContext
-        context.perform {
 
-            let cachedPageItemsMap = self.pageItemsMap(filterId: filterId, fromOrder: range.location, context: context)
-            var handledPageItemsKey = [String]()
+        return SignalProducer { (observer, lifeTime) in
 
-            for jsonItem in items {
+            context.perform {
 
-                guard let identifier = try? ObjectType.identifier(jsonItem) else {
-                    completionHandler(.failure(.wrongResponseFormat))
-                    continue
-                }
+                let cachedPageItemsMap = self.pageItemsMap(filterId: filterId, fromOrder: range.location, context: context)
+                var handledPageItemsKey = [String]()
 
-                if let cachedPageItem = cachedPageItemsMap[identifier] {
-                    do {
-                        try cachedPageItem.object.fill(jsonItem, queryInfo: query.queryInfo, context: parsableContext)
-                        cachedPageItem.updateIfNeeded(keyPath: \PageObjectType.order, value: itemOrder)
-                        handledPageItemsKey.append(identifier)
-                    } catch { }
-                } else {
-                    guard let item = ObjectType.insert(inContext: context) as? ObjectType else {
-                        fatalError("Unexpected object type")
+                for jsonItem in items {
+
+                    guard let identifier = try? ObjectType.identifier(jsonItem) else {
+                        observer.send(error: .wrongResponseFormat)
+                        continue
                     }
-                    do {
-                        try item.fill(jsonItem, queryInfo: query.queryInfo, context: parsableContext)
-                        _ = PageObjectType(filterId: filterId, object: item, order: itemOrder, inContext: context)
-                    } catch { }
+
+                    if let cachedPageItem = cachedPageItemsMap[identifier] {
+                        do {
+                            try cachedPageItem.object.fill(jsonItem, queryInfo: query.queryInfo, context: parsableContext)
+                            cachedPageItem.updateIfNeeded(keyPath: \PageObjectType.order, value: itemOrder)
+                            handledPageItemsKey.append(identifier)
+                        } catch { }
+                    } else {
+                        guard let item = ObjectType.insert(inContext: context) as? ObjectType else {
+                            fatalError("Unexpected object type")
+                        }
+                        do {
+                            try item.fill(jsonItem, queryInfo: query.queryInfo, context: parsableContext)
+                            _ = PageObjectType(filterId: filterId, object: item, order: itemOrder, inContext: context)
+                        } catch { }
+                    }
+
+                    itemOrder += 1
                 }
 
-                itemOrder += 1
+                let itemForDelete = cachedPageItemsMap.filter { !handledPageItemsKey.contains($0.0) }
+                for (_, page) in itemForDelete {
+                    page.delete(context: context)
+                }
+
+                context.saveIfNeeded()
+
+                let totalItems = ObjectType.totalItems(json)
+                let info = LocalServiceFetchInfo(totalItems: totalItems)
+                observer.send(value: info)
+                observer.sendCompleted()
             }
-
-            let itemForDelete = cachedPageItemsMap.filter { !handledPageItemsKey.contains($0.0) }
-            for (_, page) in itemForDelete {
-                page.delete(context: context)
-            }
-
-            context.saveIfNeeded()
-
-            let totalItems = ObjectType.totalItems(json)
-            let info = LocalServiceFetchInfo(totalItems: totalItems)
-            completionHandler(.success(info))
         }
     }
 

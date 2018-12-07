@@ -126,106 +126,94 @@ public class NetworkService<ObjectType: ModelType> {
 //        }
 //    }
 
-    func loadData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, range: NSRange? = nil, completionHandler: @escaping FetchPageCompletionHandler) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
-        fetchData(query, cache: .reloadIgnoringCache, range: range, completionHandler: completionHandler)
+    func loadData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, range: NSRange? = nil, completionHandler: @escaping FetchPageCompletionHandler) -> SignalProducer<LocalServiceFetchInfo, ServiceError> where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
+        return fetchData(query, cache: .reloadIgnoringCache, range: range)
     }
 
     public func loadNewData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil) -> SignalProducer<ServiceResponse<ObjectType>, ServiceError> where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
-        return SignalProducer<ServiceResponse<ObjectType>, ServiceError> { (observer, lifetime) in
-            self.fetchData(query, cache: .reloadIgnoringCache, range: range) { result in
+
+        return fetchData(query, cache: .reloadIgnoringCache, range: range)
+            .map { info -> ServiceResponse<ObjectType> in
+                let pageInfo = PageInfo(totalCount: info.totalItems)
+                return ServiceResponse<ObjectType>(pageInfo: pageInfo, itemsBlock: {
+                    return []
+                })
+        }
+    }
+
+    private func fetchData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil) -> SignalProducer<LocalServiceFetchInfo, ServiceError> where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
+
+        switch cache {
+        case .cachedOnly:
+            return SignalProducer.empty
+        case .cachedThenLoad, .cachedElseLoad, .reloadIgnoringCache:
+            return resumeRequest(query, range: range)
+        }
+    }
+
+    @discardableResult private func resumeRequest < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, range: NSRange? = nil) -> SignalProducer<LocalServiceFetchInfo, ServiceError> where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
+
+        let session = urlSession()
+
+        return SignalProducer<NSDictionary, ServiceError> { (observer, lifetime) in
+
+            guard var components = URLComponents(string: query.path) else {
+                DispatchQueue.main.async {
+                    observer.send(error: .internalError)
+                }
+                return
+            }
+
+            components.query = query.queryString(range: range)
+            guard let url = components.url else {
+                DispatchQueue.main.async {
+                    observer.send(error: .internalError)
+                }
+                return
+            }
+
+            let request = URLRequest(url: url)
+
+            let task = session.dataTask(with: request) { (data: Data?, response: URLResponse?, error: Error?) in
 
                 guard !lifetime.hasEnded else {
                     return
                 }
 
-                switch result {
-                case .success(let value):
-                    let pageInfo = PageInfo(totalCount: value.totalItems)
-                    let response = ServiceResponse<ObjectType>(pageInfo: pageInfo, itemsBlock: {
-                        return []
-                    })
-                    observer.send(value: response)
-                    observer.sendCompleted()
-                case .failure(let error):
-                    observer.send(error: error)
-                }
-            }
-        }
-    }
-
-    private func fetchData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil, completionHandler: @escaping FetchCompletionHandler) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
-
-        switch cache {
-        case .cachedOnly: break
-        case .cachedThenLoad, .cachedElseLoad, .reloadIgnoringCache:
-
-            resumeRequest(query, range: range) { result in
-                guard case .failure(let error) = result else {
-                    completionHandler(result)
+                if let error = error {
+                    NSLog("[Error] response error: \(error)")
+                    DispatchQueue.main.async {
+                        observer.send(error: .networkError(error: error))
+                    }
                     return
                 }
-                DispatchQueue.main.async {
-                    completionHandler(.failure(error))
-                }
-            }
 
-        }
+                guard let data = data,
+                    let jsonObj = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers),
+                    let responseDict = jsonObj as? NSDictionary else {
+                        observer.send(error: .wrongResponseFormat)
+                        return
+                }
+
+                #if DEBUG
+                    //                if let response = NSString(data: data!, encoding: String.Encoding.utf8.rawValue) {
+                    //                    print("response: \(response)")
+                    //                }
+                #endif
+
+                observer.send(value: responseDict)
+                observer.sendCompleted()
+            }
+            task.resume()
+        }.flatMap(.latest) { responseDict -> SignalProducer<LocalServiceFetchInfo, ServiceError> in
+            return self.parseAndStore(query, responseDict: responseDict, range: range)
+        }.on(value: { [weak self] _ in
+            self?.saveDate(query, range: range)
+        })
     }
 
-    @discardableResult private func resumeRequest < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, range: NSRange? = nil, completionHandler: @escaping StoreCompletionHandlet) -> URLSessionDataTask? where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
-
-        let session = urlSession()
-
-        guard var components = URLComponents(string: query.path) else {
-            DispatchQueue.main.async {
-                completionHandler(.failure(.internalError))
-            }
-            return nil
-        }
-        components.query = query.queryString(range: range)
-        guard let url = components.url else {
-            DispatchQueue.main.async {
-                completionHandler(.failure(.internalError))
-            }
-            return nil
-        }
-        let request = URLRequest(url: url)
-
-        let task = session.dataTask(with: request) { (data: Data?, response: URLResponse?, error: Error?) in
-
-            if let error = error {
-                NSLog("[Error] response error: \(error)")
-                DispatchQueue.main.async {
-                    completionHandler(.failure(.networkError(error: error)))
-                }
-                return
-            }
-
-            guard let data = data,
-                let jsonObj = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers),
-                let responseDict = jsonObj as? NSDictionary else {
-                    completionHandler(.failure(.wrongResponseFormat))
-                    return
-            }
-
-            #if DEBUG
-//                if let response = NSString(data: data!, encoding: String.Encoding.utf8.rawValue) {
-//                    print("response: \(response)")
-//                }
-            #endif
-            self.parseAndStore(query, responseDict: responseDict, range: range) { [weak self] (result) in
-                self?.saveDate(query, range: range)
-                completionHandler(result)
-            }
-        }
-
-        task.resume()
-        return task
-    }
-
-    private func parseAndStore < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, responseDict: NSDictionary, range: NSRange?, completionHandler: @escaping StoreCompletionHandlet) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
-
-        localService.parseAndStore(query, json: responseDict, range: range, completionHandler: completionHandler)
+    private func parseAndStore < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, responseDict: NSDictionary, range: NSRange?) -> SignalProducer<LocalServiceFetchInfo, ServiceError> where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
+        return localService.parseAndStore(query, json: responseDict, range: range)
     }
 
     // MARK - Utils
