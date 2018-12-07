@@ -1,0 +1,34 @@
+use_frameworks!
+
+target 'ServiceLayerSDK_Example' do
+  pod 'ServiceLayerSDK', :path => '../'
+  pod 'ServiceLayerSDK/CoreData', :path => '../'
+  pod 'ServiceLayerSDK/ServiceLayerUIKit', :path => '../'
+  pod 'ReactiveCocoa'
+end
+
+target 'ServiceLayerSDK_Tests' do
+    #inherit! :search_paths
+    pod 'ServiceLayerSDK', :path => '../'
+    #    pod 'ServiceLayerSDK/CoreData', :path => '../'
+#    pod 'ServiceLayerSDK/ServiceLayerUIKit', :path => '../'
+end
+
+target 'ServiceLayerSDK_Tests_Core' do
+    #inherit! :search_paths
+    pod 'ServiceLayerSDK', :path => '../'
+    #    pod 'ServiceLayerSDK/CoreData', :path => '../'
+    #    pod 'ServiceLayerSDK/ServiceLayerUIKit', :path => '../'
+end
+
+target 'ServiceLayerSDK_Tests_UIKit' do
+    #inherit! :search_paths
+    pod 'ServiceLayerSDK', :path => '../'
+    pod 'ServiceLayerSDK/ServiceLayerUIKit', :path => '../'
+end
+
+target 'ServiceLayerSDK_Tests_CoreData' do
+    #inherit! :search_paths
+    pod 'ServiceLayerSDK', :path => '../'
+    pod 'ServiceLayerSDK/CoreData', :path => '../'
+end
