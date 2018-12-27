@@ -36,7 +36,7 @@ class ReleasesPageEntity: NSManagedObject, PageModelType {
 
     // MARK: - ManagedObjectType
 
-    var identifier: String? {
+    var identifier: String {
         return filterId
     }
 }

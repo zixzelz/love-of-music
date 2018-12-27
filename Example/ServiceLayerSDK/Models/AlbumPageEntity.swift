@@ -36,7 +36,7 @@ class AlbumPageEntity: NSManagedObject, PageModelType {
 
     // MARK: - ManagedObjectType
 
-    var identifier: String? {
+    var identifier: String {
         return filterId
     }
 }

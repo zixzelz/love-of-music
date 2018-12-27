@@ -50,3 +50,5 @@ public extension CellIdentifier {
         return "\(Self.self)"
     }
 }
+
+//extension UITableViewCell: CellIdentifier { }

@@ -19,15 +19,15 @@ public struct PageInfo {
 
 public struct ServiceResponse<T> {
     public let pageInfo: PageInfo?
-    private let itemsBlock: () -> [T]
+    private let itemsSignalProducer: SignalProducer<[T], ServiceError>
 
-    public var items: [T] {
-        return itemsBlock()
+    public var items: SignalProducer<[T], ServiceError> {
+        return itemsSignalProducer
     }
 
-    init(pageInfo: PageInfo?, itemsBlock: @escaping () -> [T]) {
+    init(pageInfo: PageInfo?, items: SignalProducer<[T], ServiceError>) {
         self.pageInfo = pageInfo
-        self.itemsBlock = itemsBlock
+        self.itemsSignalProducer = items
     }
 }
 
@@ -91,40 +91,45 @@ public class NetworkService<ObjectType: ModelType> {
 //        }
 //    }
 
-//    func fetchDataItems < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil, completionHandler: @escaping FetchItemsCompletionHandler) where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
-//
-//        let fetchCompletion: FetchCompletionHandler = { [weak self] (result) in
-//            switch result {
-//            case .success:
-//                self?.localService.featchItems(query, completionHandler: completionHandler)
-//            case .failure(let error):
-//                completionHandler(.failure(error))
-//            }
-//        }
-//
-//        switch cache {
-//        case .cachedOnly:
-//            localService.featchItems(query, completionHandler: completionHandler)
-//        case .cachedThenLoad: // page
-//
-//            if range == nil || range?.location == 0 {
-//                let fetchLimit = range.flatMap { $0.location == 0 ? $0.length: nil }
-//                localService.featchItems(query, fetchLimit: fetchLimit, completionHandler: completionHandler)
-//            }
-//            fetchData(query, cache: cache, range: range, completionHandler: fetchCompletion)
-//
-//        case .cachedElseLoad:
-//
-//            if isCacheExpired(query) {
-//                fetchData(query, cache: cache, range: range, completionHandler: fetchCompletion)
-//            } else {
-//                localService.featchItems(query, completionHandler: completionHandler)
-//            }
-//
-//        case .reloadIgnoringCache:
-//            fetchData(query, cache: cache, range: range, completionHandler: fetchCompletion)
-//        }
-//    }
+    public func fetchDataItems < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil) -> SignalProducer<ServiceResponse<ObjectType>, ServiceError> where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
+
+        let localService = self.localService
+        let featchThenLoad = fetchData(query, cache: cache, range: range)
+            .flatMap(.latest) { _ -> SignalProducer<ServiceResponse<ObjectType>, ServiceError> in
+                let response = ServiceResponse<ObjectType>(pageInfo: nil, items: localService.featchItems(query))
+                return SignalProducer(value: response)
+        }
+
+        switch cache {
+        case .cachedOnly:
+            let response = ServiceResponse<ObjectType>(pageInfo: nil, items: localService.featchItems(query))
+            return SignalProducer(value: response)
+        case .cachedThenLoad: // page
+
+            var sp = [SignalProducer<ServiceResponse<ObjectType>, ServiceError>]()
+
+            if range == nil || range?.location == 0 {
+                let fetchLimit = range.flatMap { $0.location == 0 ? $0.length: nil }
+                let response = ServiceResponse<ObjectType>(pageInfo: nil, items: localService.featchItems(query, fetchLimit: fetchLimit))
+                sp.append(SignalProducer(value: response))
+            }
+
+            sp.append(featchThenLoad)
+            return SignalProducer.merge(sp)
+
+        case .cachedElseLoad:
+
+            if isCacheExpired(query) {
+                return featchThenLoad
+            } else {
+                let response = ServiceResponse<ObjectType>(pageInfo: nil, items: localService.featchItems(query))
+                return SignalProducer(value: response)
+            }
+
+        case .reloadIgnoringCache:
+            return featchThenLoad
+        }
+    }
 
     func loadData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, range: NSRange? = nil, completionHandler: @escaping FetchPageCompletionHandler) -> SignalProducer<LocalServiceFetchInfo, ServiceError> where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
         return fetchData(query, cache: .reloadIgnoringCache, range: range)
@@ -132,12 +137,10 @@ public class NetworkService<ObjectType: ModelType> {
 
     public func loadNewData < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil) -> SignalProducer<ServiceResponse<ObjectType>, ServiceError> where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
-        return fetchData(query, cache: .reloadIgnoringCache, range: range)
+        return fetchData(query, cache: cache, range: range)
             .map { info -> ServiceResponse<ObjectType> in
                 let pageInfo = PageInfo(totalCount: info.totalItems)
-                return ServiceResponse<ObjectType>(pageInfo: pageInfo, itemsBlock: {
-                    return []
-                })
+                return ServiceResponse<ObjectType>(pageInfo: pageInfo, items: SignalProducer(value: []))
         }
     }
 

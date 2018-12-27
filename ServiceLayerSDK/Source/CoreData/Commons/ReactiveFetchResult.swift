@@ -10,23 +10,23 @@ import UIKit
 import ReactiveSwift
 import Result
 
-class ReactiveFetchResult<FetchObjectType: Equatable>: FetchResultType {
+public class ReactiveFetchResult<FetchObjectType: Equatable>: FetchResultType {
 
     private let items: Property<[[FetchObjectType]]>
 
-    func numberOfSections() -> Int {
+    public func numberOfSections() -> Int {
         return items.value.count
     }
 
-    func numberOfRows(inSection section: Int) -> Int {
+    public func numberOfRows(inSection section: Int) -> Int {
         return items.value[section].count
     }
 
-    func object(at indexPath: IndexPath) -> FetchObjectType {
+    public func object(at indexPath: IndexPath) -> FetchObjectType {
         return items.value[indexPath.section][indexPath.row]
     }
 
-    func indexPathForObject(_ object: FetchObjectType) -> IndexPath? {
+    public func indexPathForObject(_ object: FetchObjectType) -> IndexPath? {
         for (section, items) in items.value.enumerated() {
             if let row = items.index(of: object) {
                 return IndexPath(row: row, section: section)
@@ -36,14 +36,14 @@ class ReactiveFetchResult<FetchObjectType: Equatable>: FetchResultType {
     }
 
     fileprivate var _state: MutableProperty<FetchResultState>
-    lazy var state: Property<FetchResultState> = {
+    lazy public var state: Property<FetchResultState> = {
         return Property(_state)
     }()
 
-    var didUpdate: Signal<[UpdateType], NoError>
+    public var didUpdate: Signal<[UpdateType], NoError>
     private var didUpdateObserver: Signal<[UpdateType], NoError>.Observer
 
-    func loadNextPageIfNeeded() {
+    public func loadNextPageIfNeeded() {
     }
 
     public convenience init(property: Property<[FetchObjectType]>, loadData: (() -> Void)?) {

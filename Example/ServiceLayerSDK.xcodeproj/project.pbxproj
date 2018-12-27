@@ -24,7 +24,6 @@
 		2D2E06D121B0BB2200958BF6 /* CoreDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2E06A821B0BB2200958BF6 /* CoreDataStore.swift */; };
 		2D2E06D221B0BB2200958BF6 /* Delay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2E06AA21B0BB2200958BF6 /* Delay.swift */; };
 		2D2E06D421B0BB2200958BF6 /* SimpleImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2E06AD21B0BB2200958BF6 /* SimpleImageLoader.swift */; };
-		2D2E06D521B0BB2200958BF6 /* DictionaryExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2E06AE21B0BB2200958BF6 /* DictionaryExtension.swift */; };
 		2D2E06D621B0BB2200958BF6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2E06B121B0BB2200958BF6 /* ViewController.swift */; };
 		2D2E06D721B0BB2200958BF6 /* ReleasesCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2E06B221B0BB2200958BF6 /* ReleasesCellViewModel.swift */; };
 		2D2E06D821B0BB2200958BF6 /* ViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2E06B321B0BB2200958BF6 /* ViewControllerViewModel.swift */; };
@@ -77,7 +76,6 @@
 		2D2E06A821B0BB2200958BF6 /* CoreDataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStore.swift; sourceTree = "<group>"; };
 		2D2E06AA21B0BB2200958BF6 /* Delay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Delay.swift; sourceTree = "<group>"; };
 		2D2E06AD21B0BB2200958BF6 /* SimpleImageLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleImageLoader.swift; sourceTree = "<group>"; };
-		2D2E06AE21B0BB2200958BF6 /* DictionaryExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DictionaryExtension.swift; sourceTree = "<group>"; };
 		2D2E06B121B0BB2200958BF6 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		2D2E06B221B0BB2200958BF6 /* ReleasesCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReleasesCellViewModel.swift; sourceTree = "<group>"; };
 		2D2E06B321B0BB2200958BF6 /* ViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewControllerViewModel.swift; sourceTree = "<group>"; };
@@ -211,7 +209,6 @@
 			children = (
 				2D2E06AA21B0BB2200958BF6 /* Delay.swift */,
 				2D2E06AD21B0BB2200958BF6 /* SimpleImageLoader.swift */,
-				2D2E06AE21B0BB2200958BF6 /* DictionaryExtension.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -896,7 +893,6 @@
 				2D2E06DA21B0BB2200958BF6 /* SimpleImageView.swift in Sources */,
 				2D2E06E121B0BB2200958BF6 /* SearchTableViewCell.swift in Sources */,
 				2D2E06DB21B0BB2200958BF6 /* ResultSearchTableViewController.swift in Sources */,
-				2D2E06D521B0BB2200958BF6 /* DictionaryExtension.swift in Sources */,
 				2D2E06CE21B0BB2200958BF6 /* ReleasesService.swift in Sources */,
 				2D2E06DC21B0BB2200958BF6 /* SearchViewController.swift in Sources */,
 				2D2E06D221B0BB2200958BF6 /* Delay.swift in Sources */,

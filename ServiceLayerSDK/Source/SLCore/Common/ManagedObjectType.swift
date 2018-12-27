@@ -14,7 +14,7 @@ public protocol ManagedObjectContextType {
 }
 
 public protocol ManagedObjectType: class {
-    var identifier: String? { get } // should use nil as identifier when items of response doesn't have identifier
+    var identifier: String { get }
 
     static func insert(inContext context: ManagedObjectContextType) -> ManagedObjectType
 //    static func objectsMap(withPredicate predicate: NSPredicate?, fetchLimit: Int?, inContext context: ManagedObjectContextType, sortBy: [NSSortDescriptor]?, keyForObject: ((_ object: Self) -> String)?) -> [String: ManagedObjectType]? // By default as Key will be used object identifier

@@ -173,7 +173,7 @@ extension AlbumEntity: ModelType {
 
     // MARK: - ManagedObjectType
 
-    var identifier: String? {
+    var identifier: String {
         return albumId
     }
 

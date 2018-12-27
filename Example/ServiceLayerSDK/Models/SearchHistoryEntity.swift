@@ -28,8 +28,7 @@ extension SearchHistoryEntity {
 }
 
 extension SearchHistoryEntity: ManagedObjectType {
-    public var identifier: String? {
+    public var identifier: String {
         return itemId
     }
-
 }

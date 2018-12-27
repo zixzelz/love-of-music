@@ -23,12 +23,13 @@ public extension ManagedObjectType {
         return result
     }
 
-    public static func objectsMap(withPredicate predicate: NSPredicate?, fetchLimit: Int? = nil, inContext context: ManagedObjectContextType, sortBy: [NSSortDescriptor]?, keyForObject: ((_ object: Self) -> String)?) -> [String: ManagedObjectType]? {
+    //todo refactoring
+    public static func objectsMap(withPredicate predicate: NSPredicate?, fetchLimit: Int? = nil, inContext context: ManagedObjectContextType, sortBy: [NSSortDescriptor]?, keyForObject: ((_ object: Self) -> String)?) -> [String: Self]? {
 
         guard let cacheItems = objects(withPredicate: predicate, fetchLimit: fetchLimit, inContext: context, sortBy: sortBy) as? [Self] else {
             return nil
         }
-        let cacheItemsMap = cacheItems.dict { (keyForObject?($0) ?? $0.identifier ?? UUID().uuidString, $0) }
+        let cacheItemsMap = cacheItems.dict { (keyForObject?($0) ?? $0.identifier, $0) }
         return cacheItemsMap
     }
 
@@ -96,14 +97,12 @@ public extension ManagedObjectType {
 //protocol ManagedObjectConveniance {
 //    var objectID: NSManagedObjectID { get }
 //}
-//
-//extension NSManagedObject: ManagedObjectConveniance { }
-//extension ManagedObjectConveniance {
-//
-//    func convertInContext(_ context: NSManagedObjectContext) -> Self {
-//
-//        let object = context.object(with: objectID)
-//        return object as! Self
-//    }
-//
-//}
+
+public extension NSFetchRequestResult where Self: NSManagedObject {
+    public func existingObject(in context: NSManagedObjectContext) -> Self? {
+        guard let object = try? context.existingObject(with: objectID) else {
+            return nil
+        }
+        return object as? Self
+    }
+}

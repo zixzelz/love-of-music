@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension NSDictionary {
+public extension NSDictionary {
     func doubleValue(for key: String) -> Double {
         return double(for: key) ?? 0
     }
@@ -50,7 +50,7 @@ extension NSDictionary {
     }
 }
 
-extension Dictionary where Value == AnyObject {
+public extension Dictionary where Value == AnyObject {
     func intValue(for key: Key) -> Int {
         return int(for: key) ?? 0
     }

@@ -17,21 +17,21 @@ public protocol Parsable: class {
     associatedtype QueryInfo: QueryInfoType
     associatedtype ParsableContext: Any
 
-    static func identifier(_ json: NSDictionary) throws -> String
+    static func identifier(_ json: NSDictionary) throws -> String // ParseError
     static func objects(_ json: NSDictionary) -> [NSDictionary]?
     static func parsableContext(_ context: ManagedObjectContextType) -> ParsableContext
 
-    func fill(_ json: NSDictionary, queryInfo: QueryInfo, context: ParsableContext) throws
+    func fill(_ json: NSDictionary, queryInfo: QueryInfo, context: ParsableContext) throws // ParseError
 }
 
 public protocol Paging: class {
     static func totalItems(_ json: NSDictionary) -> Int
 }
 
-//extension Paging {
-//
-//    static func totalItems(_ json: NSDictionary) -> Int {
-//        return 0
-//    }
-//
-//}
+extension Paging {
+
+    static func totalItems(_ json: NSDictionary) -> Int {
+        return 0
+    }
+
+}

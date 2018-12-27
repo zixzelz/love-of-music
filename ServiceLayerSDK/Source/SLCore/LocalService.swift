@@ -53,19 +53,24 @@ public class LocalService <ObjectType: ModelType> {
         self.contextProvider = contextProvider
     }
 
-//    func featchItems < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, fetchLimit: Int? = nil, completionHandler: @escaping LocalServiceFetchCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
-//
-//        let context = workingContext
-//        context.perform {
-//
-//            let predicate = query.predicate
-//            ObjectType.objectsForMainQueue(withPredicate: predicate, fetchLimit: fetchLimit, inContext: context, sortBy: query.sortBy) { (items) in
-//
-//                let result = items as? [ObjectType] ?? []
-//                completionHandler(.success(result))
-//            }
-//        }
-//    }
+    func featchItems < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, fetchLimit: Int? = nil) -> SignalProducer<[ObjectType], ServiceError> where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
+
+        let context = workingContext
+
+        return SignalProducer { (observer, lifeTime) in
+            context.perform {
+
+                guard !lifeTime.hasEnded else {
+                    return
+                }
+
+                let predicate = query.predicate
+                let items = ObjectType.objects(withPredicate: predicate, fetchLimit: fetchLimit, inContext: context, sortBy: query.sortBy) as? [ObjectType]
+                observer.send(value: items ?? [])
+                observer.sendCompleted()
+            }
+        }
+    }
 
     // json: {"objectsCollection": [{item}, {item}, ...]}
     func parseAndStore <LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, json: NSDictionary, range: NSRange?) -> SignalProducer<LocalServiceFetchInfo, ServiceError> where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
@@ -93,9 +98,7 @@ public class LocalService <ObjectType: ModelType> {
 
                     do {
                         let newItem = try self.parseAndStoreItem(item, cachedItemsMap: cachedItemsMap, context: context, queryInfo: query.queryInfo)
-                        if let identifier = newItem.identifier {
-                            handledItemsKey.append(identifier)
-                        }
+                        handledItemsKey.append(newItem.identifier)
                     } catch let error as ServiceError {
                         observer.send(error: error)
                         return
@@ -121,7 +124,7 @@ public class LocalService <ObjectType: ModelType> {
     }
 
 // json: {item}
-    private func parseAndStoreItem (_ json: NSDictionary, cachedItemsMap: [String: ObjectType], context: ManagedObjectContextType, queryInfo: ObjectType.QueryInfo) throws -> ObjectType {
+    public func parseAndStoreItem (_ json: NSDictionary, cachedItemsMap: [String: ObjectType], context: ManagedObjectContextType, queryInfo: ObjectType.QueryInfo) throws -> ObjectType {
 
         do {
             let identifier = try ObjectType.identifier(json)
@@ -163,7 +166,7 @@ public class LocalService <ObjectType: ModelType> {
 
     private func itemsMap(predicate: NSPredicate?, sortBy: [NSSortDescriptor]?, context: ManagedObjectContextType) -> [String: ObjectType] {
         let result = ObjectType.objects(withPredicate: predicate, fetchLimit: nil, inContext: context, sortBy: sortBy) as? [ObjectType]
-        let map = result?.dict { ($0.identifier!, $0) }
+        let map = result?.dict { ($0.identifier, $0) }
 
         return map ?? [:]
     }
@@ -239,7 +242,7 @@ public class PageLocalService <ObjectType: ModelType, PageObjectType: PageModelT
         let predicate = NSPredicate(format: "filterId == %@ && order >= %d", filterId, fromOrder)
         let result = PageObjectType.objects(withPredicate: predicate, fetchLimit: nil, inContext: context) as? [PageObjectType]
 
-        let map = result?.dict { ($0.object.identifier!, $0) }
+        let map = result?.dict { ($0.object.identifier, $0) }
 
         return map ?? [:]
     }

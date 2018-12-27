@@ -41,7 +41,7 @@ public class ListViewModel<CellViewModel>: ListViewModelType {
     }
 
     fileprivate var _selectedCells: MutableProperty<Set<IndexPath>>
-    var selectedCells: Property<Set<IndexPath>> {
+    public var selectedCells: Property<Set<IndexPath>> {
         return Property(_selectedCells)
     }
 
@@ -65,7 +65,7 @@ public class ListViewModel<CellViewModel>: ListViewModelType {
         preconditionFailure("Should be overriden")
     }
 
-    func selectRowAtIndexPath(_ indexPath: IndexPath) {
+    public func selectRowAtIndexPath(_ indexPath: IndexPath) {
         preconditionFailure("Should be overriden")
     }
 
@@ -175,7 +175,7 @@ private class ResultListViewModel <FetchResult: FetchResultType, CellViewModel>:
         }
     }
 
-    override func selectRowAtIndexPath(_ indexPath: IndexPath) {
+    override public func selectRowAtIndexPath(_ indexPath: IndexPath) {
         guard selectedMap[indexPath] == nil else {
             return
         }

@@ -138,7 +138,7 @@ extension ReleasesEntity: ModelType {
 
     // MARK: - ManagedObjectType
 
-    var identifier: String? {
+    var identifier: String {
         return userId
     }
 
