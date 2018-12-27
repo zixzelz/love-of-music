@@ -94,7 +94,7 @@ public class NetworkService<ObjectType: ModelType> {
     public func fetchDataItems < NetworkServiceQuery: NetworkServiceQueryType> (_ query: NetworkServiceQuery, cache: CachePolicy, range: NSRange? = nil) -> SignalProducer<ServiceResponse<ObjectType>, ServiceError> where NetworkServiceQuery.QueryInfo == ObjectType.QueryInfo {
 
         let localService = self.localService
-        let featchThenLoad = fetchData(query, cache: cache, range: range)
+        let featchThenLoad = resumeRequest(query, range: range)
             .flatMap(.latest) { _ -> SignalProducer<ServiceResponse<ObjectType>, ServiceError> in
                 let response = ServiceResponse<ObjectType>(pageInfo: nil, items: localService.featchItems(query))
                 return SignalProducer(value: response)
@@ -210,8 +210,8 @@ public class NetworkService<ObjectType: ModelType> {
             task.resume()
         }.flatMap(.latest) { responseDict -> SignalProducer<LocalServiceFetchInfo, ServiceError> in
             return self.parseAndStore(query, responseDict: responseDict, range: range)
-        }.on(value: { [weak self] _ in
-            self?.saveDate(query, range: range)
+        }.on(value: { _ in
+            self.saveDate(query, range: range)
         })
     }
 
