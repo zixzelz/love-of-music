@@ -47,26 +47,6 @@ public extension ManagedObjectType {
         return result
     }
 
-//    public static func objectsForMainQueue(withPredicate predicate: NSPredicate?, fetchLimit: Int? = nil, inContext context: ManagedObjectContextType, sortBy: [NSSortDescriptor]?, completion: @escaping ([ManagedObjectType]) -> Void) {
-//
-//        let request = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: self))
-//        request.resultType = .managedObjectIDResultType
-//        request.predicate = predicate
-//        request.sortDescriptors = sortBy
-//
-//        if let fetchLimit = fetchLimit {
-//            request.fetchLimit = fetchLimit
-//        }
-//
-//        let ids: [NSManagedObjectID] = objects(withRequest: request, inContext: context) ?? []
-//
-//        DispatchQueue.main.async(execute: {
-//
-//            let items = self.convertToMainQueue(ids)
-//            completion(items)
-//        })
-//    }
-
     fileprivate static func objects<T: AnyObject>(withRequest request: NSFetchRequest<NSFetchRequestResult>, inContext context: ManagedObjectContextType) -> [T]? {
 
         var result: [T]? = nil
@@ -81,15 +61,26 @@ public extension ManagedObjectType {
         return result
     }
 
-//    fileprivate static func convertToContext(_ itemIds: [NSManagedObjectID], context: ManagedObjectContextType) -> [Self] {
-//        let items = itemIds.map { context.object(with: $0) } as [AnyObject]
-//        return items as! [Self]
-//    }
-
     public func delete(context: ManagedObjectContextType) {
-
-        let context = context as! NSManagedObjectContext // WARNING
+        guard let context = context as? NSManagedObjectContext else {
+            fatalError("Unexpected context type")
+        }
         context.delete(self as! NSManagedObject)
+    }
+
+    public static func delete(in context: ManagedObjectContextType, with predicate: NSPredicate? = nil, includesSubentities: Bool = true) {
+        guard let context = context as? NSManagedObjectContext else {
+            fatalError("Unexpected context type")
+        }
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: self))
+        fetchRequest.includesSubentities = includesSubentities
+        fetchRequest.predicate = predicate
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        do {
+            try context.execute(deleteRequest)
+        } catch let error {
+            print("[ManagedObjectType] delete error: \(error)")
+        }
     }
 
 }

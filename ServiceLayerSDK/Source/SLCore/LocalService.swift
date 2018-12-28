@@ -31,9 +31,7 @@ public protocol ContextProvider {
 
 public class LocalService <ObjectType: ModelType> {
 
-//    typealias LocalServiceFetchCompletionHandler = (ServiceResult<[ObjectType], ServiceError>) -> ()
     typealias LocalServiceCompletionHandler = (ServiceResult<LocalServiceFetchInfo, ServiceError>) -> ()
-    typealias EmptyCompletionHandler = (ServiceResult<Void, ServiceError>) -> ()
 
     private var contextProvider: ContextProvider
 
@@ -141,26 +139,21 @@ public class LocalService <ObjectType: ModelType> {
         }
     }
 
-    func cleanCache < LocalServiceQuery: LocalServiceQueryType> (_ query: LocalServiceQuery, completionHandler: @escaping EmptyCompletionHandler) where LocalServiceQuery.QueryInfo == ObjectType.QueryInfo {
+    public func cleanCache(_ predicate: NSPredicate?) -> SignalProducer<Void, ServiceError> {
 
         let context = workingContext
-        context.perform {
+        return SignalProducer { (observer, lifeTime) in
+            context.perform {
 
-            guard let items = ObjectType.objects(withPredicate: query.predicate, inContext: context) else {
-                completionHandler(.failure(.internalError))
-                return
+                guard !lifeTime.hasEnded else {
+                    return
+                }
+
+                ObjectType.delete(in: context, with: predicate, includesSubentities: true)
+
+                context.saveIfNeeded()
+                observer.send(value: ())
             }
-
-            for item in items {
-                item.delete(context: context)
-            }
-
-            #if DEBUG
-                print("Removed cace for: \(items.count) items")
-            #endif
-
-            context.saveIfNeeded()
-            completionHandler(.success(()))
         }
     }
 

@@ -23,6 +23,7 @@ public protocol ManagedObjectType: class {
 //    static func objectsForMainQueue(withPredicate predicate: NSPredicate?, fetchLimit: Int?, inContext context: ManagedObjectContextType, sortBy: [NSSortDescriptor]?, completion: @escaping (_ items: [ManagedObjectType]) -> Void)
 
     func delete(context: ManagedObjectContextType)
+    static func delete(in context: ManagedObjectContextType, with predicate: NSPredicate?, includesSubentities: Bool)
 }
 
 public extension ManagedObjectType {
